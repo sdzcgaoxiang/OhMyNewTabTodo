@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "OhMyNewTabTodo",
+  "version": "0.1.0",
+  "description": "打开新标签页，整理你的待办。数据本地保存，兼容 NewTabTodo 导入导出。",
+  "minimum_chrome_version": "120",
+  "permissions": ["storage"],
+  "chrome_url_overrides": { "newtab": "index.html" },
+  "background": { "service_worker": "background.js", "type": "module" },
+  "action": { "default_title": "打开 OhMyNewTabTodo" },
+  "content_security_policy": { "extension_pages": "script-src 'self'; object-src 'none'" }
+}
