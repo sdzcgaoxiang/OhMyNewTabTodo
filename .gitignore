@@ -1,0 +1,11 @@
+# Private migration inputs and browser backups must never enter public history.
+/reference/
+/private-backups/
+.DS_Store
+node_modules/
+dist/
+release/
+test-results/
+playwright-report/
+.superpowers/
+.worktrees/

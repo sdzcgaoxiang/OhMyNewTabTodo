@@ -1,0 +1,62 @@
+{
+  "extensionVersion": "0.2.0",
+  "sourceSha256": "899544327fdb6fc6af1862c6f39f68f0eab8974a731872c1920ab836315b1d74",
+  "vendorSha256": "ef1e7408779c27d05fa97c0e3f6432a5fbc3d414c4799769defb04d693f10482",
+  "method": "Original local functions with synthetic data and mocked storage; no browser/network writes; provider effects manually persisted.",
+  "passed": 11,
+  "results": [
+    {
+      "name": "missing_bookmarks_rejects_before_write",
+      "verified": true,
+      "writes": 0
+    },
+    {
+      "name": "missing_target_bookmarks_rejects",
+      "verified": true,
+      "writes": 0
+    },
+    {
+      "name": "export_omits_missing_bookmarks",
+      "verified": true
+    },
+    {
+      "name": "quota_failure_reports_success",
+      "verified": true,
+      "attemptedWrites": 2
+    },
+    {
+      "name": "unordered_board_is_written_under_undefined_key",
+      "verified": true
+    },
+    {
+      "name": "bookmarks_truncated_to_15",
+      "verified": true,
+      "supplied": 25,
+      "stored": 15
+    },
+    {
+      "name": "roundtrip_appends_duplicates",
+      "verified": true,
+      "cardsBefore": 2,
+      "cardsAfter": 4
+    },
+    {
+      "name": "delete_board_leaves_persistent_board_and_cards",
+      "verified": true,
+      "remainingStoredBoards": 1,
+      "remainingStoredCards": 2
+    },
+    {
+      "name": "delete_card_leaves_persistent_card",
+      "verified": true
+    },
+    {
+      "name": "stale_snapshot_overwrites_another_cards_edit",
+      "verified": true
+    },
+    {
+      "name": "unknown_card_fields_omitted_by_export",
+      "verified": true
+    }
+  ]
+}
