@@ -1,8 +1,27 @@
 # OhMyNewTabTodo
 
+[English](README.en.md) · [升级特性对比](docs/features.md) · [下载](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases)
+
 打开新标签页，整理你的待办。熟悉的横向看板、本地保存的数据，以及可以检查、恢复和带走的备份。
 
 这是受 NewTabTodo 使用体验启发的独立实现，采用 MIT 许可，与原作者无关联。原版代码和素材不在本仓库中。
+
+## 为什么从 NewTabTodo 迁移
+
+当前版本 **0.1.0** 延续熟悉的看板操作，重点改进旧文件迁移、备份恢复和多标签页编辑。下表对比基于已审计的 NewTabTodo **0.2.0**。
+
+| 你遇到的问题 | 新版已经提供的改进 |
+| --- | --- |
+| 原版导出后又提示文件损坏 | 兼容缺失书签字段，先预览再确认导入 |
+| 数据在文件里，却没有显示出来 | 保留并可选择恢复未显示看板、孤立卡片 |
+| 重复导入产生副本，或者担心误替换 | 合并 / 替换 / 副本三种模式，明确冲突，最多 3 个操作前恢复点 |
+| 想把数据和使用设置完整带走 | 完整备份包含设置、主题和未知业务字段；不沿用原书签截断规则 |
+| 多个标签页相互覆盖修改 | 及时接收更新，过期编辑提示冲突并保留草稿 |
+| 希望可以检查和维护自己的工具 | MIT 开源，公开构建与测试，无遥测上传 |
+
+**当前限制：没有 Chrome 跨设备自动同步，需要手动安装和更新，界面目前为中文。** 如果你依赖自动同步，这一版还不是完整替代。恢复点不是普通编辑/删除的撤销历史，仍需外部备份。
+
+[查看完整对比、使用场景与验证依据 →](docs/features.md)
 
 ![使用合成数据展示的看板](docs/images/board.png)
 
@@ -73,3 +92,5 @@ CI 在提交和 PR 上运行完整检查。维护者创建 `v<package.json versi
 [设计规格](docs/superpowers/specs/2026-10-27-v1-design.md) · [执行计划](docs/superpowers/plans/2026-10-27-v1.md) · [验收与审查记录](docs/verification-v0.1.0.md) · [原版兼容调研](docs/research/newtabtodo-compatibility.md) · [功能审计](docs/research/newtabtodo-audit.md) · [贡献指南](CONTRIBUTING.md) · [隐私说明](PRIVACY.md)
 
 维护遵循 spec + 测试驱动：先约定可观察行为，再用合成数据写失败测试，完成实现后更新文档。数据格式变更必须有版本与迁移策略；没有自动同步的隐含承诺。第一版重点是可靠迁移和本机使用，欢迎通过 [Issues](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/issues) 提供可脱敏复现的问题。
+
+每次版本发布必须按[双语文档更新清单](docs/releasing.md)检查 README、特性说明、变更日志和验收记录；中英文用户文档在同一个 PR 中同步，历史审计和已发布版本记录保留原有范围。

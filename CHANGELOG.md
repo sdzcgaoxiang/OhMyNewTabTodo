@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased / 未发布
+
+### Documentation / 文档
+
+- 新增中英文升级特性说明和英文 README，明确与已审计 NewTabTodo 0.2.0 的差异、迁移场景及当前限制。
+- Added Chinese/English feature comparisons and an English README, explaining differences from audited NewTabTodo 0.2.0, migration scenarios, and current tradeoffs.
+- 新增双语版本文档更新清单，并在贡献指南、AGENTS 与 PR 模板中要求同步检查；本次仅更新文档，未新增产品能力或发布新安装包。
+- Added a bilingual release-documentation checklist, linked from contributor/agent guidance and the PR template. This changes documentation only; it adds no product features or new release archive.
+
 ## 0.1.0 — 2026-10-27
 
 首个本地版本，独立实现 NewTabTodo 风格的新标签页看板。

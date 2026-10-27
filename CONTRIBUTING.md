@@ -8,7 +8,7 @@
 2. 使用合成数据写能复现问题的失败测试，运行确认失败原因，再实现最小改动。领域逻辑放 `model.js`，文件兼容放 `transfer.js`，持久化放 `repository.js`。
 3. 保持后台单写入口。页面发送操作，不写回整份过期状态；破坏性操作及导入必须检测预览 revision。
 4. 使用 `npm run format` 统一代码格式，运行 `npm run check` 和 `npm run package`；UI 变化同时检查实际扩展截图和键盘操作。
-5. 更新 README / CHANGELOG / 隐私说明等受影响文档，PR 描述写清问题、结果与验证。
+5. 更新受影响文档，PR 描述写清问题、结果与验证。`README.md` / `README.en.md` 和 `docs/features.md` / `docs/features.en.md` 在同一个 PR 中同步，包含限制而不只翻译卖点；文档未受影响时说明原因。
 
 ## 数据与兼容
 
@@ -19,6 +19,12 @@
 - 测试应验证可观察结果：失败不改数据、重启后数据仍在、合并幂等、冲突不会丢草稿。不仅断言内部函数调用。
 
 ## 发布
+
+每次版本更新（含补丁版和预发布版）必须执行[双语发布文档清单](docs/releasing.md)。每次必查：CHANGELOG、中英文 README、中英文特性说明、新建的对应版本验收记录、GitHub Release 说明。按变化检查隐私、规格/计划、截图、贡献指南、AGENTS 和许可证；在版本 PR 中记录检查结果，不适用项注明原因。历史原版审计及已发布版本验收不覆盖。
+
+特性页必须区分已实现能力、保留功能和当前限制，对比原版时注明已审计版本。新版开发过程中修复的问题不能冒充原版缺陷，未来计划不能列为现有能力。双语文档不代表产品界面已经双语。
+
+仅文档更新记入 CHANGELOG 的 Unreleased，不为此升级扩展版本或重发安装包。现有 CI 不自动验证文档事实及翻译一致性，由 PR 作者和发布负责人核对。
 
 同步更新 `package.json` / lockfile、`src/model.js`、`public/manifest.json` 和界面版本，补充 CHANGELOG；先运行全套检查并审查公开内容。推送 `v0.1.0` 这样的版本 tag 后，GitHub Actions 会重新检查版本、构建、浏览器验收和打包，成功后发布 GitHub Release。第一次使用需确保仓库允许 Actions；发布工作流仅给发布作业 `contents: write`。
 
