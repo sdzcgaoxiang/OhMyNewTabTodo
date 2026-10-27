@@ -10,11 +10,11 @@
 | --- | --- |
 | 迁移前 `npm run check` | 26/26 单元测试、16/16 浏览器测试、格式和构建通过 |
 | `npm run format` | 完成；根目录 TS/JSON、源码、测试、脚本和工作流均在格式检查范围内 |
-| `npm run check` | 严格类型检查、29/29 单元测试、构建、17/17 浏览器测试通过 |
+| `npm run check` | 严格类型检查、31/31 单元测试、构建、17/17 浏览器测试通过 |
 | `npm run package` | 构建并生成 7 文件 ZIP 和 SHA-256；`unzip -Z1` 清单无 TypeScript 源码或额外文件 |
 | Node.js 22.12.0 下 `npm run typecheck && npm test && npm run build` | 通过；与当前本机 Node.js 22.22.0 的检查结果一致 |
 
-ZIP：`OhMyNewTabTodo-0.1.0.zip`，SHA-256：`1ecd17cef7c4f28337ccff89630c634bac1c1d72c0ab3ebf8f826ff739fe37d1`。ZIP 内仅包含 `LICENSE.txt`、`index.html`、`manifest.json`、`background.js` 和 3 个 `assets/` 文件；Manifest 的 worker 路径存在。`dist/` 与 ZIP 均没有 `.ts` / `.tsx` 文件。安装包只在本地验证，未发布。
+ZIP：`OhMyNewTabTodo-0.1.0.zip`，SHA-256：`3160428ab98efdf61a424c00d281141bd7fc6899056e783ebdaed1f43ac744da`。ZIP 内仅包含 `LICENSE.txt`、`index.html`、`manifest.json`、`background.js` 和 3 个 `assets/` 文件；Manifest 的 worker 路径存在。`dist/` 与 ZIP 均没有 `.ts` / `.tsx` 文件。安装包只在本地验证，未发布。
 
 ## 兼容与交互证据
 
@@ -25,6 +25,10 @@ ZIP：`OhMyNewTabTodo-0.1.0.zip`，SHA-256：`1ecd17cef7c4f28337ccff89630c634bac
 - 打包测试在注入意外 `.ts` 文件时拒绝打包；恢复原文件清单后打包与校验和通过。
 
 迁移阶段提交：`f8b4fbc`（类型契约）、`ad50240`（模型与备份）、`b57be48`（存储与通信）、`b7de008`（UI 与测试）。配置、文档和最终验收属于包含本记录的收口提交。
+
+## 最终审查
+
+独立审查代理因账户使用额度限制未能执行；作者按同一审查清单复核了迁移差异。复核发现存储读取和后台响应的类型断言覆盖了未验证的输入。新增两条先失败的测试，分别复现无效书签集合与缺少 state 的成功响应；随后增加只读结构检查和响应收窄。修复后 `npm run check` 为 31/31 单元测试、17/17 浏览器测试通过，`npm run package` 通过。作者自审弱于独立审查，合并前可另行安排复核。
 
 ## 未测边界
 

@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRepository } from '../src/repository.ts';
+import { emptyState } from '../src/model.ts';
 import { legacy } from './fixtures.ts';
 import type { RepositoryOperation } from '../src/operations.ts';
 function memory() {
@@ -96,6 +97,11 @@ test('existing v0.1 app_state reads without changing revision or unknown data', 
 test('stored state without required data collections rejects before edits', async () => {
   const area = memory();
   await area.set({ app_state: { schemaVersion: 1, revision: 2, data: {}, backups: [] } });
+  await assert.rejects(createRepository(area).read(), /结构异常/);
+});
+test('stored state with invalid bookmarks rejects before the UI reads it', async () => {
+  const area = memory();
+  await area.set({ app_state: { ...emptyState(), bookmarks: 'corrupt' } });
   await assert.rejects(createRepository(area).read(), /结构异常/);
 });
 test('clear preserves a bounded recovery snapshot and requires fresh revision', async () => {
