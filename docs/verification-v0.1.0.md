@@ -44,4 +44,6 @@
 
 发布源码提交 `6d60845` 的 [Linux CI](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/actions/runs/40443022816) 全部通过并产出安装包。同一源码的首次 tag 发布流程在卡片完成勾选测试上遇到时序失败：`.check()` 在异步写入确认前立即判断控件状态。随后用 250 ms 延迟持久化稳定复现，测试改为点击后等待已保存的勾选状态，再刷新验证，未放宽持久化断言。
 
-后续提交只修正测试等待和文档，不更改 `v0.1.0` 的产品源码或构建输入。保留已推送 tag 不重写，以通过 Linux CI 的对应源码产物完成首次 GitHub Release；未来版本继续使用仓库发布工作流。
+后续提交只修正测试等待和文档，不更改 `v0.1.0` 的产品源码或构建输入。保留已推送 tag 不重写。Actions 产物下载连续遇到网络超时，因此首次 GitHub Release 使用同一源码本地构建并校验过的安装包，通过 GitHub CLI 发布；未来版本继续使用仓库发布工作流。
+
+[v0.1.0 已发布](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.1.0)，包含 ZIP 和 `SHA256SUMS.txt`。GitHub 服务端返回的 ZIP SHA-256 为 `67dcb519fdf63be05dba82e998f15df667436fb35d7f9b04eeb7d293ef83c747`，与本地已验证文件一致。仓库为公开状态，MIT 许可。
