@@ -71,7 +71,8 @@ test('native drag moves cards and reorders boards persistently', async ({ page }
 test('card display settings and hidden boards survive reload', async ({ page }) => {
   await addBoard(page);
   await addCard(page);
-  await page.getByRole('checkbox', { name: '标记完成' }).check();
+  await page.getByRole('checkbox', { name: '标记完成' }).click();
+  await expect(page.getByRole('checkbox', { name: '取消完成' })).toBeChecked();
   await page.getByRole('button', { name: '设置', exact: true }).click();
   await page.getByRole('button', { name: '卡片', exact: true }).click();
   // Controlled settings reflect persisted storage, so wait for the async acknowledgement.
@@ -111,7 +112,18 @@ test('create, edit, copy, complete and delete survive page reload', async ({ pag
   await page.getByRole('button', { name: '保存卡片' }).click();
   await page.getByRole('button', { name: '复制卡片' }).first().click();
   await expect(page.locator('.task-card')).toHaveCount(2);
-  await page.getByRole('checkbox', { name: '标记完成' }).first().check();
+  await page
+    .context()
+    .serviceWorkers()[0]
+    .evaluate(() => {
+      const save = chrome.storage.local.set.bind(chrome.storage.local);
+      chrome.storage.local.set = async (values) => {
+        await new Promise((resolve) => setTimeout(resolve, 250));
+        return save(values);
+      };
+    });
+  await page.getByRole('checkbox', { name: '标记完成' }).first().click();
+  await expect(page.getByRole('checkbox', { name: '取消完成' })).toBeChecked();
   await page.reload();
   await expect(page.locator('.task-card')).toHaveCount(2);
   await expect(page.getByRole('checkbox', { name: '取消完成' })).toBeChecked();
