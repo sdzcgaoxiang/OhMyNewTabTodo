@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { readState, dispatch, subscribe } from './client.js';
+import { readState, dispatch, subscribe } from './client.ts';
 import { BoardEditor, CardEditor, CardDetails, TextWithLinks } from './components/Editors.jsx';
 import { Confirm } from './components/Dialog.jsx';
 import { Settings, Bookmarks } from './components/Settings.jsx';

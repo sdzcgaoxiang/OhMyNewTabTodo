@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { parseImport, exportFull, exportLegacy, MAX_IMPORT_BYTES } from '../transfer.ts';
-import { readState } from '../client.js';
+import { readState } from '../client.ts';
 import { Confirm } from './Dialog.jsx';
 function download(value, name) {
   const url = URL.createObjectURL(

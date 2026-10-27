@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRepository } from '../src/repository.js';
+import { createRepository } from '../src/repository.ts';
 import { legacy } from './fixtures.js';
 function memory() {
   let values = {};
@@ -77,6 +77,25 @@ test('future stored schema is rejected rather than reset', async () => {
   const area = memory();
   await area.set({ app_state: { schemaVersion: 99 } });
   await assert.rejects(createRepository(area).read(), /版本/);
+});
+test('existing v0.1 app_state reads without changing revision or unknown data', async () => {
+  const area = memory();
+  const original = {
+    ...(await createRepository(area).read()),
+    revision: 17,
+    custom: { nested: [null, 'preserve'] },
+    data: { boards: {}, cards: {}, boardOrder: [], extra: { keep: true } },
+  };
+  await area.set({ app_state: original });
+  const state = await createRepository(area).read();
+  assert.equal(state.revision, 17);
+  assert.deepEqual(state.custom, original.custom);
+  assert.deepEqual(state.data.extra, original.data.extra);
+});
+test('stored state without required data collections rejects before edits', async () => {
+  const area = memory();
+  await area.set({ app_state: { schemaVersion: 1, revision: 2, data: {}, backups: [] } });
+  await assert.rejects(createRepository(area).read(), /结构异常/);
 });
 test('clear preserves a bounded recovery snapshot and requires fresh revision', async () => {
   const repo = createRepository(memory());
