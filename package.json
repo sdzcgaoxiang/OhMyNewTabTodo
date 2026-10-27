@@ -2,16 +2,32 @@
   "name": "oh-my-new-tab-todo",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sdzcgaoxiang/OhMyNewTabTodo.git"
+  },
   "type": "module",
-  "engines": { "node": ">=22.12.0" },
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "test": "node --test tests/*.test.js",
     "test:e2e": "playwright test",
-    "check": "npm test && npm run build && npm run test:e2e",
+    "format": "prettier --write src tests scripts public *.js *.json index.html .github",
+    "format:check": "prettier --check src tests scripts public *.js *.json index.html .github",
+    "check": "npm run format:check && npm test && npm run build && npm run test:e2e",
     "package": "npm run build && node scripts/package.mjs"
   },
-  "dependencies": { "react": "19.3.1", "react-dom": "19.3.1" },
-  "devDependencies": { "@playwright/test": "1.64.1", "vite": "8.3.5" }
+  "dependencies": {
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "prettier": "3.9.10",
+    "vite": "8.3.5"
+  }
 }
