@@ -78,9 +78,10 @@ npm run package
 ```
 
 - `npm run dev`: Vite development UI with separate site localStorage.
-- `npm test`: model, transfer, persistence, date, and packaging tests.
+- `npm run typecheck`: strictly check TypeScript application code, tests, and build configuration.
+- `npm test`: run model, transfer, persistence, date, and packaging tests.
 - `npm run format` / `npm run format:check`: format or check source style.
-- `npm run build`: create loadable `dist/` output.
+- `npm run build`: typecheck, then create loadable `dist/` output.
 - `npm run test:e2e`: test the built extension in temporary Chromium profiles, without accessing your everyday Chrome profile.
 - `npm run package`: rebuild, package allowlisted assets and license notices, and generate a SHA-256 checksum in `release/`.
 
@@ -90,6 +91,6 @@ CI checks pushes and PRs. Version tags trigger validation and release packaging.
 
 [Features](docs/features.en.md) · [Release documentation checklist](docs/releasing.md#english-release-checklist) · [Repository guidelines](AGENTS.md) · [License](LICENSE)
 
-The [design](docs/superpowers/specs/2026-10-27-v1-design.md), [verification record](docs/verification-v0.1.0.md), [contribution guide](CONTRIBUTING.md), and [privacy policy](PRIVACY.md) are currently Chinese. Use synthetic reproductions in [Issues](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/issues), without personal task content.
+The [design](docs/superpowers/specs/2026-10-27-v1-design.md), [0.1.0 verification record](docs/verification-v0.1.0.md), [TypeScript migration verification](docs/verification-typescript-migration.md), [contribution guide](CONTRIBUTING.md), and [privacy policy](PRIVACY.md) are currently Chinese or bilingual. Use synthetic reproductions in [Issues](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/issues), without personal task content.
 
-Maintenance follows specifications and test-driven development. Every release reviews the paired README and feature pages, changelog, and verification record. Update both user-documentation languages in the same PR; preserve historical audit and release evidence.
+Application source, tests, and development configuration use TypeScript; `scripts/package.mjs` remains directly executable by Node. Maintenance follows specifications and test-driven development. Every release reviews the paired README and feature pages, changelog, and verification record. Update both user-documentation languages in the same PR; preserve historical audit and release evidence.

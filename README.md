@@ -79,9 +79,10 @@ npm run package
 ```
 
 - `npm run dev`：浏览器界面开发，使用当前站点 localStorage 中的独立演示数据，与扩展数据隔离。
-- `npm test`：纯模型、导入导出、存储并发/失败、安装包测试。
+- `npm run typecheck`：严格检查 TypeScript 业务源码、测试和构建配置。
+- `npm test`：使用 Node runner 与 `tsx` 执行纯模型、导入导出、存储并发/失败、安装包测试。
 - `npm run format` / `npm run format:check`：统一源码格式 / 检查格式，便于维护和审查。
-- `npm run build`：生成可加载的 `dist/`。
+- `npm run build`：先做类型检查，再生成可加载的 `dist/`。
 - `npm run test:e2e`：在独立临时 Chromium 配置加载已构建扩展，验证多页面、文件传输与 UI；不访问你的日常 Chrome 配置。
 - `npm run package`：重建并生成 `release/OhMyNewTabTodo-0.1.0.zip` 和 `SHA256SUMS.txt`，只打包白名单扩展资源。
 
@@ -89,8 +90,8 @@ CI 在提交和 PR 上运行完整检查。维护者创建 `v<package.json versi
 
 ## 设计与维护
 
-[设计规格](docs/superpowers/specs/2026-10-27-v1-design.md) · [执行计划](docs/superpowers/plans/2026-10-27-v1.md) · [验收与审查记录](docs/verification-v0.1.0.md) · [原版兼容调研](docs/research/newtabtodo-compatibility.md) · [功能审计](docs/research/newtabtodo-audit.md) · [贡献指南](CONTRIBUTING.md) · [隐私说明](PRIVACY.md)
+[设计规格](docs/superpowers/specs/2026-10-27-v1-design.md) · [执行计划](docs/superpowers/plans/2026-10-27-v1.md) · [0.1.0 验收](docs/verification-v0.1.0.md) · [TypeScript 迁移验收](docs/verification-typescript-migration.md) · [原版兼容调研](docs/research/newtabtodo-compatibility.md) · [功能审计](docs/research/newtabtodo-audit.md) · [贡献指南](CONTRIBUTING.md) · [隐私说明](PRIVACY.md)
 
-维护遵循 spec + 测试驱动：先约定可观察行为，再用合成数据写失败测试，完成实现后更新文档。数据格式变更必须有版本与迁移策略；没有自动同步的隐含承诺。第一版重点是可靠迁移和本机使用，欢迎通过 [Issues](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/issues) 提供可脱敏复现的问题。
+业务源码、测试及开发配置采用 TypeScript；发布脚本 `scripts/package.mjs` 保持可由 Node 直接执行。维护遵循 spec + 测试驱动：先约定可观察行为，再用合成数据写失败测试，完成实现后更新文档。数据格式变更必须有版本与迁移策略；没有自动同步的隐含承诺。第一版重点是可靠迁移和本机使用，欢迎通过 [Issues](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/issues) 提供可脱敏复现的问题。
 
 每次版本发布必须按[双语文档更新清单](docs/releasing.md)检查 README、特性说明、变更日志和验收记录；中英文用户文档在同一个 PR 中同步，历史审计和已发布版本记录保留原有范围。

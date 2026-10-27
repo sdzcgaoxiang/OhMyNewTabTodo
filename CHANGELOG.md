@@ -2,8 +2,15 @@
 
 ## Unreleased / 未发布
 
+### Changed / 变更
+
+- 将业务源码、测试及开发配置迁移到严格检查的 TypeScript；保留数据格式、后台单写和现有界面行为。此项尚未发布为新版本。
+- Migrated application source, tests, and development configuration to strict TypeScript while preserving the data format, single background writer, and UI behavior. This remains unreleased.
+
 ### Documentation / 文档
 
+- 新增 TypeScript 迁移计划与验收记录，说明类型边界、兼容性保护和实际验证。
+- Added the TypeScript migration plan and verification record, covering typed boundaries, compatibility safeguards, and executed checks.
 - 新增中英文升级特性说明和英文 README，明确与已审计 NewTabTodo 0.2.0 的差异、迁移场景及当前限制。
 - Added Chinese/English feature comparisons and an English README, explaining differences from audited NewTabTodo 0.2.0, migration scenarios, and current tradeoffs.
 - 新增双语版本文档更新清单，并在贡献指南、AGENTS 与 PR 模板中要求同步检查；本次仅更新文档，未新增产品能力或发布新安装包。

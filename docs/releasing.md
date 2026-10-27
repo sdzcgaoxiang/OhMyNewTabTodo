@@ -28,7 +28,7 @@
 
 ## 发布前后操作
 
-1. 同步 `package.json` / lockfile、`src/model.js`、`public/manifest.json` 和界面中的版本；查找残留旧版本引用，区分历史证据与当前说明，禁止全仓库盲目替换。
+1. 同步 `package.json` / lockfile、`src/model.ts`、`public/manifest.json` 和界面中的版本；查找残留旧版本引用，区分历史证据与当前说明，禁止全仓库盲目替换。
 2. 运行 `npm run check` 和 `npm run package`；检查 ZIP 文件清单、许可证、校验和、双语事实、相对链接和截图。真实执行结果写入本版验收记录。
 3. 更新当前规格/计划进度；不要覆盖已完成版本的验收结果，也不要把历史审计日期改成今天。
 4. 推送版本提交和对应 tag，检查 Actions。确认 Release 的附件、版本、双语说明和校验和；再记录实际发布结果。失败则查明原因，不能只把文档改成“已通过”。

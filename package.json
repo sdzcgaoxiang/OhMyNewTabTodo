@@ -17,8 +17,8 @@
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.tools.json",
     "test": "node --import=tsx --test tests/*.test.ts",
     "test:e2e": "playwright test",
-    "format": "prettier --write src tests scripts public *.js *.json index.html .github",
-    "format:check": "prettier --check src tests scripts public *.js *.json index.html .github",
+    "format": "prettier --write src tests scripts public '*.{js,jsx,ts,tsx,json}' index.html .github",
+    "format:check": "prettier --check src tests scripts public '*.{js,jsx,ts,tsx,json}' index.html .github",
     "check": "npm run format:check && npm test && npm run build && npm run test:e2e",
     "package": "npm run build && node scripts/package.mjs"
   },

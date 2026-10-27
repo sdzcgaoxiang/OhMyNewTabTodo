@@ -41,6 +41,11 @@ test('release archive includes only extension assets with a matching checksum; r
     const rejected = run();
     assert.notEqual(rejected.status, 0);
     assert.match(rejected.stderr, /Unexpected build file/);
+    await rm(join(root, 'dist/private.json'));
+    await writeFile(join(root, 'dist/assets/unexpected.ts'), 'export {}');
+    const sourceRejected = run();
+    assert.notEqual(sourceRejected.status, 0);
+    assert.match(sourceRejected.stderr, /Unexpected build file: assets\/unexpected\.ts/);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

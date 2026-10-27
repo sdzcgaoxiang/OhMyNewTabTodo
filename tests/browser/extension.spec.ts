@@ -2,6 +2,7 @@ import { test as base, expect, chromium } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 import { legacy } from '../fixtures.ts';
+import { emptyState } from '../../src/model.ts';
 declare global {
   interface Window {
     pendingFiles: Record<string, () => void>;
@@ -55,6 +56,29 @@ async function upload(page: Page, data: unknown) {
     buffer: Buffer.from(JSON.stringify(data)),
   });
 }
+test('existing app_state opens and edits without resetting revision or unknown fields', async ({
+  page,
+}) => {
+  const sample = legacy();
+  const oldState = {
+    ...emptyState(),
+    revision: 17,
+    data: { boards: sample.boards, cards: sample.cards, boardOrder: sample.boardOrder },
+    custom: { nested: [null, 'keep'] },
+  };
+  await page.evaluate((state) => chrome.storage.local.set({ app_state: state }), oldState);
+  await page.reload();
+  await expect(page.getByRole('heading', { name: '工作', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '检查导出' })).toBeVisible();
+  await page.getByRole('button', { name: '编辑卡片' }).click();
+  await page.getByLabel('卡片标题').fill('迁移后编辑');
+  await page.getByRole('button', { name: '保存卡片' }).click();
+  await expect(page.getByRole('button', { name: '迁移后编辑' })).toBeVisible();
+  const stored = await page.evaluate(
+    async () => (await chrome.storage.local.get('app_state')).app_state,
+  );
+  expect(stored).toMatchObject({ revision: 18, custom: oldState.custom });
+});
 test('native drag moves cards and reorders boards persistently', async ({ page }) => {
   await addBoard(page, 'A');
   await addBoard(page, 'B');

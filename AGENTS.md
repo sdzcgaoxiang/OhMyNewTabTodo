@@ -2,9 +2,9 @@
 
 ## Project Structure & Module Organization
 
-- `src/`: React UI and ES modules. `model.js` owns operations, `transfer.js` backup compatibility, and `repository.js` persistence. `components/` contains UI components; `background.js` is the single writer, accessed through `client.js`.
+- `src/`: React UI and ES modules. `model.ts` owns operations, `transfer.ts` backup compatibility, and `repository.ts` persistence. `components/` contains UI components; `background.ts` is the single writer, accessed through `client.ts`.
 - `public/`: Manifest V3 configuration and license notices.
-- `tests/*.test.js`: unit tests; `tests/browser/`: extension acceptance tests; `tests/fixtures.js`: synthetic data.
+- `tests/*.test.ts`: unit tests; `tests/browser/`: extension acceptance tests; `tests/fixtures.ts`: synthetic data.
 - `docs/`: research, specifications, plans, and verification. `scripts/`: packaging. `.github/workflows/`: CI/releases. Generated `dist/` and `release/` are ignored.
 
 ## Build, Test, and Development Commands
@@ -14,7 +14,8 @@ Use Node.js 22.12+ and npm. Packaging requires `zip` and `unzip`.
 - `npm ci`: install locked dependencies.
 - `npx playwright install chromium`: install the test browser.
 - `npm run dev`: start Vite; development data uses separate localStorage.
-- `npm run build`: build the loadable extension into `dist/`.
+- `npm run typecheck`: strictly check app, tests, and build configuration.
+- `npm run build`: typecheck and build the loadable extension into `dist/`.
 - `npm test`: run Node's built-in test runner.
 - `npm run test:e2e`: test the previously built extension in isolated Chromium profiles.
 - `npm run check`: run formatting checks, unit tests, build, and browser tests.
@@ -22,7 +23,7 @@ Use Node.js 22.12+ and npm. Packaging requires `zip` and `unzip`.
 
 ## Coding Style & Naming Conventions
 
-Use two-space indentation, single quotes, semicolons, and Prettier's 100-column width. Run `npm run format`. Use PascalCase components, camelCase functions/variables, and descriptive `*.test.js` filenames. Separate UI from pure operations.
+Use two-space indentation, single quotes, semicolons, and Prettier's 100-column width. Run `npm run format`. Use PascalCase components, camelCase functions/variables, and descriptive `*.test.ts` filenames. Separate UI from pure operations.
 
 ## Testing Guidelines
 

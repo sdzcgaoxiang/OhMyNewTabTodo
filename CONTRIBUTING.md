@@ -5,9 +5,9 @@
 ## 工作流程
 
 1. 在分支上工作。涉及行为变更时先更新或新增 `docs/superpowers/specs/` 中的规格；多步骤工作在 `docs/superpowers/plans/` 记录计划。
-2. 使用合成数据写能复现问题的失败测试，运行确认失败原因，再实现最小改动。领域逻辑放 `model.js`，文件兼容放 `transfer.js`，持久化放 `repository.js`。
+2. 使用合成数据写能复现问题的失败测试，运行确认失败原因，再实现最小改动。领域逻辑放 `model.ts`，文件兼容放 `transfer.ts`，持久化放 `repository.ts`。
 3. 保持后台单写入口。页面发送操作，不写回整份过期状态；破坏性操作及导入必须检测预览 revision。
-4. 使用 `npm run format` 统一代码格式，运行 `npm run check` 和 `npm run package`；UI 变化同时检查实际扩展截图和键盘操作。
+4. 使用 `npm run format` 统一代码格式，运行 `npm run typecheck`、`npm run check` 和 `npm run package`；UI 变化同时检查实际扩展截图和键盘操作。
 5. 更新受影响文档，PR 描述写清问题、结果与验证。`README.md` / `README.en.md` 和 `docs/features.md` / `docs/features.en.md` 在同一个 PR 中同步，包含限制而不只翻译卖点；文档未受影响时说明原因。
 
 ## 数据与兼容
@@ -26,6 +26,6 @@
 
 仅文档更新记入 CHANGELOG 的 Unreleased，不为此升级扩展版本或重发安装包。现有 CI 不自动验证文档事实及翻译一致性，由 PR 作者和发布负责人核对。
 
-同步更新 `package.json` / lockfile、`src/model.js`、`public/manifest.json` 和界面版本，补充 CHANGELOG；先运行全套检查并审查公开内容。推送 `v0.1.0` 这样的版本 tag 后，GitHub Actions 会重新检查版本、构建、浏览器验收和打包，成功后发布 GitHub Release。第一次使用需确保仓库允许 Actions；发布工作流仅给发布作业 `contents: write`。
+同步更新 `package.json` / lockfile、`src/model.ts`、`public/manifest.json` 和界面版本，补充 CHANGELOG；先运行全套检查并审查公开内容。推送 `v0.1.0` 这样的版本 tag 后，GitHub Actions 会重新检查版本、构建、浏览器验收和打包，成功后发布 GitHub Release。第一次使用需确保仓库允许 Actions；发布工作流仅给发布作业 `contents: write`。
 
 目前只发布手动加载的扩展包。Chrome Web Store 上架、自动更新、跨设备同步与服务器运维都需要单独设计。依赖锁定在 lockfile，更新时使用独立 PR 并跑全套检查。
