@@ -1,4 +1,4 @@
-import type { Board, Bookmark, Card, Options, Theme } from './types.ts';
+import type { Board, Card, Options, Theme } from './types.ts';
 
 export type ModelOperation =
   | { type: 'board.add'; title: string; id?: string }
@@ -32,7 +32,7 @@ export type ModelOperation =
   | { type: 'completed.bottom' }
   | { type: 'options.patch'; patch: Partial<Options> }
   | { type: 'theme'; theme: Theme }
-  | { type: 'bookmark.add'; bookmark: Omit<Bookmark, 'id'> }
+  | { type: 'bookmark.add'; bookmark: { name: string; url: string; [key: string]: unknown } }
   | { type: 'bookmark.delete'; id: string };
 
 export type RepositoryOperation =

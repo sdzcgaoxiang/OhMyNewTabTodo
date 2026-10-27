@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { emptyState } from '../src/model.js';
-import { parseImport, prepareImport, exportLegacy, exportFull } from '../src/transfer.js';
+import { emptyState } from '../src/model.ts';
+import { parseImport, prepareImport, exportLegacy, exportFull } from '../src/transfer.ts';
 import { legacy } from './fixtures.js';
 const parse = (data) => parseImport(JSON.stringify(data));
 test('legacy export missing bookmarks imports without discarding orphan boards', () => {
@@ -61,6 +61,24 @@ test('legacy and full exports preserve business data, full includes settings', (
   assert.deepEqual(restored.data, state.data);
   assert.equal(restored.options.showCompactCards, true);
   assert.equal(restored.theme, 'light');
+});
+test('nullable fields, unknown priority and nested metadata survive import, edit and export', () => {
+  const data = legacy();
+  data.cards['card-a'].description = null;
+  data.cards['card-a'].priority = 'legacy-special';
+  data.cards['card-a'].labels.push({
+    id: 'extra',
+    text: '额外标签',
+    type: 'legacy',
+    custom: { deep: 1 },
+  });
+  data.cards['card-a'].custom = { nested: { keep: [null, 'value'] } };
+  const state = prepareImport(emptyState(), parse(data));
+  const card = state.data.cards['card-a'];
+  assert.equal(card.description, null);
+  assert.equal(card.priority, 'legacy-special');
+  const output = parse(exportFull(state));
+  assert.deepEqual(output.data.cards['card-a'], card);
 });
 test('bad references, unsafe keys, future schema and non-JSON reject', () => {
   const bad = legacy();

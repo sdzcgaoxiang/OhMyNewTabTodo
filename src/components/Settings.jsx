@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Dialog } from './Dialog.jsx';
 import { Transfer } from './Transfer.jsx';
-import { safeUrl } from '../model.js';
+import { safeUrl } from '../model.ts';
 const sections = {
   常规: [
     ['playSoundEffects', '完成提示音', '完成卡片时播放轻提示音'],

@@ -3,7 +3,7 @@ import { readState, dispatch, subscribe } from './client.js';
 import { BoardEditor, CardEditor, CardDetails, TextWithLinks } from './components/Editors.jsx';
 import { Confirm } from './components/Dialog.jsx';
 import { Settings, Bookmarks } from './components/Settings.jsx';
-import { duePresentation } from './dates.js';
+import { duePresentation } from './dates.ts';
 const engines = [
   ['Google', 'hideGoogleSearch', 'https://www.google.com/search', 'q', 'G'],
   ['Bing', 'hideBingSearch', 'https://www.bing.com/search', 'q', 'b'],

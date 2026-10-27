@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Dialog } from './Dialog.jsx';
-import { safeUrl, newId } from '../model.js';
+import { safeUrl, newId } from '../model.ts';
 export function BoardEditor({ board, act, onClose }) {
   const [name, setName] = useState(board?.title || ''),
     [error, setError] = useState(''),

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { duePresentation } from '../src/dates.js';
+import { duePresentation } from '../src/dates.ts';
 
 test('due dates use local calendar days and change across midnight', () => {
   const card = { dueDate: '2026-03-09', dueTime: '10:30' };

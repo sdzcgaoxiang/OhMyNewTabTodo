@@ -1,3 +1,6 @@
+import type { AppData, AppState, Options } from './types.ts';
+import type { ModelOperation } from './operations.ts';
+
 export const APP_VERSION = '0.1.0';
 export const DEFAULT_OPTIONS = Object.freeze({
   playSoundEffects: true,
@@ -15,22 +18,22 @@ export const DEFAULT_OPTIONS = Object.freeze({
   twentyFourHours: false,
   pinClock: true,
 });
-export const clone = (value) => structuredClone(value);
-export const newId = (prefix) => `${prefix}-${crypto.randomUUID()}`;
-export function same(a, b) {
-  const stable = (value) =>
+export const clone = <T>(value: T): T => structuredClone(value);
+export const newId = (prefix: string): string => `${prefix}-${crypto.randomUUID()}`;
+export function same(a: unknown, b: unknown): boolean {
+  const stable = (value: unknown): unknown =>
     Array.isArray(value)
       ? value.map(stable)
       : value && typeof value === 'object'
         ? Object.fromEntries(
             Object.keys(value)
               .sort()
-              .map((key) => [key, stable(value[key])]),
+              .map((key) => [key, stable((value as Record<string, unknown>)[key])]),
           )
         : value;
   return JSON.stringify(stable(a)) === JSON.stringify(stable(b));
 }
-export function emptyState() {
+export function emptyState(): AppState {
   return {
     schemaVersion: 1,
     revision: 0,
@@ -42,7 +45,7 @@ export function emptyState() {
     imports: [],
   };
 }
-export function safeUrl(value) {
+export function safeUrl(value: string): string | null {
   try {
     const url = new URL(value);
     return ['https:', 'http:'].includes(url.protocol) ? url.href : null;
@@ -50,39 +53,39 @@ export function safeUrl(value) {
     return null;
   }
 }
-function title(value) {
+function title(value: unknown): string {
   if (typeof value !== 'string' || !value.trim()) throw new Error('标题不能为空');
   return value.trim();
 }
-function item(map, id) {
+function item<T>(map: Record<string, T>, id: string): T {
   if (!Object.hasOwn(map, id)) throw new Error('对象已被删除，请刷新后重试');
   return map[id];
 }
-function checkExpected(current, expected) {
+function checkExpected(current: unknown, expected: unknown): void {
   if (expected !== undefined && !same(current, expected))
     throw new Error('内容已被其他页面修改，发生冲突。请保留草稿并重新打开。');
 }
-function insert(list, id, index = list.length) {
+function insert(list: string[], id: string, index = list.length): void {
   list.splice(
     Math.max(0, Math.min(Number.isFinite(index) ? index : list.length, list.length)),
     0,
     id,
   );
 }
-function moveCard(data, id, boardId, index) {
+function moveCard(data: AppData, id: string, boardId: string, index?: number): void {
   item(data.cards, id);
   const target = item(data.boards, boardId);
   for (const board of Object.values(data.boards))
     board.cardIds = board.cardIds.filter((key) => key !== id);
   insert(target.cardIds, id, index);
 }
-function bottom(data) {
+function bottom(data: AppData): void {
   for (const board of Object.values(data.boards))
     board.cardIds.sort(
       (a, b) => Number(!!data.cards[a]?.completed) - Number(!!data.cards[b]?.completed),
     );
 }
-export function applyOperation(input, op) {
+export function applyOperation(input: AppState, op: ModelOperation): AppState {
   const state = clone(input),
     data = state.data,
     now = new Date().toISOString();
@@ -182,7 +185,7 @@ export function applyOperation(input, op) {
       break;
     case 'options.patch': {
       for (const [key, value] of Object.entries(op.patch))
-        if (Object.hasOwn(DEFAULT_OPTIONS, key)) state.options[key] = !!value;
+        if (Object.hasOwn(DEFAULT_OPTIONS, key)) state.options[key as keyof Options] = !!value;
       if (op.patch.hideCompletedCards === true) bottom(data);
       break;
     }

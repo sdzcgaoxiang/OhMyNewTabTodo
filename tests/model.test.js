@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { emptyState, applyOperation } from '../src/model.js';
+import { emptyState, applyOperation } from '../src/model.ts';
 const board = () =>
   applyOperation(emptyState(), { type: 'board.add', id: 'board-a', title: '工作' });
 const withCard = () =>

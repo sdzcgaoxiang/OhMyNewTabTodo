@@ -1,5 +1,6 @@
+import type { Card } from './types.ts';
 // Dates represent the user's local calendar, never an implicit UTC timestamp.
-export function duePresentation(card, now = new Date()) {
+export function duePresentation(card: Card, now = new Date()): { text: string; overdue: boolean } {
   const raw = [card.dueDate, card.dueTime].filter(Boolean).join(' ');
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(card.dueDate || '');
   if (!match) return { text: raw, overdue: false };
@@ -9,7 +10,7 @@ export function duePresentation(card, now = new Date()) {
   date.setHours(0, 0, 0, 0);
   if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day)
     return { text: raw, overdue: false };
-  const calendarNumber = (value) => {
+  const calendarNumber = (value: Date) => {
     const utc = new Date(0);
     utc.setUTCFullYear(value.getFullYear(), value.getMonth(), value.getDate());
     utc.setUTCHours(0, 0, 0, 0);
