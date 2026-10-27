@@ -2,7 +2,7 @@
 
 日期：2026-10-27。范围：将业务源码、测试和 Vite/Playwright 配置迁移到严格检查的 TypeScript；产品版本仍为 0.1.0，本记录不代表新版本已发布。
 
-**Result (English):** Application source, tests, and development configuration now pass strict TypeScript checks. Synthetic compatibility, browser workflows, and package checks passed. The data schema, extension permissions, UI/CSS, and release version did not change; this work has not been published.
+**Result (English):** Application source, tests, and development configuration now pass strict TypeScript checks. Synthetic compatibility, browser workflows, and package checks passed. The data schema, extension permissions, UI/CSS, and release version did not change; no new extension release has been published.
 
 ## 实际执行
 
@@ -13,8 +13,9 @@
 | `npm run check` | 严格类型检查、31/31 单元测试、构建、17/17 浏览器测试通过 |
 | `npm run package` | 构建并生成 7 文件 ZIP 和 SHA-256；`unzip -Z1` 清单无 TypeScript 源码或额外文件 |
 | Node.js 22.12.0 下 `npm run typecheck && npm test && npm run build` | 通过；与当前本机 Node.js 22.22.0 的检查结果一致 |
+| [GitHub Actions CI，提交 `e577d4c`](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/actions/runs/40520191675) | Node.js 22 环境下的 `npm ci`、Chromium 安装、`npm run check`、`npm run package` 和安装包工件上传均通过 |
 
-ZIP：`OhMyNewTabTodo-0.1.0.zip`，SHA-256：`3160428ab98efdf61a424c00d281141bd7fc6899056e783ebdaed1f43ac744da`。ZIP 内仅包含 `LICENSE.txt`、`index.html`、`manifest.json`、`background.js` 和 3 个 `assets/` 文件；Manifest 的 worker 路径存在。`dist/` 与 ZIP 均没有 `.ts` / `.tsx` 文件。安装包只在本地验证，未发布。
+本地 ZIP：`OhMyNewTabTodo-0.1.0.zip`，SHA-256：`3160428ab98efdf61a424c00d281141bd7fc6899056e783ebdaed1f43ac744da`。ZIP 内仅包含 `LICENSE.txt`、`index.html`、`manifest.json`、`background.js` 和 3 个 `assets/` 文件；Manifest 的 worker 路径存在。`dist/` 与 ZIP 均没有 `.ts` / `.tsx` 文件。CI 工件已下载并用其 `SHA256SUMS.txt` 校验通过，ZIP SHA-256 为 `237461733444cdd946a94d45046adf0a44f78078488309cb87915247a72603fb`；未创建新版本的 GitHub Release。
 
 ## 兼容与交互证据
 
@@ -32,4 +33,4 @@ ZIP：`OhMyNewTabTodo-0.1.0.zip`，SHA-256：`3160428ab98efdf61a424c00d281141bd7
 
 ## 未测边界
 
-未读取或写入用户真实 Chrome 配置和私人备份；未逐一运行 Chrome 120 至当前版本，也未在 GitHub Actions 上执行本分支。真实旧版本历史文件的兼容性仍受现有合成样例及既有审计范围限制。没有发布新安装包或更改 Chrome Web Store 状态。
+未读取或写入用户真实 Chrome 配置和私人备份；未逐一运行 Chrome 120 至当前版本。真实旧版本历史文件的兼容性仍受现有合成样例及既有审计范围限制。没有发布新安装包或更改 Chrome Web Store 状态。
