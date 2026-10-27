@@ -1,11 +1,26 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
-export function Dialog({ title, onClose, children, drawer = false, closeLabel = '关闭窗口' }) {
-  const ref = useRef(null),
+import { errorMessage } from './ui.ts';
+
+interface DialogProps {
+  title: string;
+  onClose: () => void;
+  children: React.ReactNode;
+  drawer?: boolean;
+  closeLabel?: string;
+}
+export function Dialog({
+  title,
+  onClose,
+  children,
+  drawer = false,
+  closeLabel = '关闭窗口',
+}: DialogProps) {
+  const ref = useRef<HTMLDialogElement>(null),
     id = useId();
   useEffect(() => {
     const dialog = ref.current;
-    dialog.showModal();
-    return () => dialog.close();
+    dialog?.showModal();
+    return () => dialog?.close();
   }, []);
   return (
     <dialog
@@ -30,7 +45,14 @@ export function Dialog({ title, onClose, children, drawer = false, closeLabel = 
     </dialog>
   );
 }
-export function Confirm({ title, text, action = '确认删除', onConfirm, onClose }) {
+export interface ConfirmProps {
+  title: string;
+  text: string;
+  action?: string;
+  onConfirm: () => Promise<unknown> | void;
+  onClose: () => void;
+}
+export function Confirm({ title, text, action = '确认删除', onConfirm, onClose }: ConfirmProps) {
   const [error, setError] = useState(''),
     [busy, setBusy] = useState(false);
   return (
@@ -52,7 +74,7 @@ export function Confirm({ title, text, action = '确认删除', onConfirm, onClo
               await onConfirm();
               onClose();
             } catch (e) {
-              setError(e.message);
+              setError(errorMessage(e));
             } finally {
               setBusy(false);
             }

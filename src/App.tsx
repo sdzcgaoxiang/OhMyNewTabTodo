@@ -1,16 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { readState, dispatch, subscribe } from './client.ts';
-import { BoardEditor, CardEditor, CardDetails, TextWithLinks } from './components/Editors.jsx';
-import { Confirm } from './components/Dialog.jsx';
-import { Settings, Bookmarks } from './components/Settings.jsx';
+import { BoardEditor, CardEditor, CardDetails, TextWithLinks } from './components/Editors.tsx';
+import { Confirm } from './components/Dialog.tsx';
+import { Settings, Bookmarks } from './components/Settings.tsx';
 import { duePresentation } from './dates.ts';
+import type { RepositoryOperation } from './operations.ts';
+import type { AppState, Board, Card, Options } from './types.ts';
+import type { CardInitial } from './components/ui.ts';
+import { errorMessage } from './components/ui.ts';
 const engines = [
   ['Google', 'hideGoogleSearch', 'https://www.google.com/search', 'q', 'G'],
   ['Bing', 'hideBingSearch', 'https://www.bing.com/search', 'q', 'b'],
   ['DuckDuckGo', 'hideDuckDuckGoSearch', 'https://duckduckgo.com/', 'q', 'D'],
   ['YouTube', 'hideYoutubeSearch', 'https://www.youtube.com/results', 'search_query', '▶'],
-];
-function Clock({ options }) {
+] as const;
+type Modal =
+  | { type: 'board'; board?: Board }
+  | { type: 'card'; initial: CardInitial }
+  | { type: 'details'; cardId: string; boardId: string };
+interface ConfirmState {
+  title: string;
+  text: string;
+  action?: string;
+  operation: RepositoryOperation;
+}
+function Clock({ options }: { options: Options }) {
   const [now, setNow] = useState(new Date()),
     [visible, setVisible] = useState(true);
   useEffect(() => {
@@ -67,6 +81,17 @@ function TaskCard({
   confirm,
   showCompleted,
   now,
+}: {
+  card: Card;
+  board: Board;
+  index: number;
+  state: AppState;
+  perform: (operation: RepositoryOperation) => Promise<boolean>;
+  edit: () => void;
+  detail: () => void;
+  confirm: (value: ConfirmState) => void;
+  showCompleted: boolean;
+  now: Date;
 }) {
   if (card.completed && state.options.hideCompletedCards && !showCompleted) return null;
   const due = duePresentation(card, now);
@@ -88,7 +113,7 @@ function TaskCard({
         if (id !== card.id) perform({ type: 'card.move', id, boardId: board.id, index });
       }}
       onDoubleClick={(e) => {
-        if (!e.target.closest('button,input,select,a')) edit();
+        if (e.target instanceof Element && !e.target.closest('button,input,select,a')) edit();
       }}
     >
       <div className="card-heading">
@@ -216,17 +241,18 @@ export default function App() {
       document.removeEventListener('visibilitychange', update);
     };
   }, []);
-  const [state, setState] = useState(null),
+  const [state, setState] = useState<AppState | null>(null),
     [fatal, setFatal] = useState(''),
     [pending, setPending] = useState(0),
-    [notice, setNotice] = useState(null),
-    [panel, setPanel] = useState(null),
-    [modal, setModal] = useState(null),
-    [confirm, setConfirm] = useState(null);
+    [notice, setNotice] = useState<string | null>(null),
+    [panel, setPanel] = useState<'bookmarks' | 'settings' | null>(null),
+    [modal, setModal] = useState<Modal | null>(null),
+    [confirm, setConfirm] = useState<ConfirmState | null>(null);
   const [showHidden, setShowHidden] = useState(false),
     [showCompleted, setShowCompleted] = useState(false),
     [engine, setEngine] = useState('Google');
-  const accept = (next) => setState((old) => (!old || next.revision >= old.revision ? next : old));
+  const accept = (next: AppState) =>
+    setState((old) => (!old || next.revision >= old.revision ? next : old));
   useEffect(() => {
     let active = true;
     const off = subscribe((next) => {
@@ -237,7 +263,7 @@ export default function App() {
         if (active) accept(next);
       })
       .catch((e) => {
-        if (active) setFatal(e.message);
+        if (active) setFatal(errorMessage(e));
       });
     return () => {
       active = false;
@@ -247,7 +273,7 @@ export default function App() {
   useEffect(() => {
     if (state) document.documentElement.style.colorScheme = state.theme;
   }, [state?.theme]);
-  async function act(operation) {
+  async function act(operation: RepositoryOperation): Promise<AppState> {
     setPending((n) => n + 1);
     try {
       const next = await dispatch(operation);
@@ -255,13 +281,13 @@ export default function App() {
       setNotice(null);
       return next;
     } catch (e) {
-      setNotice(e.message);
+      setNotice(errorMessage(e));
       throw e;
     } finally {
       setPending((n) => n - 1);
     }
   }
-  async function perform(operation) {
+  async function perform(operation: RepositoryOperation): Promise<boolean> {
     try {
       await act(operation);
       return true;
@@ -289,7 +315,7 @@ export default function App() {
       .map((id) => state.data.cards[id])
       .filter(Boolean),
     done = allCards.filter((c) => c.completed).length;
-  function editCard(card, boardId) {
+  function editCard(card: Card, boardId: string): void {
     setModal({ type: 'card', initial: { card: structuredClone(card), boardId } });
   }
   return (
@@ -387,7 +413,11 @@ export default function App() {
         className="boards"
         aria-label="看板列表"
         onWheel={(e) => {
-          if (!e.target.closest('.board-card-list') && Math.abs(e.deltaX) < Math.abs(e.deltaY))
+          if (
+            e.target instanceof Element &&
+            !e.target.closest('.board-card-list') &&
+            Math.abs(e.deltaX) < Math.abs(e.deltaY)
+          )
             e.currentTarget.scrollLeft += e.deltaY;
         }}
       >

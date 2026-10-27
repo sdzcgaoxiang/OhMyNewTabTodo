@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { emptyState } from '../src/model.ts';
 import { parseImport, prepareImport, exportLegacy, exportFull } from '../src/transfer.ts';
-import { legacy } from './fixtures.js';
-const parse = (data) => parseImport(JSON.stringify(data));
+import { legacy } from './fixtures.ts';
+const parse = (data: unknown) => parseImport(JSON.stringify(data));
 test('legacy export missing bookmarks imports without discarding orphan boards', () => {
   const p = parse(legacy());
   assert.deepEqual(p.bookmarks, []);
@@ -30,7 +30,7 @@ test('25 bookmarks and long titles are preserved', () => {
   const state = prepareImport(emptyState(), parse(data), { mode: 'merge' });
   assert.equal(state.bookmarks.length, 25);
   assert.equal(state.data.cards['card-a'].title.length, 150);
-  assert.equal(state.bookmarks[0].name, data.bookmarks[0].name);
+  assert.equal(state.bookmarks[0].name, data.bookmarks?.[0].name);
 });
 test('same file merged twice is idempotent', () => {
   const p = parse(legacy());
@@ -66,7 +66,7 @@ test('nullable fields, unknown priority and nested metadata survive import, edit
   const data = legacy();
   data.cards['card-a'].description = null;
   data.cards['card-a'].priority = 'legacy-special';
-  data.cards['card-a'].labels.push({
+  data.cards['card-a'].labels?.push({
     id: 'extra',
     text: '额外标签',
     type: 'legacy',
@@ -94,7 +94,8 @@ test('bad references, unsafe keys, future schema and non-JSON reject', () => {
 test('unknown formats and malformed optional fields fail before writing', () => {
   assert.throws(() => parse({ hello: 'world' }), /格式|board/);
   const bad = legacy();
-  bad.cards['card-a'].labels = 'not array';
+  // Malformed backup input intentionally bypasses the domain type.
+  bad.cards['card-a'].labels = 'not array' as never;
   assert.throws(() => parse(bad), /labels|标签/);
 });
 test('bookmark merge rejects ID conflicts and preserves different metadata at the same URL', () => {
@@ -102,16 +103,16 @@ test('bookmark merge rejects ID conflicts and preserves different metadata at th
   data.bookmarks = [{ id: 'one', name: '链接', url: 'https://example.com', custom: 1 }];
   const state = prepareImport(emptyState(), parse(data));
   const conflict = structuredClone(data);
-  conflict.bookmarks[0].custom = 2;
+  conflict.bookmarks![0].custom = 2;
   assert.throws(() => prepareImport(state, parse(conflict)), /冲突/);
-  conflict.bookmarks[0].id = 'two';
+  conflict.bookmarks![0].id = 'two';
   const merged = prepareImport(state, parse(conflict));
   assert.equal(merged.bookmarks.length, 2);
   assert.deepEqual(
     merged.bookmarks.map((b) => b.custom),
     [1, 2],
   );
-  conflict.bookmarks[0].custom = 1;
+  conflict.bookmarks![0].custom = 1;
   assert.equal(prepareImport(state, parse(conflict)).bookmarks.length, 2);
   const copy = prepareImport(state, parse(data), { mode: 'copy' });
   assert.equal(copy.bookmarks.length, 1);

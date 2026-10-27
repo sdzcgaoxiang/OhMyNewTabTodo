@@ -1,4 +1,15 @@
-export const legacy = () => ({
+import type { Board, Bookmark, Card } from '../src/types.ts';
+
+export interface LegacyFixture {
+  id: number;
+  appVersion: string;
+  boardOrder: string[];
+  boards: Record<string, Board>;
+  cards: Record<string, Card>;
+  bookmarks?: Bookmark[];
+}
+
+export const legacy = (): LegacyFixture => ({
   id: 123,
   appVersion: '0.2.0',
   boardOrder: ['board-a'],

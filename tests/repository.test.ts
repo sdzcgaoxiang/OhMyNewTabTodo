@@ -1,15 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRepository } from '../src/repository.ts';
-import { legacy } from './fixtures.js';
+import { legacy } from './fixtures.ts';
+import type { RepositoryOperation } from '../src/operations.ts';
 function memory() {
-  let values = {};
+  let values: Record<string, unknown> = {};
   return {
     fail: false,
-    async get(key) {
+    async get(key: string) {
       return structuredClone({ [key]: values[key] });
     },
-    async set(data) {
+    async set(data: Record<string, unknown>) {
       if (this.fail) throw new Error('QUOTA_BYTES exceeded');
       values = { ...values, ...structuredClone(data) };
     },
@@ -100,7 +101,8 @@ test('stored state without required data collections rejects before edits', asyn
 test('clear preserves a bounded recovery snapshot and requires fresh revision', async () => {
   const repo = createRepository(memory());
   await repo.dispatch({ type: 'board.add', title: '保留' });
-  await assert.rejects(repo.dispatch({ type: 'clear' }), /版本|预览/);
+  // Missing preview revision intentionally bypasses the compile-time contract.
+  await assert.rejects(repo.dispatch({ type: 'clear' } as RepositoryOperation), /版本|预览/);
   const before = await repo.read();
   const after = await repo.dispatch({ type: 'clear', expectedRevision: before.revision });
   assert.equal(after.data.boardOrder.length, 0);

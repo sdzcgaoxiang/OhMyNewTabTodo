@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { Dialog } from './Dialog.jsx';
-import { Transfer } from './Transfer.jsx';
-import { safeUrl } from '../model.ts';
-const sections = {
+import { Dialog } from './Dialog.tsx';
+import { Transfer } from './Transfer.tsx';
+import { DEFAULT_OPTIONS, safeUrl } from '../model.ts';
+import type { AppState } from '../types.ts';
+import type { Act } from './ui.ts';
+import { errorMessage } from './ui.ts';
+type OptionKey = keyof typeof DEFAULT_OPTIONS;
+const sections: Record<string, ReadonlyArray<readonly [OptionKey, string, string]>> = {
   常规: [
     ['playSoundEffects', '完成提示音', '完成卡片时播放轻提示音'],
     ['allowHidingBoard', '允许隐藏看板', '隐藏的看板可随时重新显示'],
@@ -26,7 +30,15 @@ const sections = {
     ['pinClock', '固定时钟', '关闭后在打开页面数秒后收起'],
   ],
 };
-export function Settings({ state, act, onClose }) {
+export function Settings({
+  state,
+  act,
+  onClose,
+}: {
+  state: AppState;
+  act: Act;
+  onClose: () => void;
+}) {
   const [section, setSection] = useState('常规'),
     [error, setError] = useState('');
   return (
@@ -58,7 +70,7 @@ export function Settings({ state, act, onClose }) {
                 await act({ type: 'options.patch', patch: { [key]: e.target.checked } });
                 setError('');
               } catch (e) {
-                setError(e.message);
+                setError(errorMessage(e));
               }
             }}
           />
@@ -84,7 +96,15 @@ export function Settings({ state, act, onClose }) {
     </Dialog>
   );
 }
-export function Bookmarks({ state, act, onClose }) {
+export function Bookmarks({
+  state,
+  act,
+  onClose,
+}: {
+  state: AppState;
+  act: Act;
+  onClose: () => void;
+}) {
   const [error, setError] = useState(''),
     [busy, setBusy] = useState(false);
   return (
@@ -95,7 +115,7 @@ export function Bookmarks({ state, act, onClose }) {
           state.bookmarks.map((b) => (
             <div key={b.id} className="bookmark-row">
               {safeUrl(b.url) ? (
-                <a href={safeUrl(b.url)} target="_blank" rel="noopener noreferrer">
+                <a href={safeUrl(b.url) || undefined} target="_blank" rel="noopener noreferrer">
                   {b.name}
                   <small>{b.url}</small>
                 </a>
@@ -111,7 +131,7 @@ export function Bookmarks({ state, act, onClose }) {
                   try {
                     await act({ type: 'bookmark.delete', id: b.id });
                   } catch (e) {
-                    setError(e.message);
+                    setError(errorMessage(e));
                   }
                 }}
               >
@@ -127,15 +147,21 @@ export function Bookmarks({ state, act, onClose }) {
       <form
         onSubmit={async (e) => {
           e.preventDefault();
-          const form = e.currentTarget,
-            fields = Object.fromEntries(new FormData(form));
+          const form = e.currentTarget;
+          const data = new FormData(form);
+          const name = data.get('name');
+          const url = data.get('url');
+          if (typeof name !== 'string' || typeof url !== 'string') {
+            setError('链接表单无效，请重新填写');
+            return;
+          }
           setBusy(true);
           try {
-            await act({ type: 'bookmark.add', bookmark: { name: fields.name, url: fields.url } });
+            await act({ type: 'bookmark.add', bookmark: { name, url } });
             form.reset();
             setError('');
           } catch (e) {
-            setError(e.message);
+            setError(errorMessage(e));
           } finally {
             setBusy(false);
           }

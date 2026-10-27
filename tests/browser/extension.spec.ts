@@ -1,6 +1,12 @@
 import { test as base, expect, chromium } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import path from 'node:path';
-import { legacy } from '../fixtures.js';
+import { legacy } from '../fixtures.ts';
+declare global {
+  interface Window {
+    pendingFiles: Record<string, () => void>;
+  }
+}
 const test = base.extend({
   context: async ({}, use) => {
     const extensionPath = path.resolve('dist');
@@ -18,31 +24,31 @@ const test = base.extend({
     if (!worker) worker = await context.waitForEvent('serviceworker');
     const id = new URL(worker.url()).host;
     const page = await context.newPage();
-    const errors = [];
+    const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto(`chrome-extension://${id}/index.html`);
     await use(page);
     expect(errors).toEqual([]);
   },
 });
-async function addBoard(page, title = '工作') {
+async function addBoard(page: Page, title = '工作') {
   await page.getByRole('button', { name: '新建看板', exact: true }).first().click();
   await page.getByLabel('看板名称').fill(title);
   await page.getByRole('button', { name: '保存看板' }).click();
   await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible();
 }
-async function addCard(page, title = '第一件事') {
+async function addCard(page: Page, title = '第一件事') {
   await page.getByRole('button', { name: '添加卡片到底部' }).first().click();
   await page.getByLabel('卡片标题').fill(title);
   await page.getByLabel('描述', { exact: true }).fill('安全文本 <b>不是 HTML</b>');
   await page.getByRole('button', { name: '保存卡片' }).click();
   await expect(page.getByRole('button', { name: title, exact: true })).toBeVisible();
 }
-async function openTransfer(page) {
+async function openTransfer(page: Page) {
   await page.getByRole('button', { name: '设置', exact: true }).click();
   await page.getByRole('button', { name: '导入 / 导出', exact: true }).click();
 }
-async function upload(page, data) {
+async function upload(page: Page, data: unknown) {
   await page.getByLabel('选择 JSON 文件').setInputFiles({
     name: 'fixture.json',
     mimeType: 'application/json',

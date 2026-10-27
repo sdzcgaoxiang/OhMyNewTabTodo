@@ -1,7 +1,19 @@
 import React, { useState } from 'react';
-import { Dialog } from './Dialog.jsx';
+import { Dialog } from './Dialog.tsx';
 import { safeUrl, newId } from '../model.ts';
-export function BoardEditor({ board, act, onClose }) {
+import type { AppState, Board, Card, Label } from '../types.ts';
+import type { Act, CardInitial } from './ui.ts';
+import { errorMessage } from './ui.ts';
+
+export function BoardEditor({
+  board,
+  act,
+  onClose,
+}: {
+  board?: Board;
+  act: Act;
+  onClose: () => void;
+}) {
   const [name, setName] = useState(board?.title || ''),
     [error, setError] = useState(''),
     [busy, setBusy] = useState(false);
@@ -19,7 +31,7 @@ export function BoardEditor({ board, act, onClose }) {
             );
             onClose();
           } catch (e) {
-            setError(e.message);
+            setError(errorMessage(e));
           } finally {
             setBusy(false);
           }
@@ -52,33 +64,48 @@ export function BoardEditor({ board, act, onClose }) {
     </Dialog>
   );
 }
-export function CardEditor({ initial, state, act, onClose }) {
+export function CardEditor({
+  initial,
+  state,
+  act,
+  onClose,
+}: {
+  initial: CardInitial;
+  state: AppState;
+  act: Act;
+  onClose: () => void;
+}) {
   const original = initial.card;
   const [due, setDue] = useState(original?.dueDate || ''),
     [time, setTime] = useState(original?.dueTime || ''),
     [error, setError] = useState(''),
     [busy, setBusy] = useState(false);
-  const labelText = (type) => original?.labels?.find((label) => label.type === type)?.text || '';
-  async function save(e) {
+  const labelText = (type: string) =>
+    original?.labels?.find((label) => label.type === type)?.text || '';
+  async function save(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const fields = Object.fromEntries(new FormData(e.currentTarget));
-    const labels = [...(original?.labels || [])];
+    const form = new FormData(e.currentTarget);
+    const field = (name: string): string => {
+      const value = form.get(name);
+      return typeof value === 'string' ? value : '';
+    };
+    const labels: Label[] = [...(original?.labels || [])];
     for (const type of ['primary', 'secondary']) {
       const index = labels.findIndex((l) => l.type === type),
         old = labels[index];
-      if (fields[type] === (old?.text || '')) continue;
-      if (!fields[type].trim()) {
+      if (field(type) === (old?.text || '')) continue;
+      if (!field(type).trim()) {
         if (index >= 0) labels.splice(index, 1);
       } else {
-        const label = { ...old, id: old?.id || newId('label'), type, text: fields[type].trim() };
+        const label = { ...old, id: old?.id || newId('label'), type, text: field(type).trim() };
         if (index >= 0) labels[index] = label;
         else labels.push(label);
       }
     }
     const patch = {
-      title: fields.title,
-      description: fields.description,
-      priority: fields.priority,
+      title: field('title'),
+      description: field('description'),
+      priority: field('priority'),
       dueDate: due,
       dueTime: due ? time : '',
       labels,
@@ -91,15 +118,15 @@ export function CardEditor({ initial, state, act, onClose }) {
               type: 'card.update',
               id: original.id,
               patch,
-              boardId: fields.boardId,
+              boardId: field('boardId'),
               expected: original,
               expectedBoardId: initial.boardId,
             }
-          : { type: 'card.add', card: patch, boardId: fields.boardId, index: initial.index },
+          : { type: 'card.add', card: patch, boardId: field('boardId'), index: initial.index },
       );
       onClose();
     } catch (e) {
-      setError(e.message);
+      setError(errorMessage(e));
     } finally {
       setBusy(false);
     }
@@ -131,7 +158,7 @@ export function CardEditor({ initial, state, act, onClose }) {
           描述
           <textarea
             name="description"
-            rows="4"
+            rows={4}
             defaultValue={original?.description || ''}
             placeholder="补充细节、链接或想法…"
           />
@@ -197,7 +224,13 @@ export function CardEditor({ initial, state, act, onClose }) {
     </Dialog>
   );
 }
-export function TextWithLinks({ text = '', shorten = false }) {
+export function TextWithLinks({
+  text = '',
+  shorten = false,
+}: {
+  text?: string | null;
+  shorten?: boolean;
+}) {
   const parts = (text ?? '').split(/(https?:\/\/[^\s<>"']+)/g);
   return parts.map((part, index) =>
     safeUrl(part) ? (
@@ -215,7 +248,17 @@ export function TextWithLinks({ text = '', shorten = false }) {
     ),
   );
 }
-export function CardDetails({ card, board, onClose, onEdit }) {
+export function CardDetails({
+  card,
+  board,
+  onClose,
+  onEdit,
+}: {
+  card: Card;
+  board?: Board;
+  onClose: () => void;
+  onEdit: () => void;
+}) {
   return (
     <Dialog drawer title="卡片详情" onClose={onClose}>
       <p className="eyebrow">{board?.title || '未关联看板'}</p>
@@ -239,7 +282,7 @@ export function CardDetails({ card, board, onClose, onEdit }) {
             ['high', '高'],
             ['normal', '普通'],
             ['low', '低'],
-          ]).get(card.priority) ||
+          ]).get(card.priority || '') ||
             card.priority ||
             '未设置'}
         </dd>

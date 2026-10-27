@@ -1,8 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { parseImport, exportFull, exportLegacy, MAX_IMPORT_BYTES } from '../transfer.ts';
 import { readState } from '../client.ts';
-import { Confirm } from './Dialog.jsx';
-function download(value, name) {
+import { Confirm } from './Dialog.tsx';
+import type { ConfirmProps } from './Dialog.tsx';
+import type { AppState } from '../types.ts';
+import type { ImportMode, ParsedImport } from '../transfer.ts';
+import type { Act } from './ui.ts';
+import { errorMessage } from './ui.ts';
+
+interface Preview {
+  text: string;
+  parsed: ParsedImport;
+  revision: number;
+  name: string;
+}
+function download(value: unknown, name: string) {
   const url = URL.createObjectURL(
     new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' }),
   );
@@ -12,7 +24,7 @@ function download(value, name) {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-export function Transfer({ state, act }) {
+export function Transfer({ state, act }: { state: AppState; act: Act }) {
   const loadRequest = useRef(0);
   useEffect(
     () => () => {
@@ -20,16 +32,16 @@ export function Transfer({ state, act }) {
     },
     [],
   );
-  const [preview, setPreview] = useState(null),
-    [mode, setMode] = useState('merge'),
+  const [preview, setPreview] = useState<Preview | null>(null),
+    [mode, setMode] = useState<ImportMode>('merge'),
     [recoverBoards, setRecoverBoards] = useState(false),
     [recoverCards, setRecoverCards] = useState(false),
     [agreed, setAgreed] = useState(false);
   const [error, setError] = useState(''),
     [message, setMessage] = useState(''),
     [busy, setBusy] = useState(false),
-    [confirm, setConfirm] = useState(null);
-  async function load(event) {
+    [confirm, setConfirm] = useState<Omit<ConfirmProps, 'onClose'> | null>(null);
+  async function load(event: React.ChangeEvent<HTMLInputElement>) {
     const request = ++loadRequest.current;
     const file = event.target.files?.[0];
     event.target.value = '';
@@ -48,7 +60,7 @@ export function Transfer({ state, act }) {
         revision = (await readState()).revision;
       if (request === loadRequest.current) setPreview({ text, parsed, revision, name: file.name });
     } catch (e) {
-      if (request === loadRequest.current) setError(e.message);
+      if (request === loadRequest.current) setError(errorMessage(e));
     }
   }
   async function commit() {
@@ -68,12 +80,12 @@ export function Transfer({ state, act }) {
       setPreview(null);
       setMessage('导入已保存');
     } catch (e) {
-      setError(e.message);
+      setError(errorMessage(e));
     } finally {
       setBusy(false);
     }
   }
-  async function save(full) {
+  async function save(full: boolean) {
     try {
       const current = await readState();
       download(
@@ -81,7 +93,7 @@ export function Transfer({ state, act }) {
         full ? 'OhMyNewTabTodo_Backup' : 'NewTabTodo_Export_0.2.0',
       );
     } catch (e) {
-      setError(e.message);
+      setError(errorMessage(e));
     }
   }
   return (
@@ -160,7 +172,12 @@ export function Transfer({ state, act }) {
             <select
               value={mode}
               onChange={(e) => {
-                setMode(e.target.value);
+                if (
+                  e.target.value === 'merge' ||
+                  e.target.value === 'replace' ||
+                  e.target.value === 'copy'
+                )
+                  setMode(e.target.value);
                 setAgreed(false);
               }}
             >

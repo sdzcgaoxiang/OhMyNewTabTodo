@@ -70,7 +70,8 @@ test('empty titles and unknown mutations fail', () => {
     () => applyOperation(board(), { type: 'card.add', boardId: 'board-a', card: { title: '  ' } }),
     /标题/,
   );
-  assert.throws(() => applyOperation(board(), { type: 'accidental-reset' }), /操作/);
+  // Runtime boundary must still reject data that bypasses the operation union.
+  assert.throws(() => applyOperation(board(), { type: 'accidental-reset' } as never), /操作/);
 });
 test('card edit rejects a stale board assignment after another page moves it', () => {
   const before = applyOperation(withCard(), { type: 'board.add', id: 'board-b', title: '另一列' });
