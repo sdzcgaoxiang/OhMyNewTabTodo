@@ -1,8 +1,8 @@
 # 为什么从 NewTabTodo 迁移？
 
-[English](features.en.md) · [安装与迁移](../README.md) · [下载 v0.1.0](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.1.0)
+[English](features.en.md) · [安装与迁移](../README.md) · [下载 v0.2.0](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.2.0)
 
-适用版本：**OhMyNewTabTodo 0.1.0**。对比基线：已审计的 **NewTabTodo 0.2.0**。核对日期：2026-10-27。
+适用版本：**OhMyNewTabTodo 0.2.0**。对比基线：已审计的 **NewTabTodo 0.2.0**。核对日期：2026-10-28。
 
 OhMyNewTabTodo 保留熟悉的横向看板，让旧数据更容易迁移、备份和恢复，并减少多标签页编辑时的意外覆盖。它是 MIT 开源的独立替代项目，与 NewTabTodo 原作者无关联，并非官方升级或原版源码分支。
 
@@ -16,11 +16,15 @@ OhMyNewTabTodo 保留熟悉的横向看板，让旧数据更容易迁移、备�
 
 这些是延续的使用习惯，不作为新增升级宣传。界面采用独立设计，不逐像素复刻原版。
 
+v0.2.0 已补齐原版拖拽时的占位、相邻项让位、目标列高亮与卡片阴影；松手后立即显示新顺序，并由后台保存。
+
 ![熟悉的看板布局；内容为合成样例](images/board.png)
+
+![拖动时的占位与目标列高亮；内容为合成样例](images/drag-preview.png)
 
 ## 已实现的升级
 
-| 使用场景 | NewTabTodo 0.2.0 的已审计行为 | OhMyNewTabTodo 0.1.0 的改进 |
+| 使用场景 | NewTabTodo 0.2.0 的已审计行为 | OhMyNewTabTodo 0.2.0 的改进 |
 | --- | --- | --- |
 | 导出的文件又导不回去 | 导出可能省略 `bookmarks`，导入却要求它是数组，因而报文件损坏 | 兼容缺失书签字段；先显示数量、警告与恢复选项，再确认导入 |
 | 有些看板在文件里，界面却看不到 | 导出包含未列入显示顺序的残留对象，原导入路径处理异常 | 保留这些看板和孤立卡片，允许显式恢复；不猜测它们应被删除 |
@@ -66,6 +70,6 @@ OhMyNewTabTodo 保留熟悉的横向看板，让旧数据更容易迁移、备�
 
 ## 对比依据与维护
 
-原版事实见[兼容调研](research/newtabtodo-compatibility.md)和[能力审计](research/newtabtodo-audit.md)；新版验证见[0.1.0 验收记录](verification-v0.1.0.md)、[导入测试](../tests/transfer.test.js)、[持久化测试](../tests/repository.test.js)与[浏览器验收](../tests/browser/extension.spec.js)。证据不等于所有环境下的绝对保证。
+原版事实见[兼容调研](research/newtabtodo-compatibility.md)和[能力审计](research/newtabtodo-audit.md)；新版验证见[0.2.0 验收记录](verification-v0.2.0.md)、[导入测试](../tests/transfer.test.ts)、[持久化测试](../tests/repository.test.ts)与[浏览器验收](../tests/browser/extension.spec.ts)。证据不等于所有环境下的绝对保证。
 
 每次版本更新，按[发布文档清单](releasing.md)同步检查中英文说明。计划中的功能不混入“已实现的升级”。

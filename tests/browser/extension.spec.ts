@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test';
 import path from 'node:path';
 import { legacy } from '../fixtures.ts';
 import { emptyState } from '../../src/model.ts';
+import type { AppState } from '../../src/types.ts';
 declare global {
   interface Window {
     pendingFiles: Record<string, () => void>;
@@ -69,17 +70,17 @@ test('existing app_state opens and edits without resetting revision or unknown f
   await page.evaluate((state) => chrome.storage.local.set({ app_state: state }), oldState);
   await page.reload();
   await expect(page.getByRole('heading', { name: '工作', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: '检查导出' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '检查导出', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '编辑卡片' }).click();
   await page.getByLabel('卡片标题').fill('迁移后编辑');
   await page.getByRole('button', { name: '保存卡片' }).click();
-  await expect(page.getByRole('button', { name: '迁移后编辑' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '迁移后编辑', exact: true })).toBeVisible();
   const stored = await page.evaluate(
     async () => (await chrome.storage.local.get('app_state')).app_state,
   );
   expect(stored).toMatchObject({ revision: 18, custom: oldState.custom });
 });
-test('native drag moves cards and reorders boards persistently', async ({ page }) => {
+test('drag moves cards and reorders boards persistently', async ({ page }) => {
   await addBoard(page, 'A');
   await addBoard(page, 'B');
   await addCard(page, '拖动任务');
@@ -89,14 +90,207 @@ test('native drag moves cards and reorders boards persistently', async ({ page }
   const boardB = page
     .locator('.board')
     .filter({ has: page.getByRole('heading', { name: 'B', exact: true }) });
-  await boardA.locator('.task-card').dragTo(boardB.locator('.board-header'));
+  await boardA.locator('.task-card').dragTo(boardB.locator('.board-card-list'), { steps: 12 });
   await expect(boardB.locator('.task-card')).toHaveCount(1);
   await expect(boardA.locator('.task-card')).toHaveCount(0);
-  await boardA.locator('.board-header').dragTo(boardB.locator('.board-header'));
+  await boardA.locator('.board-header').dragTo(boardB.locator('.board-header'), { steps: 12 });
   await expect(page.locator('.board h2')).toHaveText(['B', 'A']);
   await page.reload();
   await expect(page.locator('.board h2')).toHaveText(['B', 'A']);
   await expect(page.locator('.board').first().locator('.task-card')).toHaveCount(1);
+});
+test('keyboard drag reorders cards in the same board', async ({ page }) => {
+  await addBoard(page);
+  await addCard(page, '甲');
+  await addCard(page, '乙');
+  await addCard(page, '丙');
+  const cards = page.locator('.task-card');
+  await cards.first().focus();
+  await page.keyboard.press('Space');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Space');
+  await expect(cards.locator('.card-title')).toHaveText(['乙', '甲', '丙']);
+  await page.reload();
+  await expect(page.locator('.task-card .card-title')).toHaveText(['乙', '甲', '丙']);
+});
+test('drop shows the new card order before a delayed background write completes', async ({
+  page,
+}) => {
+  await addBoard(page);
+  await addCard(page, '甲');
+  await addCard(page, '乙');
+  await page.evaluate(() => {
+    const send = chrome.runtime.sendMessage.bind(chrome.runtime);
+    chrome.runtime.sendMessage = ((message: unknown) =>
+      new Promise((resolve, reject) => {
+        setTimeout(() => {
+          send(message).then(resolve, reject);
+        }, 1000);
+      })) as typeof chrome.runtime.sendMessage;
+  });
+  await page.locator('.task-card').first().focus();
+  await page.keyboard.press('Space');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Space');
+  expect(await page.locator('.task-card .card-title').allTextContents()).toEqual(['乙', '甲']);
+  await expect(page.locator('.task-card .card-title')).toHaveText(['乙', '甲']);
+  await expect
+    .poll(async () =>
+      page.evaluate(async () => {
+        const stored = (await chrome.storage.local.get('app_state')).app_state as AppState;
+        return stored.data.boards[stored.data.boardOrder[0]].cardIds.map(
+          (id) => stored.data.cards[id].title,
+        );
+      }),
+    )
+    .toEqual(['乙', '甲']);
+});
+test('a failed drag save restores the persisted order', async ({ page }) => {
+  await addBoard(page);
+  await addCard(page, '甲');
+  await addCard(page, '乙');
+  await page.evaluate(() => {
+    const send = chrome.runtime.sendMessage.bind(chrome.runtime);
+    chrome.runtime.sendMessage = ((message: { type?: string; operation?: { type?: string } }) =>
+      message.type === 'dispatch' && message.operation?.type === 'card.move'
+        ? Promise.reject(new Error('测试保存失败'))
+        : send(message)) as typeof chrome.runtime.sendMessage;
+  });
+  await page.locator('.task-card').first().focus();
+  await page.keyboard.press('Space');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Space');
+  await expect(page.locator('.task-card .card-title')).toHaveText(['甲', '乙']);
+  await expect(page.getByRole('alert')).toContainText('测试保存失败');
+});
+test('drag preview makes room and highlights the destination list', async ({ page }) => {
+  await addBoard(page, 'A');
+  await addBoard(page, 'B');
+  await addCard(page, '预览卡片');
+  const source = page.locator('.task-card');
+  const destination = page.locator('.board').nth(1).locator('.board-card-list');
+  const sourceBox = await source.boundingBox();
+  const destinationBox = await destination.boundingBox();
+  if (!sourceBox || !destinationBox) throw new Error('拖动区域不可见');
+  const idleShadow = await source.evaluate((element) => getComputedStyle(element).boxShadow);
+  const idleBackground = await destination.evaluate(
+    (element) => getComputedStyle(element).backgroundColor,
+  );
+  await page.mouse.move(sourceBox.x + sourceBox.width / 2, sourceBox.y + sourceBox.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(
+    destinationBox.x + destinationBox.width / 2,
+    destinationBox.y + destinationBox.height / 2,
+    { steps: 15 },
+  );
+  await expect(source).toHaveClass(/dragging/);
+  await expect(destination).toHaveClass(/drag-over/);
+  await expect(destination.locator('[data-rfd-placeholder-context-id]')).toBeVisible();
+  expect(await source.evaluate((element) => getComputedStyle(element).boxShadow)).not.toBe(
+    idleShadow,
+  );
+  expect(
+    await destination.evaluate((element) => getComputedStyle(element).backgroundColor),
+  ).not.toBe(idleBackground);
+  await page.mouse.up();
+});
+test('dropping outside a list leaves the stored card order unchanged', async ({ page }) => {
+  await addBoard(page);
+  await addCard(page, '甲');
+  await addCard(page, '乙');
+  const before = (await page.evaluate(
+    async () => (await chrome.storage.local.get('app_state')).app_state,
+  )) as AppState;
+  await page.locator('.task-card').first().dragTo(page.locator('.topbar'), { steps: 12 });
+  const after = (await page.evaluate(
+    async () => (await chrome.storage.local.get('app_state')).app_state,
+  )) as AppState;
+  expect(after.revision).toBe(before.revision);
+  expect(after.data.boards[before.data.boardOrder[0]].cardIds).toEqual(
+    before.data.boards[before.data.boardOrder[0]].cardIds,
+  );
+});
+test('hidden completed cards cannot be dragged and hidden boards do not shift visible targets', async ({
+  page,
+}) => {
+  const sample = emptyState();
+  sample.options.hideCompletedCards = true;
+  sample.data = {
+    boardOrder: ['a', 'hidden', 'b'],
+    boards: {
+      a: { id: 'a', title: 'A', cardIds: ['todo', 'done'] },
+      hidden: { id: 'hidden', title: '隐藏', cardIds: [], isHidden: true },
+      b: { id: 'b', title: 'B', cardIds: [] },
+    },
+    cards: {
+      todo: { id: 'todo', title: '待办' },
+      done: { id: 'done', title: '完成', completed: true },
+    },
+  };
+  await page.evaluate((state) => chrome.storage.local.set({ app_state: state }), sample);
+  await page.reload();
+  await page.getByRole('button', { name: '显示完成项' }).click();
+  const done = page
+    .locator('.task-card')
+    .filter({ has: page.getByRole('button', { name: '完成', exact: true }) });
+  await done.dragTo(page.locator('.board').nth(1).locator('.board-card-list'), { steps: 12 });
+  let stored = (await page.evaluate(
+    async () => (await chrome.storage.local.get('app_state')).app_state,
+  )) as AppState;
+  expect(stored.data.boards.a.cardIds).toEqual(['todo', 'done']);
+  await page
+    .locator('.board')
+    .nth(1)
+    .locator('.board-header')
+    .dragTo(page.locator('.board').first().locator('.board-header'), { steps: 12 });
+  await expect(page.locator('.board h2')).toHaveText(['B', 'A']);
+  stored = (await page.evaluate(
+    async () => (await chrome.storage.local.get('app_state')).app_state,
+  )) as AppState;
+  expect(stored.data.boardOrder).toEqual(['b', 'a', 'hidden']);
+});
+test('cross-board drag inserts before hidden completed cards', async ({ page }) => {
+  const sample = emptyState();
+  sample.options.hideCompletedCards = true;
+  sample.data = {
+    boardOrder: ['a', 'b'],
+    boards: {
+      a: { id: 'a', title: 'A', cardIds: ['move'] },
+      b: { id: 'b', title: 'B', cardIds: ['existing', 'done'] },
+    },
+    cards: {
+      move: { id: 'move', title: '移动' },
+      existing: { id: 'existing', title: '已有' },
+      done: { id: 'done', title: '完成', completed: true },
+    },
+  };
+  await page.evaluate((state) => chrome.storage.local.set({ app_state: state }), sample);
+  await page.reload();
+  await page.locator('.board').first().locator('.task-card').focus();
+  await page.keyboard.press('Space');
+  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Space');
+  await expect(page.locator('.board').nth(1).locator('.task-card .card-title')).toHaveText([
+    '已有',
+    '移动',
+  ]);
+  const stored = (await page.evaluate(
+    async () => (await chrome.storage.local.get('app_state')).app_state,
+  )) as AppState;
+  expect(stored.data.boards.b.cardIds).toEqual(['existing', 'move', 'done']);
+});
+test('board drag works through horizontal overflow and leaves controls usable', async ({
+  page,
+}) => {
+  for (const title of ['A', 'B', 'C', 'D', 'E']) await addBoard(page, title);
+  await page.locator('.board-header').last().focus();
+  await page.keyboard.press('Space');
+  for (let index = 0; index < 4; index++) await page.keyboard.press('ArrowLeft');
+  await page.keyboard.press('Space');
+  await expect(page.locator('.board h2')).toHaveText(['E', 'A', 'B', 'C', 'D']);
+  await page.locator('.board').first().getByRole('button', { name: '添加卡片到顶部' }).click();
+  await expect(page.getByLabel('卡片标题')).toBeVisible();
 });
 test('card display settings and hidden boards survive reload', async ({ page }) => {
   await addBoard(page);

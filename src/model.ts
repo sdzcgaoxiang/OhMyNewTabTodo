@@ -1,7 +1,7 @@
 import type { AppData, AppState, Options } from './types.ts';
 import type { ModelOperation } from './operations.ts';
 
-export const APP_VERSION = '0.1.0';
+export const APP_VERSION = '0.2.0';
 export const DEFAULT_OPTIONS = Object.freeze({
   playSoundEffects: true,
   allowHidingBoard: true,
