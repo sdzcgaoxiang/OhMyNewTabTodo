@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import type { DropResult } from '@hello-pangea/dnd';
+import { flushSync } from 'react-dom';
 import { readState, dispatch, subscribe } from './client.ts';
 import { boardDropIndex, cardDropIndex } from './drag-position.ts';
+import { applyOperation } from './model.ts';
 import { BoardEditor, CardEditor, CardDetails, TextWithLinks } from './components/Editors.tsx';
 import { Confirm } from './components/Dialog.tsx';
 import { Settings, Bookmarks } from './components/Settings.tsx';
 import { duePresentation } from './dates.ts';
-import type { RepositoryOperation } from './operations.ts';
+import type { ModelOperation, RepositoryOperation } from './operations.ts';
 import type { AppState, Board, Card, Options } from './types.ts';
 import type { CardInitial } from './components/ui.ts';
 import { errorMessage } from './components/ui.ts';
@@ -322,6 +324,25 @@ export default function App() {
   function editCard(card: Card, boardId: string): void {
     setModal({ type: 'card', initial: { card: structuredClone(card), boardId } });
   }
+  function commitDrag(operation: ModelOperation): void {
+    flushSync(() =>
+      setState((current) => {
+        if (!current) return current;
+        try {
+          return applyOperation(current, operation);
+        } catch {
+          return current;
+        }
+      }),
+    );
+    void perform(operation).then((ok) => {
+      if (ok) return;
+      setState((current) => (current?.revision === dragState.revision ? dragState : current));
+      void readState()
+        .then(accept)
+        .catch((error) => setNotice(errorMessage(error)));
+    });
+  }
   function onDragEnd(result: DropResult): void {
     const { source, destination, draggableId, type } = result;
     if (!destination) return;
@@ -334,7 +355,7 @@ export default function App() {
         draggableId,
         destination.index,
       );
-      void perform({ type: 'board.move', id: draggableId, index });
+      commitDrag({ type: 'board.move', id: draggableId, index });
       return;
     }
     const target = dragState.data.boards[destination.droppableId];
@@ -344,7 +365,7 @@ export default function App() {
       return card && (!card.completed || !dragState.options.hideCompletedCards || showCompleted);
     });
     const index = cardDropIndex(target.cardIds, visibleCardIds, draggableId, destination.index);
-    void perform({ type: 'card.move', id: draggableId, boardId: target.id, index });
+    commitDrag({ type: 'card.move', id: draggableId, boardId: target.id, index });
   }
   return (
     <div className="app" data-theme={state.theme}>

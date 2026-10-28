@@ -113,6 +113,56 @@ test('keyboard drag reorders cards in the same board', async ({ page }) => {
   await page.reload();
   await expect(page.locator('.task-card .card-title')).toHaveText(['乙', '甲', '丙']);
 });
+test('drop shows the new card order before a delayed background write completes', async ({
+  page,
+}) => {
+  await addBoard(page);
+  await addCard(page, '甲');
+  await addCard(page, '乙');
+  await page.evaluate(() => {
+    const send = chrome.runtime.sendMessage.bind(chrome.runtime);
+    chrome.runtime.sendMessage = ((message: unknown) =>
+      new Promise((resolve, reject) => {
+        setTimeout(() => {
+          send(message).then(resolve, reject);
+        }, 1000);
+      })) as typeof chrome.runtime.sendMessage;
+  });
+  await page.locator('.task-card').first().focus();
+  await page.keyboard.press('Space');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Space');
+  expect(await page.locator('.task-card .card-title').allTextContents()).toEqual(['乙', '甲']);
+  await expect(page.locator('.task-card .card-title')).toHaveText(['乙', '甲']);
+  await expect
+    .poll(async () =>
+      page.evaluate(async () => {
+        const stored = (await chrome.storage.local.get('app_state')).app_state as AppState;
+        return stored.data.boards[stored.data.boardOrder[0]].cardIds.map(
+          (id) => stored.data.cards[id].title,
+        );
+      }),
+    )
+    .toEqual(['乙', '甲']);
+});
+test('a failed drag save restores the persisted order', async ({ page }) => {
+  await addBoard(page);
+  await addCard(page, '甲');
+  await addCard(page, '乙');
+  await page.evaluate(() => {
+    const send = chrome.runtime.sendMessage.bind(chrome.runtime);
+    chrome.runtime.sendMessage = ((message: { type?: string; operation?: { type?: string } }) =>
+      message.type === 'dispatch' && message.operation?.type === 'card.move'
+        ? Promise.reject(new Error('测试保存失败'))
+        : send(message)) as typeof chrome.runtime.sendMessage;
+  });
+  await page.locator('.task-card').first().focus();
+  await page.keyboard.press('Space');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Space');
+  await expect(page.locator('.task-card .card-title')).toHaveText(['甲', '乙']);
+  await expect(page.getByRole('alert')).toContainText('测试保存失败');
+});
 test('drag preview makes room and highlights the destination list', async ({ page }) => {
   await addBoard(page, 'A');
   await addBoard(page, 'B');
