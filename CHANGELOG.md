@@ -2,12 +2,17 @@
 
 ## Unreleased / 未发布
 
+## 0.2.0 — 2026-10-28
+
+### Added / 新增
+
+- 卡片与看板拖动时显示原版样式的占位、相邻项让位、目标列高亮和拖动阴影；松手后立即显示新顺序，后台保存失败则恢复原顺序并提示错误。
+- Card and board dragging now shows original-style placeholders, displaced neighbors, destination highlighting, and dragged-card shadow. The new order appears immediately on drop; a failed save restores the persisted order and shows an error.
+
 ### Changed / 变更
 
-- 恢复原版卡片与看板拖动中的占位、让位和目标列表反馈；继续由后台单次保存最终位置。尚未发布。
-- Restored the original card and board drag placeholders, displacement, and destination feedback; the background writer still saves the final position once. Unreleased.
-- 将业务源码、测试及开发配置迁移到严格检查的 TypeScript；保留数据格式、后台单写和现有界面行为。此项尚未发布为新版本。
-- Migrated application source, tests, and development configuration to strict TypeScript while preserving the data format, single background writer, and UI behavior. This remains unreleased.
+- 将业务源码、测试及开发配置迁移到严格检查的 TypeScript；保留数据格式和后台单写架构。
+- Migrated application source, tests, and development configuration to strictly checked TypeScript while preserving the data format and single background writer.
 
 ### Documentation / 文档
 
@@ -15,8 +20,13 @@
 - Added the TypeScript migration plan and verification record, covering typed boundaries, compatibility safeguards, and executed checks.
 - 新增中英文升级特性说明和英文 README，明确与已审计 NewTabTodo 0.2.0 的差异、迁移场景及当前限制。
 - Added Chinese/English feature comparisons and an English README, explaining differences from audited NewTabTodo 0.2.0, migration scenarios, and current tradeoffs.
-- 新增双语版本文档更新清单，并在贡献指南、AGENTS 与 PR 模板中要求同步检查；本次仅更新文档，未新增产品能力或发布新安装包。
-- Added a bilingual release-documentation checklist, linked from contributor/agent guidance and the PR template. This changes documentation only; it adds no product features or new release archive.
+- 新增双语版本文档更新清单，并在贡献指南、AGENTS 与 PR 模板中要求同步检查。
+- Added a bilingual release-documentation checklist, linked from contributor/agent guidance and the PR template.
+
+### Limits / 限制
+
+- 仍需手动安装和更新；无跨设备自动同步，界面仍为中文。原版 Chrome 安装包无法在本次迁移中进行逐像素对照。
+- Installation and updates remain manual; there is no cross-device sync and the UI remains Chinese. A pixel-by-pixel comparison with the original Chrome package was unavailable for this migration.
 
 ## 0.1.0 — 2026-10-27
 

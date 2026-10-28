@@ -4,11 +4,11 @@
 
 Organize your tasks whenever you open a new tab: familiar horizontal boards, local storage, and backups you can inspect, restore, and take with you.
 
-This is an independent, MIT-licensed implementation inspired by NewTabTodo. It is unaffiliated with the original author and does not include the original code or assets.
+This is an independent, MIT-licensed implementation inspired by NewTabTodo. It is unaffiliated with the original author and does not include the original code or assets. See `LICENSE.txt` in the archive for third-party dependency licenses.
 
 ## Why switch from NewTabTodo?
 
-Version **0.1.0** keeps familiar board interactions while improving migration, backups, and editing across tabs. Comparisons refer to the audited **NewTabTodo 0.2.0**.
+Version **0.2.0** restores the original drag placeholders and preview feedback while retaining familiar board interactions and improving migration, backups, and editing across tabs. Comparisons refer to the audited **NewTabTodo 0.2.0**.
 
 | Your concern | Improvements available now |
 | --- | --- |
@@ -35,9 +35,11 @@ Version **0.1.0** keeps familiar board interactions while improving migration, b
 
 No account, telemetry, backend, or automatic cross-device synchronization. This version is not listed in the Chrome Web Store.
 
+![Synthetic drag preview with destination placeholder](docs/images/drag-preview.png)
+
 ## Installation and updates
 
-1. Download `OhMyNewTabTodo-0.1.0.zip` from [Releases](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases) and extract it to a permanent directory.
+1. Download `OhMyNewTabTodo-0.2.0.zip` from [Releases](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases) and extract it to a permanent directory.
 2. Open `chrome://extensions`, enable **Developer mode**, choose **Load unpacked**, and select the directory containing `manifest.json`.
 3. Open a new tab. If another new-tab extension takes precedence, temporarily disable it; retain the original extension and export until migration is verified.
 
@@ -91,6 +93,6 @@ CI checks pushes and PRs. Version tags trigger validation and release packaging.
 
 [Features](docs/features.en.md) · [Release documentation checklist](docs/releasing.md#english-release-checklist) · [Repository guidelines](AGENTS.md) · [License](LICENSE)
 
-The [design](docs/superpowers/specs/2026-10-27-v1-design.md), [0.1.0 verification record](docs/verification-v0.1.0.md), [TypeScript migration verification](docs/verification-typescript-migration.md), [contribution guide](CONTRIBUTING.md), and [privacy policy](PRIVACY.md) are currently Chinese or bilingual. Use synthetic reproductions in [Issues](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/issues), without personal task content.
+The [design](docs/superpowers/specs/2026-10-27-v1-design.md), [0.2.0 verification record](docs/verification-v0.2.0.md), [historical 0.1.0 verification](docs/verification-v0.1.0.md), [TypeScript migration verification](docs/verification-typescript-migration.md), [contribution guide](CONTRIBUTING.md), and [privacy policy](PRIVACY.md) are currently Chinese or bilingual. Use synthetic reproductions in [Issues](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/issues), without personal task content.
 
 Application source, tests, and development configuration use TypeScript; `scripts/package.mjs` remains directly executable by Node. Maintenance follows specifications and test-driven development. Every release reviews the paired README and feature pages, changelog, and verification record. Update both user-documentation languages in the same PR; preserve historical audit and release evidence.

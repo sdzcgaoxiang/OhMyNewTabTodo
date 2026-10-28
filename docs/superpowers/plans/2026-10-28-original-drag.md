@@ -1,6 +1,6 @@
 # Original Drag Interaction Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Reproduce NewTabTodo 0.2.0 card and board drag feedback, placement, and persistence.
 
@@ -38,11 +38,11 @@
 - Produce: `boardDropIndex(boardOrder: string[], visibleBoardIds: string[], draggedId: string, visibleIndex: number): number`.
 - Both return the insertion index after removing `draggedId`; clamp out-of-range destination indexes.
 
-- [ ] Write Node tests for same-board upward/downward moves, cross-board empty target, hidden completed cards, and hidden boards.
-- [ ] Run `npm test`; confirm the new tests fail because the functions are missing.
-- [ ] Implement `src/drag-position.ts` with visible-order to complete-order mapping.
-- [ ] Run `npm test`; confirm the new tests pass.
-- [ ] Commit as `test: cover drag destination mapping` with implementation.
+- [x] Write Node tests for same-board upward/downward moves, cross-board empty target, hidden completed cards, and hidden boards.
+- [x] Run `npm test`; confirm the new tests fail because the functions are missing.
+- [x] Implement `src/drag-position.ts` with visible-order to complete-order mapping.
+- [x] Run `npm test`; confirm the new tests pass.
+- [x] Commit as `test: cover drag destination mapping` with implementation.
 
 ### Task 2: Original drag structure and persistence
 
@@ -55,12 +55,12 @@
 - Consume `cardDropIndex` and `boardDropIndex` from Task 1.
 - Consume existing `perform(operation: RepositoryOperation): Promise<boolean>` and `board.move` / `card.move` operations.
 
-- [ ] Replace the existing native-drag browser test with a failing test for card reordering, cross-board movement, board reordering, empty board target, and cancel outside a target; assert persisted order after reload.
-- [ ] Run `npm run build && npm run test:e2e`; confirm the new drag assertions fail.
-- [ ] Install `@hello-pangea/dnd`, replace native drag handlers with one `DragDropContext`, horizontal board `Droppable`, board `Draggable` with header handle, and vertical card `Droppable` / `Draggable` nodes and placeholders.
-- [ ] In `onDragEnd`, ignore missing or unchanged destinations, map visible indexes, and submit exactly one move through `perform`; never persist drag previews.
-- [ ] Run `npm run typecheck && npm run build && npm run test:e2e`; confirm passing.
-- [ ] Commit as `feat: restore original card and board drag behavior`.
+- [x] Replace the existing native-drag browser test with a failing test for card reordering, cross-board movement, board reordering, empty board target, and cancel outside a target; assert persisted order after reload.
+- [x] Run `npm run build && npm run test:e2e`; confirm the new drag assertions fail.
+- [x] Install `@hello-pangea/dnd`, replace native drag handlers with one `DragDropContext`, horizontal board `Droppable`, board `Draggable` with header handle, and vertical card `Droppable` / `Draggable` nodes and placeholders.
+- [x] In `onDragEnd`, ignore missing or unchanged destinations, map visible indexes, and submit exactly one move through `perform`; never persist drag previews.
+- [x] Run `npm run typecheck && npm run build && npm run test:e2e`; confirm passing.
+- [x] Commit as `feat: restore original card and board drag behavior`.
 
 ### Task 3: Original visual feedback and edge cases
 
@@ -72,11 +72,11 @@
 **Interfaces:**
 - Consume Task 2's draggable nodes and drag state snapshots.
 
-- [ ] Add failing browser assertions for placeholder space and displaced neighbors during drag, highlighted card list, disabled drag of hidden completed cards, drag near scroll boundaries, and button controls after drag.
-- [ ] Run `npm run build && npm run test:e2e`; confirm the new assertions fail.
-- [ ] Apply drag state classes and CSS for original highlighted list and dragged shadow; preserve sortable transforms supplied by the library and resolve card/list overflow if necessary.
-- [ ] Run `npm run check` and manually inspect a synthetic board drag in isolated Chromium.
-- [ ] Commit as `feat: match original drag preview feedback`.
+- [x] Add failing browser assertions for placeholder space and displaced neighbors during drag, highlighted card list, disabled drag of hidden completed cards, drag near scroll boundaries, and button controls after drag.
+- [x] Run `npm run build && npm run test:e2e`; confirm the new assertions fail.
+- [x] Apply drag state classes and CSS for original highlighted list and dragged shadow; preserve sortable transforms supplied by the library and resolve card/list overflow if necessary.
+- [x] Run `npm run check` and manually inspect a synthetic board drag in isolated Chromium.
+- [x] Commit as `feat: match original drag preview feedback`.
 
 ### Task 4: Documentation and final verification
 
@@ -86,6 +86,6 @@
 
 **Interfaces:** No product API changes.
 
-- [ ] Document the migrated original interactions and verification evidence, including original-package evidence boundary.
-- [ ] Run `npm run check` and `git diff --check`; record actual results.
-- [ ] Commit as `docs: verify original drag migration`.
+- [x] Document the migrated original interactions and verification evidence, including original-package evidence boundary.
+- [x] Run `npm run check` and `git diff --check`; record actual results.
+- [x] Commit as `docs: verify original drag migration`.
