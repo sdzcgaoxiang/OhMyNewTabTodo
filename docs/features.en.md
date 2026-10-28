@@ -16,6 +16,8 @@ OhMyNewTabTodo keeps the familiar horizontal board workflow while improving migr
 
 These are retained workflows, not advertised as new upgrades. The interface is independently designed rather than a pixel-identical reproduction.
 
+The unreleased development build restores the original drag placeholder, displacement, destination-list highlight, and dragged-card shadow. The published v0.1.0 package still moves items only after dropping.
+
 ![Familiar boards using synthetic sample content](images/board.png)
 
 ## Improvements available now

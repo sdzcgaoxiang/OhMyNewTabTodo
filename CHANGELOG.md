@@ -4,6 +4,8 @@
 
 ### Changed / 变更
 
+- 恢复原版卡片与看板拖动中的占位、让位和目标列表反馈；继续由后台单次保存最终位置。尚未发布。
+- Restored the original card and board drag placeholders, displacement, and destination feedback; the background writer still saves the final position once. Unreleased.
 - 将业务源码、测试及开发配置迁移到严格检查的 TypeScript；保留数据格式、后台单写和现有界面行为。此项尚未发布为新版本。
 - Migrated application source, tests, and development configuration to strict TypeScript while preserving the data format, single background writer, and UI behavior. This remains unreleased.
 
