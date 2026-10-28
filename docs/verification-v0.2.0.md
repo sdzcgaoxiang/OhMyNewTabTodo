@@ -24,4 +24,6 @@ This release restores the original card and board drag placeholders, displacemen
 
 ## 远程发布 / Remote publication
 
-PR CI、tag 工作流、GitHub Release 附件和服务端校验和在实际发布后核对；不在发布前宣称远程结果。/ PR CI, tag workflow, release assets, and server-side checksums will be recorded after publication.
+[PR #1](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/pull/1) 已合并；两个 [CI 检查](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/actions/runs/40635864791)和[对应 PR 检查](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/actions/runs/40635868847)均通过。`v0.2.0` tag 指向合并提交 `9c4123dcdf78231e0f500ba2993d3a81f87587c0`，[发布工作流](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/actions/runs/40636146072)通过。/ PR #1 was merged, both CI checks and the tag release workflow passed, and the tag points to the merge commit.
+
+[v0.2.0 Release](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.2.0) 已发布，附 `OhMyNewTabTodo-0.2.0.zip` 与 `SHA256SUMS.txt`；自动生成的完整 CHANGELOG 已整理为本版中英文发布说明。下载两个附件后执行 `shasum -a 256 -c SHA256SUMS.txt`，ZIP 校验通过，`unzip -t` 无错误，包内 manifest 版本为 0.2.0。GitHub 附件的 ZIP SHA-256 为 `2ea42b9b45dcacbe87e3ab245a279549903fae7874ab6942afc3e9faaa6139e0`，与下载的校验文件及 GitHub 资产摘要一致；校验文件 SHA-256 为 `cfa92cc8835b065e195c11c624198dcd001108c86b0767f77425d61bb897d2f7`。/ The release contains the archive and checksum file, curated bilingual notes, and verified downloaded assets. The published archive hash differs from the independently built local archive hash recorded above; use the published `SHA256SUMS.txt` to verify the downloaded package.
