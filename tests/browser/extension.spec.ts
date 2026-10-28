@@ -69,17 +69,17 @@ test('existing app_state opens and edits without resetting revision or unknown f
   await page.evaluate((state) => chrome.storage.local.set({ app_state: state }), oldState);
   await page.reload();
   await expect(page.getByRole('heading', { name: '工作', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: '检查导出' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '检查导出', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '编辑卡片' }).click();
   await page.getByLabel('卡片标题').fill('迁移后编辑');
   await page.getByRole('button', { name: '保存卡片' }).click();
-  await expect(page.getByRole('button', { name: '迁移后编辑' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '迁移后编辑', exact: true })).toBeVisible();
   const stored = await page.evaluate(
     async () => (await chrome.storage.local.get('app_state')).app_state,
   );
   expect(stored).toMatchObject({ revision: 18, custom: oldState.custom });
 });
-test('native drag moves cards and reorders boards persistently', async ({ page }) => {
+test('drag moves cards and reorders boards persistently', async ({ page }) => {
   await addBoard(page, 'A');
   await addBoard(page, 'B');
   await addCard(page, '拖动任务');
@@ -89,14 +89,28 @@ test('native drag moves cards and reorders boards persistently', async ({ page }
   const boardB = page
     .locator('.board')
     .filter({ has: page.getByRole('heading', { name: 'B', exact: true }) });
-  await boardA.locator('.task-card').dragTo(boardB.locator('.board-header'));
+  await boardA.locator('.task-card').dragTo(boardB.locator('.board-card-list'), { steps: 12 });
   await expect(boardB.locator('.task-card')).toHaveCount(1);
   await expect(boardA.locator('.task-card')).toHaveCount(0);
-  await boardA.locator('.board-header').dragTo(boardB.locator('.board-header'));
+  await boardA.locator('.board-header').dragTo(boardB.locator('.board-header'), { steps: 12 });
   await expect(page.locator('.board h2')).toHaveText(['B', 'A']);
   await page.reload();
   await expect(page.locator('.board h2')).toHaveText(['B', 'A']);
   await expect(page.locator('.board').first().locator('.task-card')).toHaveCount(1);
+});
+test('keyboard drag reorders cards in the same board', async ({ page }) => {
+  await addBoard(page);
+  await addCard(page, '甲');
+  await addCard(page, '乙');
+  await addCard(page, '丙');
+  const cards = page.locator('.task-card');
+  await cards.first().focus();
+  await page.keyboard.press('Space');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Space');
+  await expect(cards.locator('.card-title')).toHaveText(['乙', '甲', '丙']);
+  await page.reload();
+  await expect(page.locator('.task-card .card-title')).toHaveText(['乙', '甲', '丙']);
 });
 test('card display settings and hidden boards survive reload', async ({ page }) => {
   await addBoard(page);
