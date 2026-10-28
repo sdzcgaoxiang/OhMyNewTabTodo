@@ -83,7 +83,6 @@ function TaskCard({
   edit,
   detail,
   confirm,
-  showCompleted,
   now,
 }: {
   card: Card;
@@ -95,7 +94,6 @@ function TaskCard({
   edit: () => void;
   detail: () => void;
   confirm: (value: ConfirmState) => void;
-  showCompleted: boolean;
   now: Date;
 }) {
   const due = duePresentation(card, now);
@@ -568,7 +566,6 @@ export default function App() {
                                     dragIndex,
                                     state,
                                     perform,
-                                    showCompleted,
                                     now,
                                   }}
                                   index={board.cardIds.indexOf(card.id)}
