@@ -1,6 +1,10 @@
-import type { Card } from './types.ts';
+import type { Card, Language } from './types.ts';
 // Dates represent the user's local calendar, never an implicit UTC timestamp.
-export function duePresentation(card: Card, now = new Date()): { text: string; overdue: boolean } {
+export function duePresentation(
+  card: Card,
+  now = new Date(),
+  language: Language = 'en',
+): { text: string; overdue: boolean } {
   const raw = [card.dueDate, card.dueTime].filter(Boolean).join(' ');
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(card.dueDate || '');
   if (!match) return { text: raw, overdue: false };
@@ -24,11 +28,15 @@ export function duePresentation(card: Card, now = new Date()): { text: string; o
     now.getHours() * 60 + now.getMinutes() >= Number(time[1]) * 60 + Number(time[2]);
   const overdue = !card.completed && (distance < 0 || !!expiredToday);
   const label = overdue
-    ? `已过期 · ${card.dueDate}`
+    ? `${language === 'en' ? 'Overdue' : '已过期'} · ${card.dueDate}`
     : distance === 0
-      ? '今天'
+      ? language === 'en'
+        ? 'Today'
+        : '今天'
       : distance === 1
-        ? '明天'
+        ? language === 'en'
+          ? 'Tomorrow'
+          : '明天'
         : card.dueDate;
   return { text: [label, card.dueTime].filter(Boolean).join(' '), overdue };
 }

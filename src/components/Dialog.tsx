@@ -1,5 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { errorMessage } from './ui.ts';
+import { useLanguage, useT } from '../i18n.tsx';
 
 interface DialogProps {
   title: string;
@@ -8,15 +9,10 @@ interface DialogProps {
   drawer?: boolean;
   closeLabel?: string;
 }
-export function Dialog({
-  title,
-  onClose,
-  children,
-  drawer = false,
-  closeLabel = '关闭窗口',
-}: DialogProps) {
+export function Dialog({ title, onClose, children, drawer = false, closeLabel }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null),
     id = useId();
+  const t = useT();
   useEffect(() => {
     const dialog = ref.current;
     dialog?.showModal();
@@ -37,7 +33,7 @@ export function Dialog({
     >
       <header className="dialog-header">
         <h2 id={id}>{title}</h2>
-        <button className="icon-button" aria-label={closeLabel} onClick={onClose}>
+        <button className="icon-button" aria-label={closeLabel || t('关闭窗口')} onClick={onClose}>
           ×
         </button>
       </header>
@@ -52,19 +48,21 @@ export interface ConfirmProps {
   onConfirm: () => Promise<unknown> | void;
   onClose: () => void;
 }
-export function Confirm({ title, text, action = '确认删除', onConfirm, onClose }: ConfirmProps) {
-  const [error, setError] = useState(''),
+export function Confirm({ title, text, action, onConfirm, onClose }: ConfirmProps) {
+  const [error, setError] = useState<unknown>(null),
     [busy, setBusy] = useState(false);
+  const t = useT();
+  const language = useLanguage();
   return (
     <Dialog title={title} onClose={onClose}>
       <p>{text}</p>
-      {error && (
+      {error != null && (
         <p className="error" role="alert">
-          {error}
+          {errorMessage(error, language)}
         </p>
       )}
       <footer className="form-actions">
-        <button onClick={onClose}>取消</button>
+        <button onClick={onClose}>{t('取消')}</button>
         <button
           className="danger"
           disabled={busy}
@@ -74,13 +72,13 @@ export function Confirm({ title, text, action = '确认删除', onConfirm, onClo
               await onConfirm();
               onClose();
             } catch (e) {
-              setError(errorMessage(e));
+              setError(e);
             } finally {
               setBusy(false);
             }
           }}
         >
-          {busy ? '处理中…' : action}
+          {busy ? t('处理中…') : action || t('确认删除')}
         </button>
       </footer>
     </Dialog>

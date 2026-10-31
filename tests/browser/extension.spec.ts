@@ -3,13 +3,14 @@ import type { Page } from '@playwright/test';
 import path from 'node:path';
 import { legacy } from '../fixtures.ts';
 import { emptyState } from '../../src/model.ts';
+import { exportFull } from '../../src/transfer.ts';
 import type { AppState } from '../../src/types.ts';
 declare global {
   interface Window {
     pendingFiles: Record<string, () => void>;
   }
 }
-const test = base.extend({
+const test = base.extend<{ rawPage: Page }>({
   context: async ({}, use) => {
     const extensionPath = path.resolve('dist');
     const context = await chromium.launchPersistentContext('', {
@@ -29,6 +30,21 @@ const test = base.extend({
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto(`chrome-extension://${id}/index.html`);
+    await page.evaluate((state) => chrome.storage.local.set({ app_state: state }), {
+      ...emptyState(),
+      language: 'zh-CN',
+    });
+    await page.reload();
+    await use(page);
+    expect(errors).toEqual([]);
+  },
+  rawPage: async ({ context }, use) => {
+    let [worker] = context.serviceWorkers();
+    if (!worker) worker = await context.waitForEvent('serviceworker');
+    const page = await context.newPage();
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.goto(`chrome-extension://${new URL(worker.url()).host}/index.html`);
     await use(page);
     expect(errors).toEqual([]);
   },
@@ -57,6 +73,141 @@ async function upload(page: Page, data: unknown) {
     buffer: Buffer.from(JSON.stringify(data)),
   });
 }
+test('English is the fresh default and homepage language switch persists across tabs', async ({
+  rawPage,
+  context,
+}) => {
+  await expect(rawPage.getByRole('heading', { name: 'My boards' })).toBeVisible();
+  await expect(rawPage.getByRole('button', { name: 'English' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(rawPage.locator('html')).toHaveAttribute('lang', 'en');
+  await rawPage.getByRole('button', { name: '简体中文' }).click();
+  await expect(rawPage.getByRole('heading', { name: '我的看板' })).toBeVisible();
+  await expect(rawPage.locator('html')).toHaveAttribute('lang', 'zh-CN');
+  await expect
+    .poll(async () =>
+      rawPage.evaluate(async () => {
+        const stored = (await chrome.storage.local.get('app_state')).app_state as AppState;
+        return stored.language;
+      }),
+    )
+    .toBe('zh-CN');
+  await rawPage.reload();
+  await expect(rawPage.getByRole('heading', { name: '我的看板' })).toBeVisible();
+  const second = await context.newPage();
+  await second.goto(rawPage.url());
+  await expect(second.getByRole('heading', { name: '我的看板' })).toBeVisible();
+  await second.getByRole('button', { name: 'English' }).click();
+  await expect(rawPage.getByRole('heading', { name: 'My boards' })).toBeVisible();
+});
+test('English labels cover editing, details, settings, bookmarks, and import preview', async ({
+  rawPage,
+}) => {
+  await rawPage.getByRole('button', { name: 'New board', exact: true }).first().click();
+  await expect(rawPage.getByRole('dialog')).toContainText('Board name');
+  await rawPage.getByLabel('Board name').fill('Work');
+  await rawPage.getByRole('button', { name: 'Save board' }).click();
+  await rawPage.getByRole('button', { name: 'Add card to bottom' }).click();
+  await expect(rawPage.getByRole('dialog')).toContainText('Card title');
+  await rawPage.getByLabel('Card title').fill('Task');
+  await rawPage.getByRole('button', { name: 'Save card' }).click();
+  await rawPage.getByRole('button', { name: 'Task', exact: true }).click();
+  await expect(rawPage.getByRole('dialog')).toContainText('Card details');
+  await rawPage.getByRole('button', { name: 'Close dialog' }).click();
+  await rawPage.getByRole('button', { name: 'Quick links' }).click();
+  await expect(rawPage.getByRole('dialog')).toContainText('Add link');
+  await rawPage.getByRole('button', { name: 'Close quick links' }).click();
+  await rawPage.getByRole('button', { name: 'Settings' }).click();
+  await rawPage.getByRole('button', { name: 'Import / Export' }).click();
+  await expect(rawPage.getByRole('dialog')).toContainText('Export full backup');
+  await rawPage.getByLabel('Choose JSON file').setInputFiles({
+    name: 'legacy.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(legacy())),
+  });
+  await expect(rawPage.getByRole('dialog')).toContainText('Import preview');
+  await expect(rawPage.getByRole('dialog')).toContainText('The original export has no bookmarks');
+});
+test('language switch remains keyboard operable at phone width and failed writes keep English', async ({
+  rawPage,
+}) => {
+  await rawPage.setViewportSize({ width: 375, height: 800 });
+  const chinese = rawPage.getByRole('button', { name: '简体中文' });
+  await expect(chinese).toBeVisible();
+  const clockLines = await rawPage.locator('.clock time, .clock span').evaluateAll((elements) =>
+    elements.map((element) => ({
+      height: element.getBoundingClientRect().height,
+      fontSize: Number.parseFloat(getComputedStyle(element).fontSize),
+    })),
+  );
+  expect(clockLines.every(({ height, fontSize }) => height <= fontSize * 1.6)).toBe(true);
+  await rawPage.getByRole('textbox', { name: 'Search the web' }).fill('unfinished query');
+  await rawPage.evaluate(() => {
+    const send = chrome.runtime.sendMessage.bind(chrome.runtime);
+    chrome.runtime.sendMessage = ((message: { type?: string; operation?: { type?: string } }) =>
+      message.type === 'dispatch' && message.operation?.type === 'language'
+        ? Promise.reject(new Error('test write failed'))
+        : send(message)) as typeof chrome.runtime.sendMessage;
+  });
+  await chinese.focus();
+  await rawPage.keyboard.press('Enter');
+  await expect(rawPage.getByRole('heading', { name: 'My boards' })).toBeVisible();
+  await expect(rawPage.getByRole('alert')).toContainText('Something went wrong');
+  await expect(rawPage.getByRole('textbox', { name: 'Search the web' })).toHaveValue(
+    'unfinished query',
+  );
+});
+test('another tab changes open dialog copy without discarding an editor draft', async ({
+  rawPage,
+  context,
+}) => {
+  await rawPage.getByRole('button', { name: 'New board', exact: true }).first().click();
+  await rawPage.getByLabel('Board name').fill('Work');
+  await rawPage.getByRole('button', { name: 'Save board' }).click();
+  await rawPage.getByRole('button', { name: 'Edit board' }).click();
+  await rawPage.getByLabel('Board name').fill('Unsaved draft');
+  const second = await context.newPage();
+  await second.goto(rawPage.url());
+  await second.getByRole('button', { name: '简体中文' }).click();
+  await expect(rawPage.getByLabel('看板名称')).toHaveValue('Unsaved draft');
+  await rawPage.getByRole('button', { name: '取消' }).click();
+  await rawPage.getByRole('button', { name: '删除看板' }).click();
+  await expect(rawPage.getByRole('dialog')).toContainText('删除“Work”及其 0 张卡片？');
+  await second.getByRole('button', { name: 'English' }).click();
+  await expect(rawPage.getByRole('dialog')).toContainText('Delete “Work” and its 0 cards?');
+});
+test('an existing import error follows a language switch in another tab', async ({
+  rawPage,
+  context,
+}) => {
+  await rawPage.getByRole('button', { name: '简体中文' }).click();
+  await openTransfer(rawPage);
+  await rawPage.getByLabel('选择 JSON 文件').setInputFiles({
+    name: 'invalid.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from('{broken'),
+  });
+  await expect(rawPage.getByRole('alert').last()).toContainText('无法解析 JSON');
+  const second = await context.newPage();
+  await second.goto(rawPage.url());
+  await second.getByRole('button', { name: 'English' }).click();
+  await expect(rawPage.getByRole('heading', { name: 'My boards' })).toBeVisible();
+  await expect(rawPage.getByRole('alert').last()).toContainText('Could not read JSON');
+});
+test('replacement import success follows the language restored from backup', async ({
+  rawPage,
+}) => {
+  await rawPage.getByRole('button', { name: '简体中文' }).click();
+  await openTransfer(rawPage);
+  await upload(rawPage, exportFull(emptyState()));
+  await rawPage.getByLabel('导入方式').selectOption('replace');
+  await rawPage.getByLabel('我确认替换当前数据').check();
+  await rawPage.getByRole('button', { name: '确认导入' }).click();
+  await expect(rawPage.getByRole('heading', { name: 'My boards' })).toBeVisible();
+  await expect(rawPage.getByRole('status').last()).toContainText('Import saved');
+});
 test('search engine selector fills the search field vertically', async ({ page }) => {
   for (const width of [1280, 375]) {
     await page.setViewportSize({ width, height: 800 });
@@ -76,8 +227,9 @@ test('existing app_state opens and edits without resetting revision or unknown f
   page,
 }) => {
   const sample = legacy();
+  const { language: _language, ...oldBase } = emptyState();
   const oldState = {
-    ...emptyState(),
+    ...oldBase,
     revision: 17,
     data: { boards: sample.boards, cards: sample.cards, boardOrder: sample.boardOrder },
     custom: { nested: [null, 'keep'] },
@@ -86,9 +238,9 @@ test('existing app_state opens and edits without resetting revision or unknown f
   await page.reload();
   await expect(page.getByRole('heading', { name: '工作', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: '检查导出', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '编辑卡片' }).click();
-  await page.getByLabel('卡片标题').fill('迁移后编辑');
-  await page.getByRole('button', { name: '保存卡片' }).click();
+  await page.getByRole('button', { name: 'Edit card' }).click();
+  await page.getByLabel('Card title').fill('迁移后编辑');
+  await page.getByRole('button', { name: 'Save card' }).click();
   await expect(page.getByRole('button', { name: '迁移后编辑', exact: true })).toBeVisible();
   const stored = await page.evaluate(
     async () => (await chrome.storage.local.get('app_state')).app_state,
@@ -229,6 +381,7 @@ test('hidden completed cards cannot be dragged and hidden boards do not shift vi
   page,
 }) => {
   const sample = emptyState();
+  sample.language = 'zh-CN';
   sample.options.hideCompletedCards = true;
   sample.data = {
     boardOrder: ['a', 'hidden', 'b'],

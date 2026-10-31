@@ -8,11 +8,13 @@ function memory() {
   let values: Record<string, unknown> = {};
   return {
     fail: false,
+    writes: 0,
     async get(key: string) {
       return structuredClone({ [key]: values[key] });
     },
     async set(data: Record<string, unknown>) {
       if (this.fail) throw new Error('QUOTA_BYTES exceeded');
+      this.writes++;
       values = { ...values, ...structuredClone(data) };
     },
   };
@@ -27,6 +29,25 @@ test('concurrent operations are serialized from fresh state and survive worker r
   const state = await createRepository(area).read();
   assert.deepEqual(state.data.boardOrder, ['a', 'b']);
   assert.equal(state.revision, 2);
+});
+test('old stored state defaults to English without a write and language saves serialize', async () => {
+  const area = memory();
+  const { language: _language, ...oldState } = emptyState();
+  await area.set({ app_state: { ...oldState, revision: 7, custom: { keep: true } } });
+  const writesBeforeRead = area.writes;
+  const repo = createRepository(area);
+  const read = await repo.read();
+  assert.equal(read.language, 'en');
+  assert.equal(read.revision, 7);
+  assert.equal(area.writes, writesBeforeRead);
+  await Promise.all([
+    repo.dispatch({ type: 'language', language: 'zh-CN' }),
+    repo.dispatch({ type: 'language', language: 'en' }),
+  ]);
+  const stored = await createRepository(area).read();
+  assert.equal(stored.language, 'en');
+  assert.equal(stored.revision, 9);
+  assert.deepEqual(stored.custom, { keep: true });
 });
 test('failed write propagates and leaves previous state; queue recovers', async () => {
   const area = memory(),

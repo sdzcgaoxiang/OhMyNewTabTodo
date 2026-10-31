@@ -2,6 +2,13 @@
 
 ## Unreleased / 未发布
 
+### Added / 新增
+
+- 首页增加 `EN / 中文` 切换，首次使用默认英文；选择保存在本机并在已打开的新标签页同步，完整备份包含该选择。
+- Added an `EN / 中文` homepage switch with English as the first-use default. The choice persists locally, updates open new tabs, and is included in full backups.
+- 界面、导入导出提示、日期和错误反馈提供中英文；扩展说明与工具栏标题随 Chrome 语言显示。
+- Localized interface copy, import/export notices, dates, and errors; extension description and toolbar title follow Chrome's language.
+
 ## 0.2.0 — 2026-10-28
 
 ### Added / 新增

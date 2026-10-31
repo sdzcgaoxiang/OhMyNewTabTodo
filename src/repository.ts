@@ -1,5 +1,6 @@
 import { applyOperation, clone, DEFAULT_OPTIONS, emptyState, newId, same } from './model.ts';
 import { parseImport, prepareImport, snapshot } from './transfer.ts';
+import { issue } from './issues.ts';
 import type { RepositoryOperation } from './operations.ts';
 import type { AppState } from './types.ts';
 
@@ -26,6 +27,7 @@ export function isAppState(value: unknown): value is AppState {
   if (!object(boards) || !object(cards) || !strings(boardOrder)) return false;
   if (!Array.isArray(value.bookmarks) || !object(options)) return false;
   if (value.theme !== 'light' && value.theme !== 'dark') return false;
+  if (value.language !== 'en' && value.language !== 'zh-CN') return false;
   if (!Array.isArray(value.backups) || !Array.isArray(value.imports)) return false;
   if (Object.entries(DEFAULT_OPTIONS).some(([key]) => typeof options[key] !== 'boolean'))
     return false;
@@ -76,7 +78,10 @@ export function createRepository(area: StorageArea): {
     const stored = (await area.get(STORAGE_KEY))[STORAGE_KEY];
     if (stored === undefined) return emptyState();
     if (!object(stored) || stored.schemaVersion !== 1)
-      throw new Error('本地数据版本不受支持，请勿清空数据；请更新扩展。');
+      throw issue(
+        'repository.unsupportedVersion',
+        '本地数据版本不受支持，请勿清空数据；请更新扩展。',
+      );
     if (
       !Number.isSafeInteger(stored.revision) ||
       (stored.revision as number) < 0 ||
@@ -86,12 +91,14 @@ export function createRepository(area: StorageArea): {
       !Array.isArray(stored.data.boardOrder) ||
       !Array.isArray(stored.backups)
     )
-      throw new Error('本地数据结构异常，请保留备份后检查。');
+      throw issue('repository.invalidState', '本地数据结构异常，请保留备份后检查。');
     const state = {
       ...clone(stored),
       options: { ...DEFAULT_OPTIONS, ...(object(stored.options) ? stored.options : {}) },
+      language: stored.language === undefined ? 'en' : stored.language,
     };
-    if (!isAppState(state)) throw new Error('本地数据结构异常，请保留备份后检查。');
+    if (!isAppState(state))
+      throw issue('repository.invalidState', '本地数据结构异常，请保留备份后检查。');
     return state;
   }
   function recovery(next: AppState, previous: AppState, label: string): AppState {
@@ -111,9 +118,9 @@ export function createRepository(area: StorageArea): {
     let next: AppState;
     if (op.type === 'import' || op.type === 'restore' || op.type === 'clear') {
       if (!Number.isSafeInteger(op.expectedRevision))
-        throw new Error('缺少预览版本，请重新预览后操作');
+        throw issue('repository.missingPreview', '缺少预览版本，请重新预览后操作');
       if (op.expectedRevision !== previous.revision)
-        throw new Error('预览已过期：数据已发生变化，请重新预览后操作');
+        throw issue('repository.stalePreview', '预览已过期：数据已发生变化，请重新预览后操作');
     }
     if (op.type === 'import') {
       next = prepareImport(previous, parseImport(op.text), op);
@@ -121,7 +128,7 @@ export function createRepository(area: StorageArea): {
       recovery(next, previous, '导入前');
     } else if (op.type === 'restore') {
       const backup = previous.backups.find((b) => b.id === op.id);
-      if (!backup) throw new Error('恢复点已不存在');
+      if (!backup) throw issue('repository.recoveryMissing', '恢复点已不存在');
       next = recovery({ ...previous, ...clone(backup.state) }, previous, '恢复前');
     } else if (op.type === 'clear') {
       next = recovery({ ...previous, data: emptyState().data, bookmarks: [] }, previous, '清空前');

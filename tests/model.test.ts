@@ -10,6 +10,24 @@ const withCard = () =>
     boardId: 'board-a',
     card: { title: '事项', history: [1], createdAt: '2020', custom: true },
   });
+test('English is the default and switching language preserves task data', () => {
+  const before = withCard();
+  assert.equal(before.language, 'en');
+  const after = applyOperation(before, { type: 'language', language: 'zh-CN' });
+  assert.equal(after.language, 'zh-CN');
+  assert.equal(before.language, 'en');
+  assert.deepEqual(after.data, before.data);
+  assert.deepEqual(after.options, before.options);
+});
+test('generated board names follow the language at creation time', () => {
+  const english = applyOperation(emptyState(), { type: 'board.add', id: 'en', title: '' });
+  assert.equal(english.data.boards.en.title, 'New board');
+  const chinese = applyOperation(
+    applyOperation(emptyState(), { type: 'language', language: 'zh-CN' }),
+    { type: 'board.add', id: 'zh', title: '' },
+  );
+  assert.equal(chinese.data.boards.zh.title, '新看板');
+});
 test('editing preserves invisible metadata and does not mutate input', () => {
   const before = withCard();
   const after = applyOperation(before, {

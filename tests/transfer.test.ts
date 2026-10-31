@@ -19,6 +19,26 @@ test('recovery is explicit and does not mutate parsed input', () => {
   assert.deepEqual(state.data.boardOrder, ['board-a', 'board-b']);
   assert.deepEqual(p.data.boardOrder, ['board-a']);
 });
+test('orphan recovery board name follows current language without renaming imported cards', () => {
+  const input = legacy();
+  input.cards.orphan = { id: 'orphan', title: '原有标题' };
+  const parsed = parse(input);
+  const english = prepareImport(emptyState(), parsed, { recoverCards: true });
+  const recoveredId = english.data.boardOrder.find((id) =>
+    english.data.boards[id].cardIds.includes('orphan'),
+  );
+  assert.ok(recoveredId);
+  assert.equal(english.data.boards[recoveredId].title, 'Recovered cards');
+  assert.equal(english.data.cards.orphan.title, '原有标题');
+  const chineseState = emptyState();
+  chineseState.language = 'zh-CN';
+  const chinese = prepareImport(chineseState, parsed, { recoverCards: true });
+  const chineseId = chinese.data.boardOrder.find((id) =>
+    chinese.data.boards[id].cardIds.includes('orphan'),
+  );
+  assert.ok(chineseId);
+  assert.equal(chinese.data.boards[chineseId].title, '恢复的卡片');
+});
 test('25 bookmarks and long titles are preserved', () => {
   const data = legacy();
   data.cards['card-a'].title = '中'.repeat(150);
@@ -61,6 +81,21 @@ test('legacy and full exports preserve business data, full includes settings', (
   assert.deepEqual(restored.data, state.data);
   assert.equal(restored.options.showCompactCards, true);
   assert.equal(restored.theme, 'light');
+});
+test('full backup restores language but old backup and legacy import retain the current choice', () => {
+  const source = emptyState();
+  source.language = 'zh-CN';
+  const full = exportFull(source);
+  assert.equal(full.state.language, 'zh-CN');
+  const current = emptyState();
+  assert.equal(prepareImport(current, parse(full), { mode: 'replace' }).language, 'zh-CN');
+  const oldFull = structuredClone(full);
+  delete oldFull.state.language;
+  assert.equal(prepareImport(source, parse(oldFull), { mode: 'replace' }).language, 'zh-CN');
+  assert.equal(prepareImport(source, parse(legacy()), { mode: 'replace' }).language, 'zh-CN');
+  assert.equal(prepareImport(source, parse(full), { mode: 'merge' }).language, 'zh-CN');
+  assert.equal(prepareImport(source, parse(full), { mode: 'copy' }).language, 'zh-CN');
+  assert.equal(Object.hasOwn(exportLegacy(source), 'language'), false);
 });
 test('nullable fields, unknown priority and nested metadata survive import, edit and export', () => {
   const data = legacy();

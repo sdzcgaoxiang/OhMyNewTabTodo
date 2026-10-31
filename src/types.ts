@@ -64,12 +64,14 @@ export interface Options {
 }
 
 export type Theme = 'light' | 'dark';
+export type Language = 'en' | 'zh-CN';
 
 export interface Snapshot {
   data: AppData;
   bookmarks: Bookmark[];
   options: Options;
   theme: Theme;
+  language?: Language;
   [key: string]: unknown;
 }
 
@@ -82,6 +84,7 @@ export interface RecoveryPoint {
 }
 
 export interface AppState extends Snapshot {
+  language: Language;
   schemaVersion: 1;
   revision: number;
   backups: RecoveryPoint[];

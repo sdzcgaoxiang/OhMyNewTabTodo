@@ -1,0 +1,8 @@
+{
+  "extensionDescription": {
+    "message": "Organize tasks on every new tab. Your data stays local, with NewTabTodo import and export support."
+  },
+  "actionTitle": {
+    "message": "Open OhMyNewTabTodo"
+  }
+}

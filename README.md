@@ -6,6 +6,16 @@
 
 这是受 NewTabTodo 使用体验启发的独立实现，项目采用 MIT 许可，与原作者无关联。原版代码和素材不在本仓库中；安装包中的第三方依赖许可见 `LICENSE.txt`。
 
+## 开发中：中英文界面
+
+本仓库当前源码已支持在**首页右上角**用 `EN / 中文` 切换界面，首次使用默认英文。语言选择保存在本机，其他已打开的新标签页会同步更新；完整备份包含该选择。旧格式导入及合并、作为副本导入保留本机语言，替换完整备份则恢复备份中的语言。扩展说明和工具栏标题按 **Chrome 的语言**显示，可能与首页选择不同。
+
+以下两张截图仅使用合成数据，展示同一首页的两种语言。此功能仍在 **Unreleased**，下载链接中的已发布 `0.2.0` 安装包仍为中文版；待正式发布后再更新版本和下载说明。
+
+![英文首页与 EN 中文切换入口，内容为合成样例](docs/images/board-en.png)
+
+![中文首页与 EN 中文切换入口，内容为合成样例](docs/images/board-zh.png)
+
 ## 为什么从 NewTabTodo 迁移
 
 当前版本 **0.2.0** 恢复原版拖动中的占位和预览反馈，并改进旧文件迁移、备份恢复和多标签页编辑。下表对比基于已审计的 NewTabTodo **0.2.0**。
@@ -20,7 +30,7 @@
 | 拖动时看不清目标位置 | 拖动中显示占位、相邻项让位、目标列高亮和卡片阴影 |
 | 希望可以检查和维护自己的工具 | MIT 开源，公开构建与测试，无遥测上传 |
 
-**当前限制：没有 Chrome 跨设备自动同步，需要手动安装和更新，界面目前为中文。** 如果你依赖自动同步，这一版还不是完整替代。恢复点不是普通编辑/删除的撤销历史，仍需外部备份。
+**当前限制：没有 Chrome 跨设备自动同步，需要手动安装和更新。** 已发布 `0.2.0` 安装包的界面仍为中文；本仓库源码中的双语功能尚未正式发布。如果你依赖自动同步，这一版还不是完整替代。恢复点不是普通编辑/删除的撤销历史，仍需外部备份。
 
 [查看完整对比、使用场景与验证依据 →](docs/features.md)
 
@@ -93,7 +103,7 @@ CI 在提交和 PR 上运行完整检查。维护者创建 `v<package.json versi
 
 ## 设计与维护
 
-[设计规格](docs/superpowers/specs/2026-10-27-v1-design.md) · [执行计划](docs/superpowers/plans/2026-10-27-v1.md) · [0.2.0 验收](docs/verification-v0.2.0.md) · [0.1.0 历史验收](docs/verification-v0.1.0.md) · [TypeScript 迁移验收](docs/verification-typescript-migration.md) · [原版兼容调研](docs/research/newtabtodo-compatibility.md) · [功能审计](docs/research/newtabtodo-audit.md) · [贡献指南](CONTRIBUTING.md) · [隐私说明](PRIVACY.md)
+[设计规格](docs/superpowers/specs/2026-10-27-v1-design.md) · [执行计划](docs/superpowers/plans/2026-10-27-v1.md) · [双语界面验收](docs/verification-bilingual-ui.md) · [0.2.0 验收](docs/verification-v0.2.0.md) · [0.1.0 历史验收](docs/verification-v0.1.0.md) · [TypeScript 迁移验收](docs/verification-typescript-migration.md) · [原版兼容调研](docs/research/newtabtodo-compatibility.md) · [功能审计](docs/research/newtabtodo-audit.md) · [贡献指南](CONTRIBUTING.md) · [隐私说明](PRIVACY.md)
 
 业务源码、测试及开发配置采用 TypeScript；发布脚本 `scripts/package.mjs` 保持可由 Node 直接执行。维护遵循 spec + 测试驱动：先约定可观察行为，再用合成数据写失败测试，完成实现后更新文档。数据格式变更必须有版本与迁移策略；没有自动同步的隐含承诺。第一版重点是可靠迁移和本机使用，欢迎通过 [Issues](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/issues) 提供可脱敏复现的问题。
 
