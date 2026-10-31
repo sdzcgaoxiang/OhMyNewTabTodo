@@ -708,7 +708,7 @@ export default function App() {
       <footer className="app-footer">
         <span>{t('本地保存 · 无追踪')}</span>
         <span>
-          OhMyNewTabTodo <span className="version">0.2.0</span>
+          OhMyNewTabTodo <span className="version">0.3.0</span>
         </span>
       </footer>
       {modal?.type === 'board' && (

@@ -1,16 +1,16 @@
 # Why switch from NewTabTodo?
 
-[简体中文](features.md) · [Installation and migration](../README.en.md) · [Download v0.2.0](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.2.0)
+[简体中文](features.md) · [Installation and migration](../README.en.md) · [Download v0.3.0](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.3.0)
 
-Published version: **OhMyNewTabTodo 0.2.0**; this repository also contains an unreleased bilingual interface. Comparison baseline: audited **NewTabTodo 0.2.0**. Comparison reviewed on 2026-10-28; bilingual feature reviewed on 2026-10-31.
+Current version: **OhMyNewTabTodo 0.3.0**. Comparison baseline: audited **NewTabTodo 0.2.0**. Comparison reviewed on 2026-10-28; bilingual feature reviewed on 2026-10-31.
 
 OhMyNewTabTodo keeps the familiar horizontal board workflow while improving migration, backups, recovery, and protection against conflicting edits across tabs. It is an independent MIT-licensed alternative, unaffiliated with the original author—not an official update or a fork of the original source.
 
-**Who it suits:** NewTabTodo users who want a familiar local workflow with more dependable data transfer and maintainable source code. **If you depend on automatic Chrome cross-device synchronization, this version is not a complete replacement.** The published `0.2.0` archive still has a Chinese interface; the bilingual source changes await release.
+**Who it suits:** NewTabTodo users who want a familiar local workflow with more dependable data transfer and maintainable source code. **If you depend on automatic Chrome cross-device synchronization, this version is not a complete replacement.**
 
-## In development: switch languages on the homepage
+## Switch languages on the homepage
 
-In the current source, the interface starts in English and has an `EN / 中文` switch in the homepage's upper right. The choice is saved in local browser storage and updates other open tabs of the extension; full backups include it. Legacy imports and merge/copy imports keep the local choice, while replacing from a full backup restores the file's choice. Chrome uses its own language for the extension description and toolbar title, which may differ from the homepage language. This feature is not in the published `0.2.0` archive yet.
+Version 0.3.0 starts in English on first use and has an `EN / 中文` switch in the homepage's upper right. The choice is saved in local browser storage and updates other open tabs of the extension; full backups include it. Legacy imports and merge/copy imports keep the local choice, while replacing from a full backup restores the file's choice. Chrome uses its own language for the extension description and toolbar title, which may differ from the homepage language.
 
 ![English homepage using only synthetic data](images/board-en.png)
 
@@ -32,7 +32,7 @@ v0.2.0 restores the original drag placeholder, displacement, destination-list hi
 
 ## Improvements available now
 
-| Situation | Audited NewTabTodo 0.2.0 behavior | OhMyNewTabTodo 0.2.0 improvement |
+| Situation | Audited NewTabTodo 0.2.0 behavior | OhMyNewTabTodo 0.3.0 improvement |
 | --- | --- | --- |
 | An exported file cannot be imported again | Export may omit `bookmarks`, while import requires an array and reports corruption | Accepts missing bookmarks; previews counts, warnings, and recovery choices before confirmation |
 | Boards exist in a file but are absent from the interface | Export includes leftover objects outside the display order, which the original importer mishandles | Preserves these boards and unassigned cards, with explicit recovery choices instead of guessing they should be deleted |
@@ -78,6 +78,6 @@ Tasks and backup files are processed locally. Searches and links you actively op
 
 ## Evidence and maintenance
 
-Original behavior is documented in the [compatibility research](research/newtabtodo-compatibility.md) and [feature audit](research/newtabtodo-audit.md). New behavior is supported by the [bilingual UI verification record](verification-bilingual-ui.md), [0.2.0 verification record](verification-v0.2.0.md), [transfer tests](../tests/transfer.test.ts), [persistence tests](../tests/repository.test.ts), and [browser acceptance tests](../tests/browser/extension.spec.ts). Research and verification narratives are currently Chinese or bilingual; this evidence is not an absolute guarantee for every environment.
+Original behavior is documented in the [compatibility research](research/newtabtodo-compatibility.md) and [feature audit](research/newtabtodo-audit.md). New behavior is supported by the [0.3.0 verification record](verification-v0.3.0.md), [historical bilingual UI development verification](verification-bilingual-ui.md), [historical 0.2.0 verification](verification-v0.2.0.md), [transfer tests](../tests/transfer.test.ts), [persistence tests](../tests/repository.test.ts), and [browser acceptance tests](../tests/browser/extension.spec.ts). Research and verification narratives are currently Chinese or bilingual; this evidence is not an absolute guarantee for every environment.
 
 Review both language versions with the [release documentation checklist](releasing.md#english-release-checklist) for every release. Planned features must not appear under improvements available now.

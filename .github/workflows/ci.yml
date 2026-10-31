@@ -36,8 +36,8 @@ jobs:
       - run: npx playwright install --with-deps chromium
       # 依次检查格式、运行单元测试、类型检查与构建、运行浏览器测试。
       - run: npm run check
-      # 重新构建，生成扩展 ZIP 和 SHA-256 校验文件。
-      - run: npm run package
+      # 将刚完成浏览器验收的 dist 直接打包，不再重新构建。
+      - run: npm run package:dist
       # 检查成功后，将安装包作为本次 Actions 运行的 artifact 保存。
       - uses: actions/upload-artifact@v4
         # 传给 upload-artifact 的配置参数。
@@ -46,6 +46,7 @@ jobs:
           name: extension-package
           # 上传打包脚本生成的 release/ 目录。
           path: release/
+          if-no-files-found: error
       # 任一步骤失败时，尝试上传 Playwright 的失败诊断文件。
       - uses: actions/upload-artifact@v4
         # 将默认的“前面成功才执行”条件改为“本作业发生失败时执行”。
