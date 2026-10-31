@@ -57,6 +57,21 @@ async function upload(page: Page, data: unknown) {
     buffer: Buffer.from(JSON.stringify(data)),
   });
 }
+test('search engine selector fills the search field vertically', async ({ page }) => {
+  for (const width of [1280, 375]) {
+    await page.setViewportSize({ width, height: 800 });
+    const bounds = await page.evaluate(() => {
+      const box = document.querySelector('.search-box');
+      const selector = box?.querySelector('select');
+      if (!box || !selector) throw new Error('Search controls are missing');
+      const outer = box.getBoundingClientRect();
+      const inner = selector.getBoundingClientRect();
+      return { topGap: inner.top - outer.top, bottomGap: outer.bottom - inner.bottom };
+    });
+    expect(bounds.topGap).toBeLessThanOrEqual(1.5);
+    expect(bounds.bottomGap).toBeLessThanOrEqual(1.5);
+  }
+});
 test('existing app_state opens and edits without resetting revision or unknown fields', async ({
   page,
 }) => {

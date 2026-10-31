@@ -156,6 +156,8 @@ button.danger {
 }
 .search-box select {
   width: 104px;
+  align-self: stretch;
+  margin: 0;
   border: 0;
   border-right: 1px solid var(--line);
   border-radius: 0;
