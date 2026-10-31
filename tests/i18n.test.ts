@@ -10,6 +10,11 @@ test('interface labels and dynamic counts use the selected language', () => {
   assert.equal(translate('zh-CN', 'home.boards'), '我的看板');
   assert.equal(translate('en', 'home.completedCount', { done: 2, total: 3 }), '2 / 3 completed');
   assert.equal(translate('zh-CN', 'home.completedCount', { done: 2, total: 3 }), '2 / 3 已完成');
+  assert.equal(
+    translate('en', 'app.deleteBoardQuestion', { title: 'Work', count: 1 }),
+    'Delete “Work” and its 1 card?',
+  );
+  assert.equal(translate('en', 'app.backupCardCount', { count: 1 }), '1 card');
 });
 
 test('dates and historical recovery labels are localized without modifying stored text', () => {

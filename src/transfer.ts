@@ -269,7 +269,7 @@ export function prepareImport(
     const id = newId('board');
     incoming.data.boards[id] = {
       id,
-      title: '恢复的卡片',
+      title: state.language === 'en' ? 'Recovered cards' : '恢复的卡片',
       cardIds: incoming.stats.orphanCardIds.slice(),
     };
     incoming.data.boardOrder.push(id);

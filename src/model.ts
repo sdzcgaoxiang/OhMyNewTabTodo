@@ -97,7 +97,12 @@ export function applyOperation(input: AppState, op: ModelOperation): AppState {
       const id = op.id || newId('board');
       if (Object.hasOwn(data.boards, id) || ['__proto__', 'constructor', 'prototype'].includes(id))
         throw issue('model.boardIdConflict', '看板 ID 冲突');
-      data.boards[id] = { id, title: title(op.title || '新看板'), cardIds: [], createdAt: now };
+      data.boards[id] = {
+        id,
+        title: title(op.title || (state.language === 'en' ? 'New board' : '新看板')),
+        cardIds: [],
+        createdAt: now,
+      };
       data.boardOrder.push(id);
       break;
     }

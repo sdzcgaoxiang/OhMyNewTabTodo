@@ -19,6 +19,26 @@ test('recovery is explicit and does not mutate parsed input', () => {
   assert.deepEqual(state.data.boardOrder, ['board-a', 'board-b']);
   assert.deepEqual(p.data.boardOrder, ['board-a']);
 });
+test('orphan recovery board name follows current language without renaming imported cards', () => {
+  const input = legacy();
+  input.cards.orphan = { id: 'orphan', title: '原有标题' };
+  const parsed = parse(input);
+  const english = prepareImport(emptyState(), parsed, { recoverCards: true });
+  const recoveredId = english.data.boardOrder.find((id) =>
+    english.data.boards[id].cardIds.includes('orphan'),
+  );
+  assert.ok(recoveredId);
+  assert.equal(english.data.boards[recoveredId].title, 'Recovered cards');
+  assert.equal(english.data.cards.orphan.title, '原有标题');
+  const chineseState = emptyState();
+  chineseState.language = 'zh-CN';
+  const chinese = prepareImport(chineseState, parsed, { recoverCards: true });
+  const chineseId = chinese.data.boardOrder.find((id) =>
+    chinese.data.boards[id].cardIds.includes('orphan'),
+  );
+  assert.ok(chineseId);
+  assert.equal(chinese.data.boards[chineseId].title, '恢复的卡片');
+});
 test('25 bookmarks and long titles are preserved', () => {
   const data = legacy();
   data.cards['card-a'].title = '中'.repeat(150);

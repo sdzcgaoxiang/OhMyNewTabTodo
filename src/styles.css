@@ -191,6 +191,28 @@ button.danger {
 .top-actions .icon-button {
   font-size: 23px;
 }
+.language-switch {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 2px;
+}
+.top-actions .language-switch button {
+  min-width: 33px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  line-height: 1.1;
+}
+.top-actions .language-switch button[aria-pressed='true'] {
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 700;
+}
+.top-actions .language-switch button[aria-pressed='false'] {
+  color: var(--muted);
+}
 .icon-button {
   padding: 2px 8px;
   border: 0;
@@ -245,6 +267,8 @@ button.danger {
   flex-direction: column;
   align-items: flex-end;
   gap: 8px;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .clock time {
   font-size: 30px;

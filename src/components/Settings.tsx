@@ -5,8 +5,13 @@ import { DEFAULT_OPTIONS, safeUrl } from '../model.ts';
 import type { AppState } from '../types.ts';
 import type { Act } from './ui.ts';
 import { errorMessage } from './ui.ts';
+import { useT } from '../i18n.tsx';
+import type { TranslationKey } from '../i18n.ts';
 type OptionKey = keyof typeof DEFAULT_OPTIONS;
-const sections: Record<string, ReadonlyArray<readonly [OptionKey, string, string]>> = {
+const sections: Record<
+  string,
+  ReadonlyArray<readonly [OptionKey, TranslationKey, TranslationKey | '']>
+> = {
   常规: [
     ['playSoundEffects', '完成提示音', '完成卡片时播放轻提示音'],
     ['allowHidingBoard', '允许隐藏看板', '隐藏的看板可随时重新显示'],
@@ -39,14 +44,15 @@ export function Settings({
   act: Act;
   onClose: () => void;
 }) {
+  const t = useT();
   const [section, setSection] = useState('常规'),
     [error, setError] = useState('');
   return (
-    <Dialog title="设置" drawer closeLabel="关闭设置" onClose={onClose}>
-      <nav className="settings-tabs" aria-label="设置分类">
+    <Dialog title={t('设置')} drawer closeLabel={t('关闭设置')} onClose={onClose}>
+      <nav className="settings-tabs" aria-label={t('设置分类')}>
         {[...Object.keys(sections), '导入 / 导出', '关于'].map((s) => (
           <button key={s} className={section === s ? 'selected' : ''} onClick={() => setSection(s)}>
-            {s}
+            {t(s as TranslationKey)}
           </button>
         ))}
       </nav>
@@ -58,8 +64,8 @@ export function Settings({
       {sections[section]?.map(([key, label, description]) => (
         <label className="option-row" key={key}>
           <span>
-            <strong>{label}</strong>
-            <small>{description}</small>
+            <strong>{t(label)}</strong>
+            <small>{description ? t(description) : null}</small>
           </span>
           <input
             type="checkbox"
@@ -70,7 +76,7 @@ export function Settings({
                 await act({ type: 'options.patch', patch: { [key]: e.target.checked } });
                 setError('');
               } catch (e) {
-                setError(errorMessage(e));
+                setError(errorMessage(e, state.language));
               }
             }}
           />
@@ -81,15 +87,17 @@ export function Settings({
         <section className="about">
           <div className="brand-mark">✓</div>
           <h3>OhMyNewTabTodo</h3>
-          <p>0.2.0 · 本地优先的开源新标签页待办</p>
-          <p>熟悉的看板交互，可带走的数据。独立实现，与 NewTabTodo 原作者无关联。</p>
-          <p className="muted">无账号、无统计上传、无跨设备自动同步。卸载前请导出完整备份。</p>
+          <p>{t('0.2.0 · 本地优先的开源新标签页待办')}</p>
+          <p>{t('熟悉的看板交互，可带走的数据。独立实现，与 NewTabTodo 原作者无关联。')}</p>
+          <p className="muted">
+            {t('无账号、无统计上传、无跨设备自动同步。卸载前请导出完整备份。')}
+          </p>
           <a
             href="https://github.com/sdzcgaoxiang/OhMyNewTabTodo"
             target="_blank"
             rel="noopener noreferrer"
           >
-            源码、更新与问题反馈 ↗
+            {t('源码、更新与问题反馈 ↗')}
           </a>
         </section>
       )}
@@ -105,11 +113,12 @@ export function Bookmarks({
   act: Act;
   onClose: () => void;
 }) {
+  const t = useT();
   const [error, setError] = useState(''),
     [busy, setBusy] = useState(false);
   return (
-    <Dialog title="常用链接" drawer closeLabel="关闭常用链接" onClose={onClose}>
-      <p className="muted">把经常访问的地方，放在触手可及的位置。</p>
+    <Dialog title={t('常用链接')} drawer closeLabel={t('关闭常用链接')} onClose={onClose}>
+      <p className="muted">{t('把经常访问的地方，放在触手可及的位置。')}</p>
       <div className="bookmark-list">
         {state.bookmarks.length ? (
           state.bookmarks.map((b) => (
@@ -122,16 +131,16 @@ export function Bookmarks({
               ) : (
                 <span>
                   {b.name}
-                  <small>无效地址，已保留原数据</small>
+                  <small>{t('无效地址，已保留原数据')}</small>
                 </span>
               )}
               <button
-                aria-label={`删除链接 ${b.name}`}
+                aria-label={t('app.deleteLink', { name: b.name })}
                 onClick={async () => {
                   try {
                     await act({ type: 'bookmark.delete', id: b.id });
                   } catch (e) {
-                    setError(errorMessage(e));
+                    setError(errorMessage(e, state.language));
                   }
                 }}
               >
@@ -140,7 +149,7 @@ export function Bookmarks({
             </div>
           ))
         ) : (
-          <p className="empty-note">添加你的第一个常用链接</p>
+          <p className="empty-note">{t('添加你的第一个常用链接')}</p>
         )}
       </div>
       <hr />
@@ -152,7 +161,7 @@ export function Bookmarks({
           const name = data.get('name');
           const url = data.get('url');
           if (typeof name !== 'string' || typeof url !== 'string') {
-            setError('链接表单无效，请重新填写');
+            setError(t('链接表单无效，请重新填写'));
             return;
           }
           setBusy(true);
@@ -161,18 +170,18 @@ export function Bookmarks({
             form.reset();
             setError('');
           } catch (e) {
-            setError(errorMessage(e));
+            setError(errorMessage(e, state.language));
           } finally {
             setBusy(false);
           }
         }}
       >
         <label>
-          链接名称
-          <input name="name" required placeholder="例如：GitHub" />
+          {t('链接名称')}
+          <input name="name" required placeholder={t('例如：GitHub')} />
         </label>
         <label>
-          网址
+          {t('网址')}
           <input name="url" required type="url" placeholder="https://" />
         </label>
         {error && (
@@ -181,7 +190,7 @@ export function Bookmarks({
           </p>
         )}
         <button className="primary" disabled={busy}>
-          添加链接
+          {t('添加链接')}
         </button>
       </form>
     </Dialog>

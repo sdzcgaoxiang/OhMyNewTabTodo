@@ -13,6 +13,9 @@ import type { ModelOperation, RepositoryOperation } from './operations.ts';
 import type { AppState, Board, Card, Options } from './types.ts';
 import type { CardInitial } from './components/ui.ts';
 import { errorMessage } from './components/ui.ts';
+import { formatClockDate, translate } from './i18n.ts';
+import type { TranslationKey } from './i18n.ts';
+import { I18nProvider, useLanguage, useT } from './i18n.tsx';
 const engines = [
   ['Google', 'hideGoogleSearch', 'https://www.google.com/search', 'q', 'G'],
   ['Bing', 'hideBingSearch', 'https://www.bing.com/search', 'q', 'b'],
@@ -24,12 +27,14 @@ type Modal =
   | { type: 'card'; initial: CardInitial }
   | { type: 'details'; cardId: string; boardId: string };
 interface ConfirmState {
-  title: string;
-  text: string;
-  action?: string;
+  titleKey: TranslationKey;
+  textKey: TranslationKey;
+  values?: Record<string, string | number>;
+  actionKey?: TranslationKey;
   operation: RepositoryOperation;
 }
 function Clock({ options }: { options: Options }) {
+  const language = useLanguage();
   const [now, setNow] = useState(new Date()),
     [visible, setVisible] = useState(true);
   useEffect(() => {
@@ -46,15 +51,13 @@ function Clock({ options }: { options: Options }) {
   return options.showClock && visible ? (
     <div className="clock">
       <time>
-        {now.toLocaleTimeString('en-GB', {
+        {now.toLocaleTimeString(language === 'en' ? 'en-US' : 'zh-CN', {
           hour: '2-digit',
           minute: '2-digit',
           hour12: !options.twentyFourHours,
         })}
       </time>
-      <span>
-        {now.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'long' })}
-      </span>
+      <span>{formatClockDate(language, now)}</span>
     </div>
   ) : null;
 }
@@ -98,7 +101,9 @@ function TaskCard({
   confirm: (value: ConfirmState) => void;
   now: Date;
 }) {
-  const due = duePresentation(card, now);
+  const t = useT();
+  const language = useLanguage();
+  const due = duePresentation(card, now, language);
   return (
     <Draggable
       draggableId={card.id}
@@ -110,7 +115,7 @@ function TaskCard({
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          aria-label={`拖动卡片：${card.title || '未命名卡片'}`}
+          aria-label={t('app.dragCard', { title: card.title || t('未命名卡片') })}
           style={provided.draggableProps.style}
           className={`task-card ${snapshot.isDragging ? 'dragging' : ''} ${card.completed ? 'completed' : ''} ${state.options.dimCompletedCards ? 'dim-enabled' : ''} ${state.options.showCompactCards ? 'compact' : ''}`}
           onDoubleClick={(e) => {
@@ -120,7 +125,7 @@ function TaskCard({
           <div className="card-heading">
             <input
               type="checkbox"
-              aria-label={card.completed ? '取消完成' : '标记完成'}
+              aria-label={card.completed ? t('取消完成') : t('标记完成')}
               checked={!!card.completed}
               onChange={async () => {
                 const ok = await perform({ type: 'card.toggle', id: card.id });
@@ -128,7 +133,7 @@ function TaskCard({
               }}
             />
             <button className="card-title" onClick={detail}>
-              {card.title || '未命名卡片'}
+              {card.title || t('未命名卡片')}
             </button>
           </div>
           {!state.options.showCompactCards && (
@@ -158,9 +163,9 @@ function TaskCard({
                   <span className={`priority ${card.priority === 'high' ? 'high' : ''}`}>
                     ●{' '}
                     {new Map([
-                      ['high', '高优先级'],
-                      ['normal', '普通'],
-                      ['low', '低优先级'],
+                      ['high', t('高优先级')],
+                      ['normal', t('普通')],
+                      ['low', t('低优先级')],
                     ]).get(card.priority) || card.priority}
                   </span>
                 )}
@@ -168,18 +173,18 @@ function TaskCard({
             </>
           )}
           <div className="card-actions">
-            <button aria-label="编辑卡片" title="编辑卡片" onClick={edit}>
-              编辑
+            <button aria-label={t('编辑卡片')} title={t('编辑卡片')} onClick={edit}>
+              {t('编辑')}
             </button>
             <button
-              aria-label="复制卡片"
-              title="复制卡片"
+              aria-label={t('复制卡片')}
+              title={t('复制卡片')}
               onClick={() => perform({ type: 'card.copy', id: card.id })}
             >
-              复制
+              {t('复制')}
             </button>
             <button
-              aria-label="卡片上移"
+              aria-label={t('卡片上移')}
               disabled={index === 0}
               onClick={() =>
                 perform({ type: 'card.move', id: card.id, boardId: board.id, index: index - 1 })
@@ -188,7 +193,7 @@ function TaskCard({
               ↑
             </button>
             <button
-              aria-label="卡片下移"
+              aria-label={t('卡片下移')}
               disabled={index === board.cardIds.length - 1}
               onClick={() =>
                 perform({ type: 'card.move', id: card.id, boardId: board.id, index: index + 1 })
@@ -197,24 +202,25 @@ function TaskCard({
               ↓
             </button>
             <button
-              aria-label="删除卡片"
-              title="删除卡片"
+              aria-label={t('删除卡片')}
+              title={t('删除卡片')}
               onClick={() =>
                 confirm({
-                  title: '删除卡片',
-                  text: `删除“${card.title}”？`,
+                  titleKey: '删除卡片',
+                  textKey: 'app.deleteCardQuestion',
+                  values: { title: card.title },
                   operation: { type: 'card.delete', id: card.id, expected: card },
                 })
               }
             >
-              删除
+              {t('删除')}
             </button>
           </div>
           {state.data.boardOrder.length > 1 && (
             <label className="move-select">
-              <span>移动到</span>
+              <span>{t('移动到')}</span>
               <select
-                aria-label="移动到看板"
+                aria-label={t('移动到看板')}
                 value={board.id}
                 onChange={(e) =>
                   perform({ type: 'card.move', id: card.id, boardId: e.target.value })
@@ -222,7 +228,7 @@ function TaskCard({
               >
                 {state.data.boardOrder.map((id) => (
                   <option key={id} value={id}>
-                    {state.data.boards[id].title || '未命名看板'}
+                    {state.data.boards[id].title || t('未命名看板')}
                   </option>
                 ))}
               </select>
@@ -268,7 +274,7 @@ export default function App() {
         if (active) accept(next);
       })
       .catch((e) => {
-        if (active) setFatal(errorMessage(e));
+        if (active) setFatal(errorMessage(e, 'en'));
       });
     return () => {
       active = false;
@@ -278,6 +284,9 @@ export default function App() {
   useEffect(() => {
     if (state) document.documentElement.style.colorScheme = state.theme;
   }, [state?.theme]);
+  useEffect(() => {
+    document.documentElement.lang = state?.language || 'en';
+  }, [state?.language]);
   async function act(operation: RepositoryOperation): Promise<AppState> {
     setPending((n) => n + 1);
     try {
@@ -286,7 +295,7 @@ export default function App() {
       setNotice(null);
       return next;
     } catch (e) {
-      setNotice(errorMessage(e));
+      setNotice(errorMessage(e, state?.language || 'en'));
       throw e;
     } finally {
       setPending((n) => n - 1);
@@ -303,13 +312,15 @@ export default function App() {
   if (fatal)
     return (
       <main className="fatal">
-        <h1>数据暂时无法读取</h1>
+        <h1>{translate('en', '数据暂时无法读取')}</h1>
         <p role="alert">{fatal}</p>
-        <p>请保留当前扩展，不要卸载或清空数据。</p>
-        <button onClick={() => location.reload()}>重新读取</button>
+        <p>{translate('en', '请保留当前扩展，不要卸载或清空数据。')}</p>
+        <button onClick={() => location.reload()}>{translate('en', '重新读取')}</button>
       </main>
     );
-  if (!state) return <main className="loading">正在打开你的看板…</main>;
+  if (!state) return <main className="loading">{translate('en', '正在打开你的看板…')}</main>;
+  const t = (key: TranslationKey, values?: Record<string, string | number>) =>
+    translate(state.language, key, values);
   const activeEngines = engines.filter((e) => !state.options[e[1]]),
     currentEngine = activeEngines.find((e) => e[0] === engine) || activeEngines[0];
   const visibleBoards = state.data.boardOrder.filter(
@@ -340,7 +351,7 @@ export default function App() {
       setState((current) => (current?.revision === dragState.revision ? dragState : current));
       void readState()
         .then(accept)
-        .catch((error) => setNotice(errorMessage(error)));
+        .catch((error) => setNotice(errorMessage(error, dragState.language)));
     });
   }
   function onDragEnd(result: DropResult): void {
@@ -367,7 +378,7 @@ export default function App() {
     const index = cardDropIndex(target.cardIds, visibleCardIds, draggableId, destination.index);
     commitDrag({ type: 'card.move', id: draggableId, boardId: target.id, index });
   }
-  return (
+  const view = (
     <div className="app" data-theme={state.theme}>
       <header className="topbar">
         <a className="brand" href="#" onClick={(e) => e.preventDefault()}>
@@ -379,7 +390,7 @@ export default function App() {
         {currentEngine && (
           <form className="search-box" action={currentEngine[2]} method="get">
             <select
-              aria-label="搜索引擎"
+              aria-label={t('搜索引擎')}
               value={currentEngine[0]}
               onChange={(e) => setEngine(e.target.value)}
             >
@@ -390,45 +401,72 @@ export default function App() {
               ))}
             </select>
             <input
-              aria-label="搜索网页"
+              aria-label={t('搜索网页')}
               name={currentEngine[3]}
-              placeholder="搜索网页，继续探索…"
+              placeholder={t('搜索网页，继续探索…')}
               autoComplete="off"
             />
-            <button aria-label="开始搜索">↗</button>
+            <button aria-label={t('开始搜索')}>↗</button>
           </form>
         )}
-        <nav className="top-actions" aria-label="主要操作">
+        <nav className="top-actions" aria-label={t('主要操作')}>
+          <div className="language-switch" role="group" aria-label={t('界面语言')}>
+            <button
+              type="button"
+              aria-label="English"
+              aria-pressed={state.language === 'en'}
+              onClick={() =>
+                state.language !== 'en' && perform({ type: 'language', language: 'en' })
+              }
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              aria-label="简体中文"
+              aria-pressed={state.language === 'zh-CN'}
+              onClick={() =>
+                state.language !== 'zh-CN' && perform({ type: 'language', language: 'zh-CN' })
+              }
+            >
+              中文
+            </button>
+          </div>
           <button
             className="icon-button"
-            aria-label="切换主题"
-            title="切换主题"
+            aria-label={t('切换主题')}
+            title={t('切换主题')}
             onClick={() =>
               perform({ type: 'theme', theme: state.theme === 'dark' ? 'light' : 'dark' })
             }
           >
             {state.theme === 'dark' ? '☼' : '☾'}
           </button>
-          <button onClick={() => setPanel('bookmarks')}>常用链接</button>
-          <button onClick={() => setPanel('settings')}>设置</button>
+          <button onClick={() => setPanel('bookmarks')}>{t('常用链接')}</button>
+          <button onClick={() => setPanel('settings')}>{t('设置')}</button>
         </nav>
       </header>
       <section className="workspace-heading">
         <div>
           <p className="eyebrow">YOUR SPACE, YOUR PACE</p>
           <h1>
-            我的看板<span className="workspace-count">{state.data.boardOrder.length}</span>
+            {t('home.boards')}
+            <span className="workspace-count">{state.data.boardOrder.length}</span>
           </h1>
-          <p className="muted">整理想法，把每一天过得更清晰。</p>
+          <p className="muted">{t('整理想法，把每一天过得更清晰。')}</p>
         </div>
         <Clock options={state.options} />
       </section>
       <div className="workspace-toolbar">
         <div className="progress-summary">
           <span className="status-dot" />
-          <span>{allCards.length ? `${done} / ${allCards.length} 已完成` : '从一件小事开始'}</span>
+          <span>
+            {allCards.length
+              ? t('home.completedCount', { done, total: allCards.length })
+              : t('从一件小事开始')}
+          </span>
           <span className="save-state" role="status">
-            {pending ? '正在保存…' : notice ? '保存失败' : '本机已保存'}
+            {pending ? t('正在保存…') : notice ? t('保存失败') : t('本机已保存')}
           </span>
         </div>
         <div className="workspace-controls">
@@ -437,23 +475,23 @@ export default function App() {
               className={showHidden ? 'selected' : ''}
               onClick={() => setShowHidden(!showHidden)}
             >
-              {showHidden ? '收起隐藏看板' : '显示隐藏看板'}
+              {showHidden ? t('收起隐藏看板') : t('显示隐藏看板')}
             </button>
           )}
           {state.options.hideCompletedCards && (
             <button onClick={() => setShowCompleted(!showCompleted)}>
-              {showCompleted ? '隐藏完成项' : '显示完成项'}
+              {showCompleted ? t('隐藏完成项') : t('显示完成项')}
             </button>
           )}
           <button className="primary" onClick={() => setModal({ type: 'board' })}>
-            新建看板
+            {t('新建看板')}
           </button>
         </div>
       </div>
       {notice && (
         <div className="toast error" role="alert">
           {notice}
-          <button aria-label="关闭提示" onClick={() => setNotice(null)}>
+          <button aria-label={t('关闭提示')} onClick={() => setNotice(null)}>
             ×
           </button>
         </div>
@@ -465,7 +503,7 @@ export default function App() {
               ref={boardDrop.innerRef}
               {...boardDrop.droppableProps}
               className="boards"
-              aria-label="看板列表"
+              aria-label={t('看板列表')}
               onWheel={(e) => {
                 if (
                   e.target instanceof Element &&
@@ -494,7 +532,9 @@ export default function App() {
                         <header
                           className="board-header"
                           {...boardDrag.dragHandleProps}
-                          aria-label={`拖动看板：${board.title || '未命名看板'}`}
+                          aria-label={t('app.dragBoard', {
+                            title: board.title || t('未命名看板'),
+                          })}
                         >
                           <span className="board-accent" />
                           <h2
@@ -502,15 +542,15 @@ export default function App() {
                               setModal({ type: 'board', board: structuredClone(board) })
                             }
                           >
-                            {board.title || '未命名看板'}
+                            {board.title || t('未命名看板')}
                           </h2>
                           <span className="count">
                             {cards.filter((c) => c.completed).length}/{cards.length}
                           </span>
                           <button
                             className="icon-button"
-                            aria-label="添加卡片到顶部"
-                            title="添加卡片到顶部"
+                            aria-label={t('添加卡片到顶部')}
+                            title={t('添加卡片到顶部')}
                             onClick={() =>
                               setModal({ type: 'card', initial: { boardId: id, index: 0 } })
                             }
@@ -520,12 +560,12 @@ export default function App() {
                         </header>
                         <div className="board-controls">
                           <button
-                            aria-label="编辑看板"
+                            aria-label={t('编辑看板')}
                             onClick={() =>
                               setModal({ type: 'board', board: structuredClone(board) })
                             }
                           >
-                            编辑
+                            {t('编辑')}
                           </button>
                           {state.options.allowHidingBoard && (
                             <button
@@ -537,11 +577,11 @@ export default function App() {
                                 })
                               }
                             >
-                              {board.isHidden ? '恢复显示' : '隐藏'}
+                              {board.isHidden ? t('恢复显示') : t('隐藏')}
                             </button>
                           )}
                           <button
-                            aria-label="看板左移"
+                            aria-label={t('看板左移')}
                             disabled={boardIndex === 0}
                             onClick={() =>
                               perform({ type: 'board.move', id, index: boardIndex - 1 })
@@ -550,7 +590,7 @@ export default function App() {
                             ←
                           </button>
                           <button
-                            aria-label="看板右移"
+                            aria-label={t('看板右移')}
                             disabled={boardIndex === state.data.boardOrder.length - 1}
                             onClick={() =>
                               perform({ type: 'board.move', id, index: boardIndex + 1 })
@@ -559,16 +599,17 @@ export default function App() {
                             →
                           </button>
                           <button
-                            aria-label="删除看板"
+                            aria-label={t('删除看板')}
                             onClick={() =>
                               setConfirm({
-                                title: '删除看板',
-                                text: `删除“${board.title}”及其 ${cards.length} 张卡片？`,
+                                titleKey: '删除看板',
+                                textKey: 'app.deleteBoardQuestion',
+                                values: { title: board.title, count: cards.length },
                                 operation: { type: 'board.delete', id, expected: board },
                               })
                             }
                           >
-                            删除
+                            {t('删除')}
                           </button>
                         </div>
                         <Droppable droppableId={id} type="card">
@@ -606,7 +647,9 @@ export default function App() {
                                 <div className="empty-board">
                                   <span>✓</span>
                                   <p>
-                                    {cards.length ? '都完成了，做得不错' : '留一点空间给新想法'}
+                                    {cards.length
+                                      ? t('都完成了，做得不错')
+                                      : t('留一点空间给新想法')}
                                   </p>
                                 </div>
                               )}
@@ -616,10 +659,10 @@ export default function App() {
                         </Droppable>
                         <button
                           className="add-card"
-                          aria-label="添加卡片到底部"
+                          aria-label={t('添加卡片到底部')}
                           onClick={() => setModal({ type: 'card', initial: { boardId: id } })}
                         >
-                          ＋ 添加卡片
+                          ＋ {t('添加卡片')}
                         </button>
                       </section>
                     )}
@@ -634,25 +677,28 @@ export default function App() {
                     <i />
                     <i />
                   </div>
-                  <h2>{state.data.boardOrder.length ? '看板已隐藏' : '给今天一个清晰的开始'}</h2>
+                  <h2>
+                    {state.data.boardOrder.length ? t('看板已隐藏') : t('给今天一个清晰的开始')}
+                  </h2>
                   <p>
                     {state.data.boardOrder.length
-                      ? '点击“显示隐藏看板”找回它们。'
-                      : '创建一个看板，或在设置中导入 NewTabTodo 数据。'}
+                      ? t('点击“显示隐藏看板”找回它们。')
+                      : t('创建一个看板，或在设置中导入 NewTabTodo 数据。')}
                   </p>
                   <button className="primary" onClick={() => setModal({ type: 'board' })}>
-                    新建看板
+                    {t('新建看板')}
                   </button>
-                  <button onClick={() => setPanel('settings')}>导入已有数据</button>
+                  <button onClick={() => setPanel('settings')}>{t('导入已有数据')}</button>
                 </section>
               )}
               {!!visibleBoards.length && (
                 <button
                   className="add-board-column"
-                  aria-label="再建一个看板"
+                  aria-label={t('再建一个看板')}
                   onClick={() => setModal({ type: 'board' })}
                 >
-                  <span>＋</span>新建看板
+                  <span>＋</span>
+                  {t('新建看板')}
                 </button>
               )}
             </main>
@@ -660,7 +706,7 @@ export default function App() {
         </Droppable>
       </DragDropContext>
       <footer className="app-footer">
-        <span>本地保存 · 无追踪</span>
+        <span>{t('本地保存 · 无追踪')}</span>
         <span>
           OhMyNewTabTodo <span className="version">0.2.0</span>
         </span>
@@ -686,9 +732,9 @@ export default function App() {
           />
         ) : (
           <Confirm
-            title="卡片已被删除"
-            text="另一页面已删除这张卡片。"
-            action="关闭"
+            title={t('卡片已被删除')}
+            text={t('另一页面已删除这张卡片。')}
+            action={t('关闭')}
             onConfirm={() => {}}
             onClose={() => setModal(null)}
           />
@@ -699,11 +745,14 @@ export default function App() {
       )}
       {confirm && (
         <Confirm
-          {...confirm}
+          title={t(confirm.titleKey)}
+          text={t(confirm.textKey, confirm.values)}
+          action={confirm.actionKey ? t(confirm.actionKey) : undefined}
           onConfirm={() => act(confirm.operation)}
           onClose={() => setConfirm(null)}
         />
       )}
     </div>
   );
+  return <I18nProvider language={state.language}>{view}</I18nProvider>;
 }
