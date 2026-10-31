@@ -16,8 +16,8 @@ The already merged bilingual homepage is released with English as the first-use 
 | Local `npm run package:dist` after check | Passed: packaged 9 files into `OhMyNewTabTodo-0.3.0.zip` / 通过：打包 9 个文件。 |
 | `dist/` unchanged by packaging | Passed: SHA-256 hashes of every `dist/` file matched before and after / 通过：打包前后全部 `dist/` 文件的 SHA-256 相同。 |
 | ZIP listing and SHA-256 | Passed: 9 allowlisted files including both locale catalogs, manifest, and license; `shasum -a 256 -c SHA256SUMS.txt` reported OK / 通过：9 个白名单文件，包含两种语言目录、manifest 和许可；校验和通过。 |
-| PR `check` | Pending / 待执行 |
-| Release workflow and downloaded asset | Pending / 待执行 |
+| PR `check` | See [PR #3 checks](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/pull/3/checks) / 结果见 PR #3 检查。 |
+| Release workflow and downloaded asset | See the [v0.3.0 Release](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.3.0) and its linked workflow / 结果见 v0.3.0 发布页及其工作流。 |
 
 Local ZIP SHA-256 / 本地 ZIP 校验值：`4d5a8bfe5840a93b55d78001103b937f0968bbfd9f1ae338b52fbe27b53409e4`。GitHub Actions 将重新生成产物，因此发布资产的校验值需要另行核对。/ GitHub Actions will generate its own artifact, whose checksum must be checked separately.
 

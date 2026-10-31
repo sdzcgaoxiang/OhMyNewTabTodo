@@ -8,7 +8,7 @@ This is an independent, MIT-licensed implementation inspired by NewTabTodo. It i
 
 ## English and Chinese interface
 
-The current source has an `EN / 中文` switch **on the homepage**, with English selected on first use. The choice is saved locally and updates other open new tabs; full backups include it. Legacy imports and merge/copy imports keep the local choice, while replacing from a full backup restores its choice. The extension description and toolbar title follow **Chrome's language**, which may differ from the homepage selection.
+Version 0.3.0 has an `EN / 中文` switch **on the homepage**, with English selected on first use. The choice is saved locally and updates other open new tabs; full backups include it. Legacy imports and merge/copy imports keep the local choice, while replacing from a full backup restores its choice. The extension description and toolbar title follow **Chrome's language**, which may differ from the homepage selection.
 
 These screenshots use synthetic data and show both languages on the same homepage. This feature is included in the **0.3.0** archive.
 
