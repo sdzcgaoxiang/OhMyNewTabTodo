@@ -1,5 +1,6 @@
 import type { AppData, AppState, Options } from './types.ts';
 import type { ModelOperation } from './operations.ts';
+import { issue } from './issues.ts';
 
 export const APP_VERSION = '0.2.0';
 export const DEFAULT_OPTIONS = Object.freeze({
@@ -55,16 +56,17 @@ export function safeUrl(value: string): string | null {
   }
 }
 function title(value: unknown): string {
-  if (typeof value !== 'string' || !value.trim()) throw new Error('标题不能为空');
+  if (typeof value !== 'string' || !value.trim())
+    throw issue('model.titleRequired', '标题不能为空');
   return value.trim();
 }
 function item<T>(map: Record<string, T>, id: string): T {
-  if (!Object.hasOwn(map, id)) throw new Error('对象已被删除，请刷新后重试');
+  if (!Object.hasOwn(map, id)) throw issue('model.itemDeleted', '对象已被删除，请刷新后重试');
   return map[id];
 }
 function checkExpected(current: unknown, expected: unknown): void {
   if (expected !== undefined && !same(current, expected))
-    throw new Error('内容已被其他页面修改，发生冲突。请保留草稿并重新打开。');
+    throw issue('model.editConflict', '内容已被其他页面修改，发生冲突。请保留草稿并重新打开。');
 }
 function insert(list: string[], id: string, index = list.length): void {
   list.splice(
@@ -94,7 +96,7 @@ export function applyOperation(input: AppState, op: ModelOperation): AppState {
     case 'board.add': {
       const id = op.id || newId('board');
       if (Object.hasOwn(data.boards, id) || ['__proto__', 'constructor', 'prototype'].includes(id))
-        throw new Error('看板 ID 冲突');
+        throw issue('model.boardIdConflict', '看板 ID 冲突');
       data.boards[id] = { id, title: title(op.title || '新看板'), cardIds: [], createdAt: now };
       data.boardOrder.push(id);
       break;
@@ -126,7 +128,7 @@ export function applyOperation(input: AppState, op: ModelOperation): AppState {
       const board = item(data.boards, op.boardId),
         id = op.id || newId('card');
       if (Object.hasOwn(data.cards, id) || ['__proto__', 'constructor', 'prototype'].includes(id))
-        throw new Error('卡片 ID 冲突');
+        throw issue('model.cardIdConflict', '卡片 ID 冲突');
       data.cards[id] = {
         ...clone(op.card),
         id,
@@ -143,7 +145,7 @@ export function applyOperation(input: AppState, op: ModelOperation): AppState {
         op.expectedBoardId !== undefined &&
         !data.boards[op.expectedBoardId]?.cardIds.includes(op.id)
       )
-        throw new Error('卡片已被其他页面移动，发生冲突。请保留草稿并重新打开。');
+        throw issue('model.cardMoved', '卡片已被其他页面移动，发生冲突。请保留草稿并重新打开。');
       const patch = clone(op.patch);
       delete patch.id;
       delete patch.createdAt;
@@ -163,10 +165,10 @@ export function applyOperation(input: AppState, op: ModelOperation): AppState {
     case 'card.copy': {
       const original = item(data.cards, op.id),
         board = Object.values(data.boards).find((b) => b.cardIds.includes(op.id));
-      if (!board) throw new Error('卡片未关联看板，请先恢复');
+      if (!board) throw issue('model.cardUnassigned', '卡片未关联看板，请先恢复');
       const id = op.newId || newId('card');
       if (Object.hasOwn(data.cards, id) || ['__proto__', 'constructor', 'prototype'].includes(id))
-        throw new Error('卡片 ID 冲突');
+        throw issue('model.cardIdConflict', '卡片 ID 冲突');
       data.cards[id] = { ...clone(original), id, createdAt: now, updatedAt: now };
       board.cardIds.splice(board.cardIds.indexOf(op.id) + 1, 0, id);
       break;
@@ -191,15 +193,17 @@ export function applyOperation(input: AppState, op: ModelOperation): AppState {
       break;
     }
     case 'theme':
-      if (!['light', 'dark'].includes(op.theme)) throw new Error('主题无效');
+      if (!['light', 'dark'].includes(op.theme)) throw issue('model.themeInvalid', '主题无效');
       state.theme = op.theme;
       break;
     case 'language':
-      if (op.language !== 'en' && op.language !== 'zh-CN') throw new Error('语言无效');
+      if (op.language !== 'en' && op.language !== 'zh-CN')
+        throw issue('model.languageInvalid', '语言无效');
       state.language = op.language;
       break;
     case 'bookmark.add': {
-      if (!safeUrl(op.bookmark.url)) throw new Error('请输入有效的 http 或 https 网址');
+      if (!safeUrl(op.bookmark.url))
+        throw issue('model.urlInvalid', '请输入有效的 http 或 https 网址');
       state.bookmarks.push({
         ...clone(op.bookmark),
         id: newId('bookmark'),
@@ -211,7 +215,7 @@ export function applyOperation(input: AppState, op: ModelOperation): AppState {
       state.bookmarks = state.bookmarks.filter((b) => b.id !== op.id);
       break;
     default:
-      throw new Error('无法识别的操作');
+      throw issue('model.unknownOperation', '无法识别的操作');
   }
   return state;
 }

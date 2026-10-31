@@ -1,4 +1,5 @@
 import { createRepository } from './repository.ts';
+import { issuePayload } from './issues.ts';
 import type { RuntimeRequest, RuntimeResponse } from './protocol.ts';
 const repository = createRepository(chrome.storage.local);
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -11,6 +12,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({
         ok: false,
         error: error instanceof Error ? error.message : '保存失败，请重试',
+        issue: issuePayload(error) ?? { code: 'repository.writeFailed' },
       } satisfies RuntimeResponse),
   );
   return true;

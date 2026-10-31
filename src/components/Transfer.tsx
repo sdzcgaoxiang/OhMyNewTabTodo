@@ -7,6 +7,8 @@ import type { AppState } from '../types.ts';
 import type { ImportMode, ParsedImport } from '../transfer.ts';
 import type { Act } from './ui.ts';
 import { errorMessage } from './ui.ts';
+import { formatIssue } from '../i18n.ts';
+import { issue } from '../issues.ts';
 
 interface Preview {
   text: string;
@@ -53,14 +55,15 @@ export function Transfer({ state, act }: { state: AppState; act: Act }) {
     setRecoverCards(false);
     if (!file) return;
     try {
-      if (file.size > MAX_IMPORT_BYTES) throw new Error('文件超过 5 MiB，请减少内容后重试');
+      if (file.size > MAX_IMPORT_BYTES)
+        throw issue('import.fileTooLarge', '文件超过 5 MiB，请减少内容后重试');
       const text = await file.text();
       if (request !== loadRequest.current) return;
       const parsed = parseImport(text),
         revision = (await readState()).revision;
       if (request === loadRequest.current) setPreview({ text, parsed, revision, name: file.name });
     } catch (e) {
-      if (request === loadRequest.current) setError(errorMessage(e));
+      if (request === loadRequest.current) setError(errorMessage(e, state.language));
     }
   }
   async function commit() {
@@ -80,7 +83,7 @@ export function Transfer({ state, act }: { state: AppState; act: Act }) {
       setPreview(null);
       setMessage('导入已保存');
     } catch (e) {
-      setError(errorMessage(e));
+      setError(errorMessage(e, state.language));
     } finally {
       setBusy(false);
     }
@@ -93,7 +96,7 @@ export function Transfer({ state, act }: { state: AppState; act: Act }) {
         full ? 'OhMyNewTabTodo_Backup' : 'NewTabTodo_Export_0.2.0',
       );
     } catch (e) {
-      setError(errorMessage(e));
+      setError(errorMessage(e, state.language));
     }
   }
   return (
@@ -136,7 +139,7 @@ export function Transfer({ state, act }: { state: AppState; act: Act }) {
           </div>
           {preview.parsed.warnings.map((w, i) => (
             <p className="warning" key={i}>
-              {w}
+              {formatIssue(state.language, w)}
             </p>
           ))}
           {!!preview.parsed.stats.orphanBoardIds.length && (

@@ -1,4 +1,5 @@
 import { createRepository, isAppState, STORAGE_KEY } from './repository.ts';
+import { AppIssue, issue } from './issues.ts';
 import type { RepositoryOperation } from './operations.ts';
 import type { RuntimeRequest } from './protocol.ts';
 import type { AppState } from './types.ts';
@@ -20,18 +21,34 @@ const preview =
 async function request(message: RuntimeRequest): Promise<AppState> {
   if (preview)
     return message.type === 'read' ? preview.read() : preview.dispatch(message.operation);
-  if (!isExtension) throw new Error('请将 dist 文件夹作为 Chrome 扩展加载后使用。');
+  if (!isExtension)
+    throw issue('client.extensionRequired', '请将 dist 文件夹作为 Chrome 扩展加载后使用。');
   const response: unknown = await chrome.runtime.sendMessage(message);
   if (!response || typeof response !== 'object' || !('ok' in response))
-    throw new Error('扩展后台未响应，请重新打开标签页');
-  if (response.ok !== true)
-    throw new Error(
+    throw issue('client.backgroundUnavailable', '扩展后台未响应，请重新打开标签页');
+  if (response.ok !== true) {
+    const message =
       'error' in response && typeof response.error === 'string'
         ? response.error
-        : '扩展后台未响应，请重新打开标签页',
-    );
+        : '扩展后台未响应，请重新打开标签页';
+    const payload = 'issue' in response ? response.issue : undefined;
+    if (
+      payload &&
+      typeof payload === 'object' &&
+      'code' in payload &&
+      typeof payload.code === 'string'
+    )
+      throw new AppIssue(
+        payload.code,
+        message,
+        'values' in payload && typeof payload.values === 'object' && payload.values !== null
+          ? (payload.values as Record<string, string | number>)
+          : undefined,
+      );
+    throw issue('client.backgroundUnavailable', message);
+  }
   if (!('state' in response) || !isAppState(response.state))
-    throw new Error('扩展后台返回的数据无效，请重新打开标签页');
+    throw issue('client.invalidResponse', '扩展后台返回的数据无效，请重新打开标签页');
   return response.state;
 }
 export const readState = () => request({ type: 'read' });
