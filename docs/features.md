@@ -2,11 +2,19 @@
 
 [English](features.en.md) · [安装与迁移](../README.md) · [下载 v0.2.0](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.2.0)
 
-适用版本：**OhMyNewTabTodo 0.2.0**。对比基线：已审计的 **NewTabTodo 0.2.0**。核对日期：2026-10-28。
+已发布版本：**OhMyNewTabTodo 0.2.0**；本仓库另有尚未发布的双语界面。对比基线：已审计的 **NewTabTodo 0.2.0**。对比核对日期：2026-10-28；双语功能核对日期：2026-10-31。
 
 OhMyNewTabTodo 保留熟悉的横向看板，让旧数据更容易迁移、备份和恢复，并减少多标签页编辑时的意外覆盖。它是 MIT 开源的独立替代项目，与 NewTabTodo 原作者无关联，并非官方升级或原版源码分支。
 
-**适合谁：**依赖 NewTabTodo 的看板习惯，希望继续本机使用，同时改善数据导入、备份和可维护性的用户。**如果你依赖 Chrome 自动跨设备同步，目前不适合作为完整替代。** 当前界面为中文；双语说明不代表界面已经支持英文。
+**适合谁：**依赖 NewTabTodo 的看板习惯，希望继续本机使用，同时改善数据导入、备份和可维护性的用户。**如果你依赖 Chrome 自动跨设备同步，目前不适合作为完整替代。** 已发布 `0.2.0` 安装包仍为中文界面；源码中的双语功能尚未发布。
+
+## 开发中：在首页切换语言
+
+源码中的新界面首次打开默认英文，首页右上角可随时切换 `EN / 中文`。当前选择保存在浏览器本地，并同步到同一扩展的其他已打开标签页；完整备份包含语言选择。导入旧格式或使用合并、作为副本模式不会改变本机语言，替换完整备份会恢复文件中的语言。Chrome 根据自身语言显示扩展说明和工具栏标题，它们可能不同于首页语言。此功能尚未进入已发布的 `0.2.0` 安装包。
+
+![英文首页；仅使用合成数据](images/board-en.png)
+
+![中文首页；仅使用合成数据](images/board-zh.png)
 
 ## 熟悉的功能继续保留
 
@@ -70,6 +78,6 @@ v0.2.0 已补齐原版拖拽时的占位、相邻项让位、目标列高亮与�
 
 ## 对比依据与维护
 
-原版事实见[兼容调研](research/newtabtodo-compatibility.md)和[能力审计](research/newtabtodo-audit.md)；新版验证见[0.2.0 验收记录](verification-v0.2.0.md)、[导入测试](../tests/transfer.test.ts)、[持久化测试](../tests/repository.test.ts)与[浏览器验收](../tests/browser/extension.spec.ts)。证据不等于所有环境下的绝对保证。
+原版事实见[兼容调研](research/newtabtodo-compatibility.md)和[能力审计](research/newtabtodo-audit.md)；新版验证见[双语界面验收记录](verification-bilingual-ui.md)、[0.2.0 验收记录](verification-v0.2.0.md)、[导入测试](../tests/transfer.test.ts)、[持久化测试](../tests/repository.test.ts)与[浏览器验收](../tests/browser/extension.spec.ts)。证据不等于所有环境下的绝对保证。
 
 每次版本更新，按[发布文档清单](releasing.md)同步检查中英文说明。计划中的功能不混入“已实现的升级”。

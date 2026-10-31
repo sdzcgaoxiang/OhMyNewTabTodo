@@ -1,0 +1,8 @@
+{
+  "extensionDescription": {
+    "message": "打开新标签页，整理你的待办。数据本地保存，兼容 NewTabTodo 导入导出。"
+  },
+  "actionTitle": {
+    "message": "打开 OhMyNewTabTodo"
+  }
+}
