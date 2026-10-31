@@ -1,27 +1,53 @@
+# 工作流在 GitHub Actions 页面显示的名称。
 name: Release
+# 定义触发发布的 GitHub 事件。
 on:
+  # 只有推送匹配条件的 tag 才启动发布；普通分支推送不会启动。
   push:
+    # 匹配以 v 开头的 tag；后续步骤还会核对完整版本号。
     tags: ['v*']
+# 工作流默认只有读取权限，避免所有作业都持有写权限。
 permissions:
+  # 默认只允许读取仓库内容。
   contents: read
+# 工作流包含的作业；这里只有一个发布作业。
 jobs:
+  # 作业 ID；对应 GitHub Actions 中的发布作业。
   release:
+    # 在 GitHub 托管的 Ubuntu 运行器上执行。
     runs-on: ubuntu-latest
+    # 只有这个作业获得创建 GitHub Release 所需的仓库写权限。
     permissions:
+      # 允许此作业创建 GitHub Release 和上传附件。
       contents: write
+    # 以下步骤按顺序执行；检查或打包失败就不会执行发布步骤。
     steps:
+      # 检出 tag 指向的仓库代码。
       - uses: actions/checkout@v4
+      # 安装 Node.js 22，并启用 npm 下载缓存。
       - uses: actions/setup-node@v4
+        # 传给 setup-node 的配置参数。
         with:
+          # 使用 Node.js 22 的最新可用补丁版本。
           node-version: '22'
+          # 根据 npm 锁文件缓存依赖下载。
           cache: npm
+      # 要求 tag 名称等于 v 加 package.json 的版本，例如 v0.1.0。
       - name: Check tag version
         run: node --input-type=module -e 'import fs from "node:fs"; if (process.env.GITHUB_REF_NAME !== `v${JSON.parse(fs.readFileSync("package.json")).version}`) process.exit(1)'
+      # 严格按 package-lock.json 安装依赖。
       - run: npm ci
+      # 安装 Chromium 及系统依赖，供浏览器验收测试使用。
       - run: npx playwright install --with-deps chromium
+      # 依次检查格式、运行单元测试、类型检查与构建、运行浏览器测试。
       - run: npm run check
+      # 重新构建，生成扩展 ZIP 和 SHA-256 校验文件。
       - run: npm run package
+      # 检查成功后，用仓库令牌创建 Release 并上传安装包和校验文件。
       - name: Publish verified package
+        # 为这个步骤设置环境变量。
         env:
+          # gh 命令行工具从此环境变量读取 GitHub Actions 提供的令牌。
           GH_TOKEN: ${{ github.token }}
+        # 验证 tag 存在，以整个 CHANGELOG 作为说明并附上 release/ 中的产物。
         run: gh release create "$GITHUB_REF_NAME" release/*.zip release/SHA256SUMS.txt --verify-tag --title "OhMyNewTabTodo $GITHUB_REF_NAME" --notes-file CHANGELOG.md

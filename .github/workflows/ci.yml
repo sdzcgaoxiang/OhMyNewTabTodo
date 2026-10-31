@@ -1,29 +1,58 @@
+# 工作流在 GitHub Actions 页面显示的名称。
 name: CI
+# 定义哪些 GitHub 事件会启动这个工作流。
 on:
+  # 向分支推送提交时运行；tag 推送不在这个条件内。
   push:
+    # 匹配所有分支，包括 main 和功能分支。
     branches: ['**']
+  # 创建、重新打开 PR 或向 PR 推送新提交时运行。
   pull_request:
+# 默认令牌只需读取仓库内容；本工作流不会发布 Release。
 permissions:
+  # contents 资源只允许读取，供 checkout 获取代码。
   contents: read
+# 工作流包含的作业；这里只有一个检查作业。
 jobs:
+  # 作业 ID；可用于在 GitHub 上识别这项检查。
   check:
+    # 在 GitHub 托管的 Ubuntu 运行器上执行。
     runs-on: ubuntu-latest
+    # 以下步骤按顺序执行；前一步失败时，普通后续步骤不会继续。
     steps:
+      # 将触发本次运行的仓库代码检出到运行器。
       - uses: actions/checkout@v4
+      # 安装 Node.js 22，并启用 npm 下载缓存。
       - uses: actions/setup-node@v4
+        # 传给 setup-node 的配置参数。
         with:
+          # 使用 Node.js 22 的最新可用补丁版本。
           node-version: '22'
+          # 根据 npm 锁文件缓存依赖下载，加快后续运行。
           cache: npm
+      # 严格按 package-lock.json 安装依赖。
       - run: npm ci
+      # 安装 Playwright 使用的 Chromium 及系统依赖，供浏览器验收测试使用。
       - run: npx playwright install --with-deps chromium
+      # 依次检查格式、运行单元测试、类型检查与构建、运行浏览器测试。
       - run: npm run check
+      # 重新构建，生成扩展 ZIP 和 SHA-256 校验文件。
       - run: npm run package
+      # 检查成功后，将安装包作为本次 Actions 运行的 artifact 保存。
       - uses: actions/upload-artifact@v4
+        # 传给 upload-artifact 的配置参数。
         with:
+          # artifact 在 Actions 页面显示的名称。
           name: extension-package
+          # 上传打包脚本生成的 release/ 目录。
           path: release/
+      # 任一步骤失败时，尝试上传 Playwright 的失败诊断文件。
       - uses: actions/upload-artifact@v4
+        # 将默认的“前面成功才执行”条件改为“本作业发生失败时执行”。
         if: failure()
+        # 传给 upload-artifact 的配置参数。
         with:
+          # 失败诊断 artifact 在 Actions 页面显示的名称。
           name: browser-failures
+          # Playwright 默认输出的测试结果目录。
           path: test-results/
