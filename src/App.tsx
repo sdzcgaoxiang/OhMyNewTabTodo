@@ -255,7 +255,7 @@ export default function App() {
   const [state, setState] = useState<AppState | null>(null),
     [fatal, setFatal] = useState(''),
     [pending, setPending] = useState(0),
-    [notice, setNotice] = useState<string | null>(null),
+    [notice, setNotice] = useState<unknown>(null),
     [panel, setPanel] = useState<'bookmarks' | 'settings' | null>(null),
     [modal, setModal] = useState<Modal | null>(null),
     [confirm, setConfirm] = useState<ConfirmState | null>(null);
@@ -295,7 +295,7 @@ export default function App() {
       setNotice(null);
       return next;
     } catch (e) {
-      setNotice(errorMessage(e, state?.language || 'en'));
+      setNotice(e);
       throw e;
     } finally {
       setPending((n) => n - 1);
@@ -351,7 +351,7 @@ export default function App() {
       setState((current) => (current?.revision === dragState.revision ? dragState : current));
       void readState()
         .then(accept)
-        .catch((error) => setNotice(errorMessage(error, dragState.language)));
+        .catch((error) => setNotice(error));
     });
   }
   function onDragEnd(result: DropResult): void {
@@ -466,7 +466,7 @@ export default function App() {
               : t('从一件小事开始')}
           </span>
           <span className="save-state" role="status">
-            {pending ? t('正在保存…') : notice ? t('保存失败') : t('本机已保存')}
+            {pending ? t('正在保存…') : notice != null ? t('保存失败') : t('本机已保存')}
           </span>
         </div>
         <div className="workspace-controls">
@@ -488,9 +488,9 @@ export default function App() {
           </button>
         </div>
       </div>
-      {notice && (
+      {notice != null && (
         <div className="toast error" role="alert">
-          {notice}
+          {errorMessage(notice, state.language)}
           <button aria-label={t('关闭提示')} onClick={() => setNotice(null)}>
             ×
           </button>

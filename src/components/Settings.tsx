@@ -5,6 +5,7 @@ import { DEFAULT_OPTIONS, safeUrl } from '../model.ts';
 import type { AppState } from '../types.ts';
 import type { Act } from './ui.ts';
 import { errorMessage } from './ui.ts';
+import { issue } from '../issues.ts';
 import { useT } from '../i18n.tsx';
 import type { TranslationKey } from '../i18n.ts';
 type OptionKey = keyof typeof DEFAULT_OPTIONS;
@@ -46,7 +47,7 @@ export function Settings({
 }) {
   const t = useT();
   const [section, setSection] = useState('常规'),
-    [error, setError] = useState('');
+    [error, setError] = useState<unknown>(null);
   return (
     <Dialog title={t('设置')} drawer closeLabel={t('关闭设置')} onClose={onClose}>
       <nav className="settings-tabs" aria-label={t('设置分类')}>
@@ -56,9 +57,9 @@ export function Settings({
           </button>
         ))}
       </nav>
-      {error && (
+      {error != null && (
         <p role="alert" className="error">
-          {error}
+          {errorMessage(error, state.language)}
         </p>
       )}
       {sections[section]?.map(([key, label, description]) => (
@@ -74,9 +75,9 @@ export function Settings({
             onChange={async (e) => {
               try {
                 await act({ type: 'options.patch', patch: { [key]: e.target.checked } });
-                setError('');
+                setError(null);
               } catch (e) {
-                setError(errorMessage(e, state.language));
+                setError(e);
               }
             }}
           />
@@ -114,7 +115,7 @@ export function Bookmarks({
   onClose: () => void;
 }) {
   const t = useT();
-  const [error, setError] = useState(''),
+  const [error, setError] = useState<unknown>(null),
     [busy, setBusy] = useState(false);
   return (
     <Dialog title={t('常用链接')} drawer closeLabel={t('关闭常用链接')} onClose={onClose}>
@@ -140,7 +141,7 @@ export function Bookmarks({
                   try {
                     await act({ type: 'bookmark.delete', id: b.id });
                   } catch (e) {
-                    setError(errorMessage(e, state.language));
+                    setError(e);
                   }
                 }}
               >
@@ -161,16 +162,16 @@ export function Bookmarks({
           const name = data.get('name');
           const url = data.get('url');
           if (typeof name !== 'string' || typeof url !== 'string') {
-            setError(t('链接表单无效，请重新填写'));
+            setError(issue('bookmark.invalidForm', '链接表单无效，请重新填写'));
             return;
           }
           setBusy(true);
           try {
             await act({ type: 'bookmark.add', bookmark: { name, url } });
             form.reset();
-            setError('');
+            setError(null);
           } catch (e) {
-            setError(errorMessage(e, state.language));
+            setError(e);
           } finally {
             setBusy(false);
           }
@@ -184,9 +185,9 @@ export function Bookmarks({
           {t('网址')}
           <input name="url" required type="url" placeholder="https://" />
         </label>
-        {error && (
+        {error != null && (
           <p className="error" role="alert">
-            {error}
+            {errorMessage(error, state.language)}
           </p>
         )}
         <button className="primary" disabled={busy}>

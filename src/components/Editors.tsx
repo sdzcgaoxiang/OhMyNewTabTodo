@@ -18,7 +18,7 @@ export function BoardEditor({
   const t = useT();
   const language = useLanguage();
   const [name, setName] = useState(board?.title || ''),
-    [error, setError] = useState(''),
+    [error, setError] = useState<unknown>(null),
     [busy, setBusy] = useState(false);
   return (
     <Dialog title={board ? t('编辑看板') : t('新建看板')} onClose={onClose}>
@@ -34,7 +34,7 @@ export function BoardEditor({
             );
             onClose();
           } catch (e) {
-            setError(errorMessage(e, language));
+            setError(e);
           } finally {
             setBusy(false);
           }
@@ -50,9 +50,9 @@ export function BoardEditor({
             placeholder={t('例如：今天、工作、生活')}
           />
         </label>
-        {error && (
+        {error != null && (
           <p role="alert" className="error">
-            {error}
+            {errorMessage(error, language)}
           </p>
         )}
         <footer className="form-actions">
@@ -83,7 +83,7 @@ export function CardEditor({
   const original = initial.card;
   const [due, setDue] = useState(original?.dueDate || ''),
     [time, setTime] = useState(original?.dueTime || ''),
-    [error, setError] = useState(''),
+    [error, setError] = useState<unknown>(null),
     [busy, setBusy] = useState(false);
   const labelText = (type: string) =>
     original?.labels?.find((label) => label.type === type)?.text || '';
@@ -131,7 +131,7 @@ export function CardEditor({
       );
       onClose();
     } catch (e) {
-      setError(errorMessage(e, language));
+      setError(e);
     } finally {
       setBusy(false);
     }
@@ -212,9 +212,9 @@ export function CardEditor({
             <input name="secondary" defaultValue={labelText('secondary')} placeholder={t('可选')} />
           </label>
         </div>
-        {error && (
+        {error != null && (
           <p className="error" role="alert">
-            {error}
+            {errorMessage(error, language)}
           </p>
         )}
         <footer className="form-actions">

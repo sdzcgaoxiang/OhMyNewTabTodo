@@ -49,16 +49,16 @@ export interface ConfirmProps {
   onClose: () => void;
 }
 export function Confirm({ title, text, action, onConfirm, onClose }: ConfirmProps) {
-  const [error, setError] = useState(''),
+  const [error, setError] = useState<unknown>(null),
     [busy, setBusy] = useState(false);
   const t = useT();
   const language = useLanguage();
   return (
     <Dialog title={title} onClose={onClose}>
       <p>{text}</p>
-      {error && (
+      {error != null && (
         <p className="error" role="alert">
-          {error}
+          {errorMessage(error, language)}
         </p>
       )}
       <footer className="form-actions">
@@ -72,7 +72,7 @@ export function Confirm({ title, text, action, onConfirm, onClose }: ConfirmProp
               await onConfirm();
               onClose();
             } catch (e) {
-              setError(errorMessage(e, language));
+              setError(e);
             } finally {
               setBusy(false);
             }

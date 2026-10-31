@@ -17,15 +17,17 @@
 
 | 检查 / Check | 结果 / Result |
 | --- | --- |
-| `npm run check` | 格式、46 条单元测试、类型检查与构建、30 条 Chromium 浏览器验收全部通过 / Format, 46 unit tests, typecheck/build, and 30 Chromium acceptance tests passed. |
+| `npm run check` | 格式、46 条单元测试、类型检查与构建、32 条 Chromium 浏览器验收全部通过 / Format, 46 unit tests, typecheck/build, and 32 Chromium acceptance tests passed. |
 | `npm run package` | 成功生成 `release/OhMyNewTabTodo-0.2.0.zip` 和 `SHA256SUMS.txt` / Archive and checksum generated. |
 | ZIP 清单 / Archive listing | 9 个文件，包含 `_locales/en/messages.json` 与 `_locales/zh_CN/messages.json`；无额外文件 / Nine files including both locale catalogs, with no extra files. |
 | `shasum -a 256 -c SHA256SUMS.txt`（在 `release/` 执行 / from `release/`） | `OhMyNewTabTodo-0.2.0.zip: OK` |
 | `git diff --check` | 通过 / Passed |
 
-本地 ZIP 的 SHA-256 / Local archive SHA-256: `55111c86ca8b75948515942ca01783a9e676ee4188eb380db21b5e20ae4c0830`. This is a development artifact, not the published v0.2.0 download.
+本地 ZIP 的 SHA-256 / Local archive SHA-256: `015a1418eaf9a9fb35482525f1f57a8b609f77a6d021ffcc0b3f8c46200c3fa1`. This is a development artifact, not the published v0.2.0 download.
 
-截图使用合成数据 / Screenshots use synthetic data: [English](images/board-en.png) · [中文](images/board-zh.png). Browser coverage includes desktop and phone widths, keyboard switching, persistence, cross-tab updates, and failed writes. / 浏览器验收覆盖桌面和手机宽度、键盘切换、持久化、跨标签页更新及写入失败。
+截图使用合成数据 / Screenshots use synthetic data: [English](images/board-en.png) · [中文](images/board-zh.png). Browser coverage includes desktop and phone widths, keyboard switching, persistence, cross-tab updates, failed writes, and existing notices after a language switch. / 浏览器验收覆盖桌面和手机宽度、键盘切换、持久化、跨标签页更新、写入失败及语言切换后已显示的提示。
+
+独立代码审查发现旧错误和导入成功提示在语言切换后仍显示原语言；新增两条先失败后通过的浏览器回归测试，并修复所有同类提示状态。/ An independent code review found that existing errors and import success text stayed in the old language. Two browser regressions failed before the fix and passed after the fix; the same notice-state pattern was corrected across the interface.
 
 ## 边界与后续 / Limits and follow-up
 

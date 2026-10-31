@@ -233,6 +233,7 @@ const issueText: Record<Language, Record<string, string>> = {
     'model.languageInvalid': 'Invalid language.',
     'model.urlInvalid': 'Enter a valid http or https URL.',
     'model.unknownOperation': 'Unknown operation.',
+    'bookmark.invalidForm': 'The link form is invalid. Fill it in again.',
     'import.invalidIdArray': '{field} must be a valid ID list.',
     'import.invalidData': 'Invalid file: data must be an object.',
     'import.invalidCollections': 'Invalid file: boards and cards must be objects.',

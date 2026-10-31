@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test';
 import path from 'node:path';
 import { legacy } from '../fixtures.ts';
 import { emptyState } from '../../src/model.ts';
+import { exportFull } from '../../src/transfer.ts';
 import type { AppState } from '../../src/types.ts';
 declare global {
   interface Window {
@@ -176,6 +177,36 @@ test('another tab changes open dialog copy without discarding an editor draft', 
   await expect(rawPage.getByRole('dialog')).toContainText('删除“Work”及其 0 张卡片？');
   await second.getByRole('button', { name: 'English' }).click();
   await expect(rawPage.getByRole('dialog')).toContainText('Delete “Work” and its 0 cards?');
+});
+test('an existing import error follows a language switch in another tab', async ({
+  rawPage,
+  context,
+}) => {
+  await rawPage.getByRole('button', { name: '简体中文' }).click();
+  await openTransfer(rawPage);
+  await rawPage.getByLabel('选择 JSON 文件').setInputFiles({
+    name: 'invalid.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from('{broken'),
+  });
+  await expect(rawPage.getByRole('alert').last()).toContainText('无法解析 JSON');
+  const second = await context.newPage();
+  await second.goto(rawPage.url());
+  await second.getByRole('button', { name: 'English' }).click();
+  await expect(rawPage.getByRole('heading', { name: 'My boards' })).toBeVisible();
+  await expect(rawPage.getByRole('alert').last()).toContainText('Could not read JSON');
+});
+test('replacement import success follows the language restored from backup', async ({
+  rawPage,
+}) => {
+  await rawPage.getByRole('button', { name: '简体中文' }).click();
+  await openTransfer(rawPage);
+  await upload(rawPage, exportFull(emptyState()));
+  await rawPage.getByLabel('导入方式').selectOption('replace');
+  await rawPage.getByLabel('我确认替换当前数据').check();
+  await rawPage.getByRole('button', { name: '确认导入' }).click();
+  await expect(rawPage.getByRole('heading', { name: 'My boards' })).toBeVisible();
+  await expect(rawPage.getByRole('status').last()).toContainText('Import saved');
 });
 test('search engine selector fills the search field vertically', async ({ page }) => {
   for (const width of [1280, 375]) {

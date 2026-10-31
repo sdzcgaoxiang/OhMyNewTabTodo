@@ -48,8 +48,8 @@ export function Transfer({ state, act }: { state: AppState; act: Act }) {
     [recoverBoards, setRecoverBoards] = useState(false),
     [recoverCards, setRecoverCards] = useState(false),
     [agreed, setAgreed] = useState(false);
-  const [error, setError] = useState(''),
-    [message, setMessage] = useState(''),
+  const [error, setError] = useState<unknown>(null),
+    [message, setMessage] = useState<TranslationKey | null>(null),
     [busy, setBusy] = useState(false),
     [confirm, setConfirm] = useState<TransferConfirm | null>(null);
   async function load(event: React.ChangeEvent<HTMLInputElement>) {
@@ -57,8 +57,8 @@ export function Transfer({ state, act }: { state: AppState; act: Act }) {
     const file = event.target.files?.[0];
     event.target.value = '';
     setPreview(null);
-    setError('');
-    setMessage('');
+    setError(null);
+    setMessage(null);
     setAgreed(false);
     setRecoverBoards(false);
     setRecoverCards(false);
@@ -72,14 +72,14 @@ export function Transfer({ state, act }: { state: AppState; act: Act }) {
         revision = (await readState()).revision;
       if (request === loadRequest.current) setPreview({ text, parsed, revision, name: file.name });
     } catch (e) {
-      if (request === loadRequest.current) setError(errorMessage(e, state.language));
+      if (request === loadRequest.current) setError(e);
     }
   }
   async function commit() {
     if (!preview || (mode === 'replace' && !agreed)) return;
     setBusy(true);
-    setError('');
-    setMessage('');
+    setError(null);
+    setMessage(null);
     try {
       await act({
         type: 'import',
@@ -90,9 +90,9 @@ export function Transfer({ state, act }: { state: AppState; act: Act }) {
         expectedRevision: preview.revision,
       });
       setPreview(null);
-      setMessage(t('导入已保存'));
+      setMessage('导入已保存');
     } catch (e) {
-      setError(errorMessage(e, state.language));
+      setError(e);
     } finally {
       setBusy(false);
     }
@@ -105,7 +105,7 @@ export function Transfer({ state, act }: { state: AppState; act: Act }) {
         full ? 'OhMyNewTabTodo_Backup' : 'NewTabTodo_Export_0.2.0',
       );
     } catch (e) {
-      setError(errorMessage(e, state.language));
+      setError(e);
     }
   }
   return (
@@ -225,14 +225,14 @@ export function Transfer({ state, act }: { state: AppState; act: Act }) {
           </button>
         </div>
       )}
-      {error && (
+      {error != null && (
         <p className="error" role="alert">
-          {error}
+          {errorMessage(error, state.language)}
         </p>
       )}
       {message && (
         <p className="success" role="status">
-          {message}
+          {t(message)}
         </p>
       )}
       <hr />
