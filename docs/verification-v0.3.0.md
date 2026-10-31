@@ -2,6 +2,8 @@
 
 日期 / Date: 2026-10-31
 
+发布提交 / Release commit: `cf3cc0158a4b7c2d2c7952f4e30800ad6a80dafa`（`main` 和 `v0.3.0`）。
+
 ## 范围 / Scope
 
 发布已合并的双语首页：首页右上角切换 `EN / 中文`，首次使用默认英文。版本号、双语说明、安装包和 GitHub Release 使用 `v0.3.0`。`main` 需要 PR 与最新 `check` 通过，禁止强推与删除。发布作业应消费验证作业上传的同一 ZIP。
@@ -16,14 +18,16 @@ The already merged bilingual homepage is released with English as the first-use 
 | Local `npm run package:dist` after check | Passed: packaged 9 files into `OhMyNewTabTodo-0.3.0.zip` / 通过：打包 9 个文件。 |
 | `dist/` unchanged by packaging | Passed: SHA-256 hashes of every `dist/` file matched before and after / 通过：打包前后全部 `dist/` 文件的 SHA-256 相同。 |
 | ZIP listing and SHA-256 | Passed: 9 allowlisted files including both locale catalogs, manifest, and license; `shasum -a 256 -c SHA256SUMS.txt` reported OK / 通过：9 个白名单文件，包含两种语言目录、manifest 和许可；校验和通过。 |
-| PR `check` | See [PR #3 checks](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/pull/3/checks) / 结果见 PR #3 检查。 |
-| Release workflow and downloaded asset | See the [v0.3.0 Release](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.3.0) and its linked workflow / 结果见 v0.3.0 发布页及其工作流。 |
+| PR `check` | Passed for both [PR run](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/actions/runs/41178889959) and [branch push run](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/actions/runs/41178885995) / PR 与分支推送检查均通过。 |
+| Release workflow and downloaded asset | [Release run](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/actions/runs/41179072698) passed both `verify` and `publish`; downloaded [v0.3.0 ZIP](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/download/v0.3.0/OhMyNewTabTodo-0.3.0.zip) and checksum file passed `shasum -a 256 -c` / 发布两作业通过，下载附件重新校验通过。 |
 
-Local ZIP SHA-256 / 本地 ZIP 校验值：`4d5a8bfe5840a93b55d78001103b937f0968bbfd9f1ae338b52fbe27b53409e4`。GitHub Actions 将重新生成产物，因此发布资产的校验值需要另行核对。/ GitHub Actions will generate its own artifact, whose checksum must be checked separately.
+Local ZIP SHA-256 / 本地 ZIP 校验值：`4d5a8bfe5840a93b55d78001103b937f0968bbfd9f1ae338b52fbe27b53409e4`。
+
+Published ZIP SHA-256 / 已发布 ZIP 校验值：`1552ff57e0e01721341ee21e999602856229e3b3c07ea4ad6c07b521fde0e8b0`。发布附件包含 9 个预期文件，`manifest.json` 为版本 `0.3.0` 且默认语言 `en`。/ The published archive contains nine expected files; its manifest reports version `0.3.0` and default locale `en`.
 
 ## Compatibility / 兼容
 
-The [bilingual UI development verification](verification-bilingual-ui.md) covers language persistence, backup behavior, cross-tab updates, keyboard switching, and notices. The current release must rerun the complete suite. / [双语界面开发验收](verification-bilingual-ui.md)已覆盖语言持久化、备份、跨标签页更新、键盘切换和提示；本次发布仍需重新运行完整检查。
+The [bilingual UI development verification](verification-bilingual-ui.md) covers language persistence, backup behavior, cross-tab updates, keyboard switching, and notices. This release reran the complete suite locally, on the PR, and on the version tag. / [双语界面开发验收](verification-bilingual-ui.md)已覆盖语言持久化、备份、跨标签页更新、键盘切换和提示；本版在本地、PR 和版本标签上重新运行了完整检查。
 
 ## Limits / 边界
 
