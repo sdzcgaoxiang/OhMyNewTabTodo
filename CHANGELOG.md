@@ -2,6 +2,11 @@
 
 ## Unreleased / 未发布
 
+### Documentation / 文档
+
+- 补录 v0.3.0 发布工作流、下载附件及 SHA-256 的实际验收结果。
+- Recorded the actual v0.3.0 release workflow, downloaded asset, and SHA-256 verification results.
+
 ## 0.3.0 — 2026-10-31
 
 ### Added / 新增
