@@ -41,6 +41,7 @@ export function emptyState(): AppState {
     bookmarks: [],
     options: { ...DEFAULT_OPTIONS },
     theme: 'dark',
+    language: 'en',
     backups: [],
     imports: [],
   };
@@ -192,6 +193,10 @@ export function applyOperation(input: AppState, op: ModelOperation): AppState {
     case 'theme':
       if (!['light', 'dark'].includes(op.theme)) throw new Error('主题无效');
       state.theme = op.theme;
+      break;
+    case 'language':
+      if (op.language !== 'en' && op.language !== 'zh-CN') throw new Error('语言无效');
+      state.language = op.language;
       break;
     case 'bookmark.add': {
       if (!safeUrl(op.bookmark.url)) throw new Error('请输入有效的 http 或 https 网址');

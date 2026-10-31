@@ -62,6 +62,21 @@ test('legacy and full exports preserve business data, full includes settings', (
   assert.equal(restored.options.showCompactCards, true);
   assert.equal(restored.theme, 'light');
 });
+test('full backup restores language but old backup and legacy import retain the current choice', () => {
+  const source = emptyState();
+  source.language = 'zh-CN';
+  const full = exportFull(source);
+  assert.equal(full.state.language, 'zh-CN');
+  const current = emptyState();
+  assert.equal(prepareImport(current, parse(full), { mode: 'replace' }).language, 'zh-CN');
+  const oldFull = structuredClone(full);
+  delete oldFull.state.language;
+  assert.equal(prepareImport(source, parse(oldFull), { mode: 'replace' }).language, 'zh-CN');
+  assert.equal(prepareImport(source, parse(legacy()), { mode: 'replace' }).language, 'zh-CN');
+  assert.equal(prepareImport(source, parse(full), { mode: 'merge' }).language, 'zh-CN');
+  assert.equal(prepareImport(source, parse(full), { mode: 'copy' }).language, 'zh-CN');
+  assert.equal(Object.hasOwn(exportLegacy(source), 'language'), false);
+});
 test('nullable fields, unknown priority and nested metadata survive import, edit and export', () => {
   const data = legacy();
   data.cards['card-a'].description = null;

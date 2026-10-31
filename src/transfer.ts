@@ -5,6 +5,7 @@ import type {
   Board,
   Bookmark,
   Card,
+  Language,
   Options,
   Snapshot,
   Theme,
@@ -28,6 +29,7 @@ export interface ParsedImport {
   bookmarks: Bookmark[];
   options?: Partial<Options>;
   theme?: Theme;
+  language?: Language;
   warnings: string[];
   stats: ImportStats;
 }
@@ -140,6 +142,7 @@ export function parseImport(text: string): ParsedImport {
   let source: Record<string, unknown> = input;
   let options: Partial<Options> | undefined;
   let theme: Theme | undefined;
+  let language: Language | undefined;
   if (Object.hasOwn(input, 'format')) {
     ensure(input.format === 'ohmynewtabtodo', '不支持的备份格式');
     ensure(input.schemaVersion === 1, '不支持此备份版本，请升级扩展后重试');
@@ -155,8 +158,15 @@ export function parseImport(text: string): ParsedImport {
         `设置 ${key} 类型错误`,
       );
     ensure(storedState.theme === 'dark' || storedState.theme === 'light', '备份主题无效');
+    ensure(
+      storedState.language === undefined ||
+        storedState.language === 'en' ||
+        storedState.language === 'zh-CN',
+      '备份语言无效',
+    );
     options = rawOptions as Partial<Options>;
     theme = storedState.theme;
+    language = storedState.language as Language | undefined;
   }
   const warnings: string[] = [];
   if (!Object.hasOwn(source, 'bookmarks'))
@@ -169,6 +179,7 @@ export function parseImport(text: string): ParsedImport {
     data: data as AppData,
     bookmarks: bookmarks as Bookmark[],
     ...(options ? { options: clone(options), theme } : {}),
+    ...(language ? { language } : {}),
     warnings: [...new Set(warnings)],
     stats,
   };
@@ -220,6 +231,7 @@ export function prepareImport(
     if (incoming.options && incoming.theme) {
       state.options = { ...DEFAULT_OPTIONS, ...incoming.options };
       state.theme = incoming.theme;
+      if (incoming.language) state.language = incoming.language;
     }
   } else {
     for (const [id, entity] of Object.entries(incoming.data.boards)) {
@@ -251,6 +263,7 @@ export function snapshot(state: AppState): Snapshot {
     bookmarks: state.bookmarks,
     options: state.options,
     theme: state.theme,
+    language: state.language,
   });
 }
 export function exportLegacy(state: AppState) {

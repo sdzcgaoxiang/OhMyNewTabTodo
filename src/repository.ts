@@ -26,6 +26,7 @@ export function isAppState(value: unknown): value is AppState {
   if (!object(boards) || !object(cards) || !strings(boardOrder)) return false;
   if (!Array.isArray(value.bookmarks) || !object(options)) return false;
   if (value.theme !== 'light' && value.theme !== 'dark') return false;
+  if (value.language !== 'en' && value.language !== 'zh-CN') return false;
   if (!Array.isArray(value.backups) || !Array.isArray(value.imports)) return false;
   if (Object.entries(DEFAULT_OPTIONS).some(([key]) => typeof options[key] !== 'boolean'))
     return false;
@@ -90,6 +91,7 @@ export function createRepository(area: StorageArea): {
     const state = {
       ...clone(stored),
       options: { ...DEFAULT_OPTIONS, ...(object(stored.options) ? stored.options : {}) },
+      language: stored.language === undefined ? 'en' : stored.language,
     };
     if (!isAppState(state)) throw new Error('本地数据结构异常，请保留备份后检查。');
     return state;
