@@ -10,16 +10,11 @@ on:
 permissions:
   # 默认只允许读取仓库内容。
   contents: read
-# 工作流包含的作业；这里只有一个发布作业。
+# 验证与发布分开：发布作业只消费验证作业上传的安装包。
 jobs:
-  # 作业 ID；对应 GitHub Actions 中的发布作业。
-  release:
+  verify:
     # 在 GitHub 托管的 Ubuntu 运行器上执行。
     runs-on: ubuntu-latest
-    # 只有这个作业获得创建 GitHub Release 所需的仓库写权限。
-    permissions:
-      # 允许此作业创建 GitHub Release 和上传附件。
-      contents: write
     # 以下步骤按顺序执行；检查或打包失败就不会执行发布步骤。
     steps:
       # 检出 tag 指向的仓库代码。
@@ -41,13 +36,33 @@ jobs:
       - run: npx playwright install --with-deps chromium
       # 依次检查格式、运行单元测试、类型检查与构建、运行浏览器测试。
       - run: npm run check
-      # 重新构建，生成扩展 ZIP 和 SHA-256 校验文件。
-      - run: npm run package
-      # 检查成功后，用仓库令牌创建 Release 并上传安装包和校验文件。
+      # 将刚完成浏览器验收的 dist 直接打包，不再重新构建。
+      - run: npm run package:dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: extension-package
+          path: release/
+          if-no-files-found: error
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: extension-package
+          path: release/
+      # 发布前验证下载的文件与验证作业生成的 SHA-256 一致。
+      - name: Verify archive checksum
+        working-directory: release
+        run: sha256sum -c SHA256SUMS.txt
+      # 检查成功后，用仓库令牌创建 Release 并上传同一份安装包。
       - name: Publish verified package
         # 为这个步骤设置环境变量。
         env:
           # gh 命令行工具从此环境变量读取 GitHub Actions 提供的令牌。
           GH_TOKEN: ${{ github.token }}
-        # 验证 tag 存在，以整个 CHANGELOG 作为说明并附上 release/ 中的产物。
-        run: gh release create "$GITHUB_REF_NAME" release/*.zip release/SHA256SUMS.txt --verify-tag --title "OhMyNewTabTodo $GITHUB_REF_NAME" --notes-file CHANGELOG.md
+        # 验证 tag 存在，使用本版说明并附上验证过的产物。
+        run: gh release create "$GITHUB_REF_NAME" release/*.zip release/SHA256SUMS.txt --verify-tag --title "OhMyNewTabTodo $GITHUB_REF_NAME" --notes-file "docs/releases/$GITHUB_REF_NAME.md"

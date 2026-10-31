@@ -6,11 +6,11 @@ Organize your tasks whenever you open a new tab: familiar horizontal boards, loc
 
 This is an independent, MIT-licensed implementation inspired by NewTabTodo. It is unaffiliated with the original author and does not include the original code or assets. See `LICENSE.txt` in the archive for third-party dependency licenses.
 
-## In development: English and Chinese interface
+## English and Chinese interface
 
 The current source has an `EN / 中文` switch **on the homepage**, with English selected on first use. The choice is saved locally and updates other open new tabs; full backups include it. Legacy imports and merge/copy imports keep the local choice, while replacing from a full backup restores its choice. The extension description and toolbar title follow **Chrome's language**, which may differ from the homepage selection.
 
-These screenshots use synthetic data and show both languages on the same homepage. This feature is still **Unreleased**: the published `0.2.0` archive linked below still has a Chinese interface. Version and download instructions will be updated for its release.
+These screenshots use synthetic data and show both languages on the same homepage. This feature is included in the **0.3.0** archive.
 
 ![English homepage with EN and Chinese switch, synthetic sample content](docs/images/board-en.png)
 
@@ -18,7 +18,7 @@ These screenshots use synthetic data and show both languages on the same homepag
 
 ## Why switch from NewTabTodo?
 
-Version **0.2.0** restores the original drag placeholders and preview feedback while retaining familiar board interactions and improving migration, backups, and editing across tabs. Comparisons refer to the audited **NewTabTodo 0.2.0**.
+Version **0.3.0** adds the homepage language switch. The previous version restored the original drag placeholders and preview feedback while improving migration, backups, and editing across tabs. Comparisons refer to the audited **NewTabTodo 0.2.0**.
 
 | Your concern | Improvements available now |
 | --- | --- |
@@ -29,7 +29,7 @@ Version **0.2.0** restores the original drag placeholders and preview feedback w
 | Open tabs overwrite each other's changes | Receives updates and preserves drafts when stale edits conflict |
 | You want to inspect and maintain your tool | MIT source, public build instructions and tests, and no telemetry uploads |
 
-**Current tradeoffs: no automatic Chrome cross-device sync and manual installation and updates.** The published `0.2.0` archive still has a Chinese UI; the bilingual source changes are awaiting release. If automatic sync is essential, this is not yet a complete replacement. Recovery points are not an undo history for ordinary edits/deletions; keep external backups.
+**Current tradeoffs: no automatic Chrome cross-device sync and manual installation and updates.** If automatic sync is essential, this is not yet a complete replacement. Recovery points are not an undo history for ordinary edits/deletions; keep external backups.
 
 [Read the detailed comparison, scenarios, and evidence →](docs/features.en.md)
 
@@ -49,7 +49,7 @@ No account, telemetry, backend, or automatic cross-device synchronization. This 
 
 ## Installation and updates
 
-1. Download `OhMyNewTabTodo-0.2.0.zip` from [Releases](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases) and extract it to a permanent directory.
+1. Download `OhMyNewTabTodo-0.3.0.zip` from the [v0.3.0 Release](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.3.0) and extract it to a permanent directory.
 2. Open `chrome://extensions`, enable **Developer mode**, choose **Load unpacked**, and select the directory containing `manifest.json`.
 3. Open a new tab. If another new-tab extension takes precedence, temporarily disable it; retain the original extension and export until migration is verified.
 
@@ -95,14 +95,14 @@ npm run package
 - `npm run format` / `npm run format:check`: format or check source style.
 - `npm run build`: typecheck, then create loadable `dist/` output.
 - `npm run test:e2e`: test the built extension in temporary Chromium profiles, without accessing your everyday Chrome profile.
-- `npm run package`: rebuild, package allowlisted assets and license notices, and generate a SHA-256 checksum in `release/`.
+- `npm run package`: rebuild, package allowlisted assets and license notices, and generate a SHA-256 checksum in `release/`. `npm run package:dist` packages the existing build without rebuilding.
 
-CI checks pushes and PRs. Version tags trigger validation and release packaging. Never commit real exports or browser profiles as fixtures.
+CI checks pushes and PRs. Version tags trigger one build and acceptance run; the release job publishes the same verified archive. Never commit real exports or browser profiles as fixtures.
 
 ## Documentation and contributions
 
 [Features](docs/features.en.md) · [Release documentation checklist](docs/releasing.md#english-release-checklist) · [Repository guidelines](AGENTS.md) · [License](LICENSE)
 
-The [design](docs/superpowers/specs/2026-10-27-v1-design.md), [bilingual UI verification](docs/verification-bilingual-ui.md), [0.2.0 verification record](docs/verification-v0.2.0.md), [historical 0.1.0 verification](docs/verification-v0.1.0.md), [TypeScript migration verification](docs/verification-typescript-migration.md), [contribution guide](CONTRIBUTING.md), and [privacy policy](PRIVACY.md) are currently Chinese or bilingual. Use synthetic reproductions in [Issues](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/issues), without personal task content.
+The [0.3.0 verification record](docs/verification-v0.3.0.md), [design](docs/superpowers/specs/2026-10-27-v1-design.md), [historical bilingual UI development verification](docs/verification-bilingual-ui.md), [historical 0.2.0 verification](docs/verification-v0.2.0.md), [historical 0.1.0 verification](docs/verification-v0.1.0.md), [TypeScript migration verification](docs/verification-typescript-migration.md), [contribution guide](CONTRIBUTING.md), and [privacy policy](PRIVACY.md) are currently Chinese or bilingual. Use synthetic reproductions in [Issues](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/issues), without personal task content.
 
 Application source, tests, and development configuration use TypeScript; `scripts/package.mjs` remains directly executable by Node. Maintenance follows specifications and test-driven development. Every release reviews the paired README and feature pages, changelog, and verification record. Update both user-documentation languages in the same PR; preserve historical audit and release evidence.

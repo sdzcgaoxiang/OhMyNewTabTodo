@@ -138,7 +138,7 @@ const en = {
   关闭后在打开页面数秒后收起: 'When off, hide the clock a few seconds after opening',
   关闭设置: 'Close settings',
   设置分类: 'Settings categories',
-  '0.2.0 · 本地优先的开源新标签页待办': '0.2.0 · Local-first open-source new tab to-do',
+  '0.3.0 · 本地优先的开源新标签页待办': '0.3.0 · Local-first open-source new tab to-do',
   '熟悉的看板交互，可带走的数据。独立实现，与 NewTabTodo 原作者无关联。':
     'Familiar boards and portable data. Independently built and unaffiliated with the NewTabTodo author.',
   '无账号、无统计上传、无跨设备自动同步。卸载前请导出完整备份。':

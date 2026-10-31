@@ -20,6 +20,7 @@ Use Node.js 22.12+ and npm. Packaging requires `zip` and `unzip`.
 - `npm run test:e2e`: test the previously built extension in isolated Chromium profiles.
 - `npm run check`: run formatting checks, unit tests, build, and browser tests.
 - `npm run package`: rebuild and create the ZIP and SHA-256 checksum.
+- `npm run package:dist`: package the already built and tested `dist/` without rebuilding.
 
 ## Coding Style & Naming Conventions
 

@@ -2,12 +2,24 @@
 
 ## Unreleased / 未发布
 
+## 0.3.0 — 2026-10-31
+
 ### Added / 新增
 
 - 首页增加 `EN / 中文` 切换，首次使用默认英文；选择保存在本机并在已打开的新标签页同步，完整备份包含该选择。
 - Added an `EN / 中文` homepage switch with English as the first-use default. The choice persists locally, updates open new tabs, and is included in full backups.
 - 界面、导入导出提示、日期和错误反馈提供中英文；扩展说明与工具栏标题随 Chrome 语言显示。
 - Localized interface copy, import/export notices, dates, and errors; extension description and toolbar title follow Chrome's language.
+
+### Changed / 变更
+
+- 发布工作流只构建并验收一次，发布作业复用经校验的同一安装包。
+- The release workflow builds and verifies once, then publishes the same checksum-verified archive.
+
+### Limits / 限制
+
+- 仍需手动安装和更新；不提供 Chrome 跨设备自动同步，也未上架 Chrome Web Store。
+- Installation and updates remain manual; there is no automatic Chrome cross-device sync or Chrome Web Store listing.
 
 ## 0.2.0 — 2026-10-28
 

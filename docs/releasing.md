@@ -12,7 +12,7 @@
 | `README.md` + `README.en.md` | 当前版本、安装包名称/链接、主要卖点、安装与更新步骤、平台与界面语言、同步和容量边界、文档入口。 |
 | `docs/features.md` + `docs/features.en.md` | 适用版本、核对日期、已实现特性、对比表、迁移场景及限制。没有用户可见变化时明确记录“本版无新增用户特性”；原版对比基线仍保留已审计版本。 |
 | 新建 `docs/verification-vX.Y.Z.md` | 对应提交、真实执行的命令与结果、兼容/回归证据、审查结论、未覆盖边界、CI 链接、产物及校验结果。保留之前版本的记录，README 指向当前记录。 |
-| GitHub Release | 中英文当版摘要、重要迁移说明、已知限制、正确 tag、ZIP 和 SHA-256。当前工作流从整个 CHANGELOG 生成说明，发布负责人须检查并整理本版摘要，避免把 Unreleased 内容宣传为已发布。 |
+| GitHub Release | 中英文当版摘要、重要迁移说明、已知限制、正确 tag、ZIP 和 SHA-256。工作流读取 `docs/releases/vX.Y.Z.md` 中的本版说明，发布负责人须核对内容。 |
 
 中英文 README 和特性说明必须在同一个 PR 内保持事实一致：版本、功能状态、限制、数字和下载目标一致；不能只翻译卖点而遗漏限制。新验收记录至少提供中英文结果摘要，详细技术日志可保留原语言。
 
@@ -29,7 +29,7 @@
 ## 发布前后操作
 
 1. 同步 `package.json` / lockfile、`src/model.ts`、`public/manifest.json` 和界面中的版本；查找残留旧版本引用，区分历史证据与当前说明，禁止全仓库盲目替换。
-2. 运行 `npm run check` 和 `npm run package`；检查 ZIP 文件清单、许可证、校验和、双语事实、相对链接和截图。真实执行结果写入本版验收记录。
+2. 运行 `npm run check` 和 `npm run package:dist`；检查 ZIP 文件清单、许可证、校验和、双语事实、相对链接和截图。真实执行结果写入本版验收记录。单独打包可用 `npm run package`，它会重新构建。
 3. 更新当前规格/计划进度；不要覆盖已完成版本的验收结果，也不要把历史审计日期改成今天。
 4. 推送版本提交和对应 tag，检查 Actions。确认 Release 的附件、版本、双语说明和校验和；再记录实际发布结果。失败则查明原因，不能只把文档改成“已通过”。
 
@@ -47,7 +47,7 @@ Apply this checklist to every stable, prerelease, and patch release. The release
 | `README.md` + `README.en.md` | Current version, archive name/links, key benefits, installation/update steps, platform and UI language, sync/capacity limits, and documentation links. |
 | `docs/features.md` + `docs/features.en.md` | Applicable version, review date, available features, comparison, migration examples, and limits. If unchanged, state that no new user-facing features were added. Keep the original-product baseline at the audited version. |
 | New `docs/verification-vX.Y.Z.md` | Commit, actual commands/results, compatibility/regression evidence, review outcome, untested boundaries, CI links, artifacts, and checksum verification. Retain older records and link the current one from both READMEs. |
-| GitHub Release | Chinese and English summaries for this version, migration notes, limits, correct tag, ZIP, and SHA-256. The current workflow reads the whole changelog; the release owner must review and curate the current-version summary so Unreleased items are not presented as shipped. |
+| GitHub Release | Chinese and English summaries for this version, migration notes, limits, correct tag, ZIP, and SHA-256. The workflow reads this version's `docs/releases/vX.Y.Z.md`; the release owner checks its contents. |
 
 Update paired README and feature pages in the same PR. Versions, feature status, limits, numbers, and download targets must agree; translate limitations as well as benefits. New verification records need at least bilingual outcome summaries; detailed technical logs may remain in their original language.
 
@@ -62,7 +62,7 @@ Update paired README and feature pages in the same PR. Versions, feature status,
 ### Before and after publishing
 
 1. Align package/lockfile, model, manifest, and displayed versions. Search old-version references, distinguishing current instructions from historical evidence; never replace versions globally without review.
-2. Run `npm run check` and `npm run package`. Inspect archive contents, licenses, checksum, bilingual facts, relative links, and screenshots; record actual outcomes.
+2. Run `npm run check` and `npm run package:dist`. Inspect archive contents, licenses, checksum, bilingual facts, relative links, and screenshots; record actual outcomes. `npm run package` is available for standalone packaging and rebuilds first.
 3. Update current specification/plan status. Preserve previous verification results and original audit dates.
 4. Push the version commit and matching tag; inspect Actions and the published release's assets, bilingual notes, and checksums. Record publication only after verification. Investigate failures instead of changing documentation to claim success.
 

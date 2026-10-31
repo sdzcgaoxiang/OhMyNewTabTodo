@@ -26,6 +26,6 @@
 
 仅文档更新记入 CHANGELOG 的 Unreleased，不为此升级扩展版本或重发安装包。现有 CI 不自动验证文档事实及翻译一致性，由 PR 作者和发布负责人核对。
 
-同步更新 `package.json` / lockfile、`src/model.ts`、`public/manifest.json` 和界面版本，补充 CHANGELOG；先运行全套检查并审查公开内容。推送 `v0.1.0` 这样的版本 tag 后，GitHub Actions 会重新检查版本、构建、浏览器验收和打包，成功后发布 GitHub Release。第一次使用需确保仓库允许 Actions；发布工作流仅给发布作业 `contents: write`。
+同步更新 `package.json` / lockfile、`src/model.ts`、`public/manifest.json` 和界面版本，补充 CHANGELOG 与 `docs/releases/vX.Y.Z.md`；先运行全套检查并审查公开内容。`npm run check` 后可用 `npm run package:dist` 打包刚验收的构建；单独执行的 `npm run package` 会先重新构建。推送 `v0.3.0` 这样的版本 tag 后，GitHub Actions 只构建和验收一次，打包相同的 `dist/`，发布作业下载并核对校验和后创建 GitHub Release。第一次使用需确保仓库允许 Actions；仅发布作业持有 `contents: write`。
 
 目前只发布手动加载的扩展包。Chrome Web Store 上架、自动更新、跨设备同步与服务器运维都需要单独设计。依赖锁定在 lockfile，更新时使用独立 PR 并跑全套检查。
