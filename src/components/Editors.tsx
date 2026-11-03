@@ -81,6 +81,10 @@ export function CardEditor({
   const t = useT();
   const language = useLanguage();
   const original = initial.card;
+  const [createdAt] = useState(() => {
+    const now = new Date();
+    return new Date(now.getTime() - now.getTimezoneOffset() * 60_000).toISOString().slice(0, 19);
+  });
   const [due, setDue] = useState(original?.dueDate || ''),
     [time, setTime] = useState(original?.dueTime || ''),
     [error, setError] = useState<unknown>(null),
@@ -127,7 +131,12 @@ export function CardEditor({
               expected: original,
               expectedBoardId: initial.boardId,
             }
-          : { type: 'card.add', card: patch, boardId: field('boardId'), index: initial.index },
+          : {
+              type: 'card.add',
+              card: { ...patch, createdAt: new Date(field('createdAt')).toISOString() },
+              boardId: field('boardId'),
+              index: initial.index,
+            },
       );
       onClose();
     } catch (e) {
@@ -168,6 +177,18 @@ export function CardEditor({
             placeholder={t('补充细节、链接或想法…')}
           />
         </label>
+        {!original && (
+          <label>
+            {t('创建时间')}
+            <input
+              name="createdAt"
+              type="datetime-local"
+              step="1"
+              required
+              defaultValue={createdAt}
+            />
+          </label>
+        )}
         <div className="form-grid">
           <label>
             {t('优先级')}

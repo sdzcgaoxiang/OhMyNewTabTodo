@@ -4,6 +4,10 @@
 
 Organize your tasks whenever you open a new tab: familiar horizontal boards, local storage, and backups you can inspect, restore, and take with you.
 
+**New in v0.4.0:** Set a card's creation time when adding it. The field defaults to the local date and time when the form opens, and you can adjust it for older tasks.
+
+![Creation time field in the new-card form, using synthetic data](docs/images/card-created-at.png)
+
 This is an independent, MIT-licensed implementation inspired by NewTabTodo. It is unaffiliated with the original author and does not include the original code or assets. See `LICENSE.txt` in the archive for third-party dependency licenses.
 
 ## English and Chinese interface
@@ -18,7 +22,7 @@ These screenshots use synthetic data and show both languages on the same homepag
 
 ## Why switch from NewTabTodo?
 
-Version **0.3.0** adds the homepage language switch. The previous version restored the original drag placeholders and preview feedback while improving migration, backups, and editing across tabs. Comparisons refer to the audited **NewTabTodo 0.2.0**.
+Version **0.4.0** adds the card creation-time input; 0.3.0 added the homepage language switch. Earlier versions restored the original drag placeholders and preview feedback while improving migration, backups, and editing across tabs. Comparisons refer to the audited **NewTabTodo 0.2.0**.
 
 | Your concern | Improvements available now |
 | --- | --- |
@@ -38,7 +42,7 @@ Version **0.3.0** adds the homepage language switch. The previous version restor
 ## Features
 
 - Create, rename, hide, and reorder boards; edit, copy, complete, delete, and move cards using drag-and-drop or buttons.
-- Descriptions, links, priorities, labels, dates/times, and today / tomorrow / overdue indicators; compact and completed-card display options.
+- Creation time (defaults to now and can be adjusted while adding a card), descriptions, links, priorities, labels, due dates/times, and today / tomorrow / overdue indicators; compact and completed-card display options.
 - Light/dark themes, quick links, search entry points, and a 12/24-hour date/time clock.
 - NewTabTodo 0.2.0 JSON import, legacy-format export, full backups, import previews, and recovery points.
 - Cross-tab updates, edit-conflict notices, and save-failure feedback.
@@ -49,7 +53,7 @@ No account, telemetry, backend, or automatic cross-device synchronization. This 
 
 ## Installation and updates
 
-1. Download `OhMyNewTabTodo-0.3.0.zip` from the [v0.3.0 Release](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.3.0) and extract it to a permanent directory.
+1. Download `OhMyNewTabTodo-0.4.0.zip` from the [v0.4.0 Release](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.4.0) and extract it to a permanent directory.
 2. Open `chrome://extensions`, enable **Developer mode**, choose **Load unpacked**, and select the directory containing `manifest.json`.
 3. Open a new tab. If another new-tab extension takes precedence, temporarily disable it; retain the original extension and export until migration is verified.
 
@@ -103,6 +107,6 @@ CI checks pushes and PRs. Version tags trigger one build and acceptance run; the
 
 [Features](docs/features.en.md) · [Release documentation checklist](docs/releasing.md#english-release-checklist) · [Repository guidelines](AGENTS.md) · [License](LICENSE)
 
-The [0.3.0 verification record](docs/verification-v0.3.0.md), [design](docs/superpowers/specs/2026-10-27-v1-design.md), [historical bilingual UI development verification](docs/verification-bilingual-ui.md), [historical 0.2.0 verification](docs/verification-v0.2.0.md), [historical 0.1.0 verification](docs/verification-v0.1.0.md), [TypeScript migration verification](docs/verification-typescript-migration.md), [contribution guide](CONTRIBUTING.md), and [privacy policy](PRIVACY.md) are currently Chinese or bilingual. Use synthetic reproductions in [Issues](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/issues), without personal task content.
+The [0.4.0 verification record](docs/verification-v0.4.0.md), [creation-time design](docs/superpowers/specs/2026-10-31-card-created-at-design.md), [design](docs/superpowers/specs/2026-10-27-v1-design.md), [historical bilingual UI development verification](docs/verification-bilingual-ui.md), [historical 0.3.0 verification](docs/verification-v0.3.0.md), [historical 0.2.0 verification](docs/verification-v0.2.0.md), [historical 0.1.0 verification](docs/verification-v0.1.0.md), [TypeScript migration verification](docs/verification-typescript-migration.md), [contribution guide](CONTRIBUTING.md), and [privacy policy](PRIVACY.md) are currently Chinese or bilingual. Use synthetic reproductions in [Issues](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/issues), without personal task content.
 
 Application source, tests, and development configuration use TypeScript; `scripts/package.mjs` remains directly executable by Node. Maintenance follows specifications and test-driven development. Every release reviews the paired README and feature pages, changelog, and verification record. Update both user-documentation languages in the same PR; preserve historical audit and release evidence.

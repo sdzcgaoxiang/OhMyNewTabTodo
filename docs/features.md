@@ -1,10 +1,14 @@
 # 为什么从 NewTabTodo 迁移？
 
-[English](features.en.md) · [安装与迁移](../README.md) · [下载 v0.3.0](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.3.0)
+[English](features.en.md) · [安装与迁移](../README.md) · [下载 v0.4.0](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.4.0)
 
-当前版本：**OhMyNewTabTodo 0.3.0**。对比基线：已审计的 **NewTabTodo 0.2.0**。对比核对日期：2026-10-28；双语功能核对日期：2026-10-31。
+当前版本：**OhMyNewTabTodo 0.4.0**。对比基线：已审计的 **NewTabTodo 0.2.0**。对比核对日期：2026-10-28；双语功能核对日期：2026-10-31；创建时间功能核对日期：2026-11-03。
 
 OhMyNewTabTodo 保留熟悉的横向看板，让旧数据更容易迁移、备份和恢复，并减少多标签页编辑时的意外覆盖。它是 MIT 开源的独立替代项目，与 NewTabTodo 原作者无关联，并非官方升级或原版源码分支。
+
+**v0.4.0 新增：**新增卡片时可设置创建时间，默认填入打开表单时的本地日期和时间，精确到秒；补录旧事项时也可调整。保存后可在卡片详情中查看。
+
+![新增卡片时的创建时间字段；仅使用合成数据](images/card-created-at.png)
 
 **适合谁：**依赖 NewTabTodo 的看板习惯，希望继续本机使用，同时改善数据导入、备份和可维护性的用户。**如果你依赖 Chrome 自动跨设备同步，目前不适合作为完整替代。**
 
@@ -32,7 +36,7 @@ v0.2.0 已补齐原版拖拽时的占位、相邻项让位、目标列高亮与�
 
 ## 已实现的升级
 
-| 使用场景 | NewTabTodo 0.2.0 的已审计行为 | OhMyNewTabTodo 0.3.0 的改进 |
+| 使用场景 | NewTabTodo 0.2.0 的已审计行为 | OhMyNewTabTodo 0.4.0 的改进 |
 | --- | --- | --- |
 | 导出的文件又导不回去 | 导出可能省略 `bookmarks`，导入却要求它是数组，因而报文件损坏 | 兼容缺失书签字段；先显示数量、警告与恢复选项，再确认导入 |
 | 有些看板在文件里，界面却看不到 | 导出包含未列入显示顺序的残留对象，原导入路径处理异常 | 保留这些看板和孤立卡片，允许显式恢复；不猜测它们应被删除 |
@@ -78,6 +82,6 @@ v0.2.0 已补齐原版拖拽时的占位、相邻项让位、目标列高亮与�
 
 ## 对比依据与维护
 
-原版事实见[兼容调研](research/newtabtodo-compatibility.md)和[能力审计](research/newtabtodo-audit.md)；新版验证见[0.3.0 验收记录](verification-v0.3.0.md)、[双语界面开发验收记录](verification-bilingual-ui.md)、[0.2.0 历史验收记录](verification-v0.2.0.md)、[导入测试](../tests/transfer.test.ts)、[持久化测试](../tests/repository.test.ts)与[浏览器验收](../tests/browser/extension.spec.ts)。证据不等于所有环境下的绝对保证。
+原版事实见[兼容调研](research/newtabtodo-compatibility.md)和[能力审计](research/newtabtodo-audit.md)；新版验证见[0.4.0 验收记录](verification-v0.4.0.md)、[0.3.0 历史验收记录](verification-v0.3.0.md)、[双语界面开发验收记录](verification-bilingual-ui.md)、[0.2.0 历史验收记录](verification-v0.2.0.md)、[导入测试](../tests/transfer.test.ts)、[持久化测试](../tests/repository.test.ts)与[浏览器验收](../tests/browser/extension.spec.ts)。证据不等于所有环境下的绝对保证。
 
 每次版本更新，按[发布文档清单](releasing.md)同步检查中英文说明。计划中的功能不混入“已实现的升级”。

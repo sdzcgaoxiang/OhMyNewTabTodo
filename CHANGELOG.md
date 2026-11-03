@@ -7,6 +7,18 @@
 - 补录 v0.3.0 发布工作流、下载附件及 SHA-256 的实际验收结果。
 - Recorded the actual v0.3.0 release workflow, downloaded asset, and SHA-256 verification results.
 
+## 0.4.0 — 2026-11-03
+
+### Added / 新增
+
+- 新增卡片时可设置创建时间，默认填入当前本地日期和时间。
+- New cards let you set their creation time, defaulting to the current local date and time.
+
+### Limits / 限制
+
+- 仍需手动更新已解压安装目录；尚未上架 Chrome Web Store，也不支持跨设备自动同步。
+- Unpacked installations still require manual updates; the extension is not on the Chrome Web Store and does not sync across devices.
+
 ## 0.3.0 — 2026-10-31
 
 ### Added / 新增
