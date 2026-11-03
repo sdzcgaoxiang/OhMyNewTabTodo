@@ -62,6 +62,44 @@ async function addCard(page: Page, title = '第一件事') {
   await page.getByRole('button', { name: '保存卡片' }).click();
   await expect(page.getByRole('button', { name: title, exact: true })).toBeVisible();
 }
+test('new card creation time defaults to now and accepts a chosen time', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-10-31T08:09:10.000Z') });
+  await addBoard(page);
+  await page.getByRole('button', { name: '添加卡片到底部' }).first().click();
+  const createdAt = page.getByLabel('创建时间');
+  await expect(createdAt).toBeVisible();
+  const defaultTime = await createdAt.inputValue();
+  const expectedDefault = await page.evaluate(() =>
+    new Date('2026-10-31T08:09:10.000Z').toLocaleString('sv-SE').replace(' ', 'T'),
+  );
+  expect(defaultTime).toBe(expectedDefault);
+  await page.getByLabel('卡片标题').fill('默认时间');
+  await page.getByRole('button', { name: '保存卡片' }).click();
+  await expect
+    .poll(async () =>
+      page.evaluate(async () => {
+        const state = (await chrome.storage.local.get('app_state')).app_state as AppState;
+        return Object.values(state.data.cards)[0]?.createdAt;
+      }),
+    )
+    .toBe('2026-10-31T08:09:10.000Z');
+  await page.getByRole('button', { name: '添加卡片到底部' }).first().click();
+  await page.getByLabel('卡片标题').fill('补录事项');
+  await page.getByLabel('创建时间').fill('2024-02-03T04:05:06');
+  await page.getByRole('button', { name: '保存卡片' }).click();
+  const expectedChosen = await page.evaluate(() => new Date(2024, 1, 3, 4, 5, 6).toISOString());
+  await expect
+    .poll(async () =>
+      page.evaluate(async () => {
+        const state = (await chrome.storage.local.get('app_state')).app_state as AppState;
+        return Object.values(state.data.cards).find((card) => card.title === '补录事项')?.createdAt;
+      }),
+    )
+    .toBe(expectedChosen);
+  await page.reload();
+  await page.getByRole('button', { name: '补录事项', exact: true }).click();
+  await expect(page.getByRole('dialog')).toContainText(expectedChosen);
+});
 async function openTransfer(page: Page) {
   await page.getByRole('button', { name: '设置', exact: true }).click();
   await page.getByRole('button', { name: '导入 / 导出', exact: true }).click();
