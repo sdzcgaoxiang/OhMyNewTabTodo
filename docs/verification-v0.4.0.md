@@ -2,6 +2,8 @@
 
 日期 / Date: 2026-11-03
 
+发布提交 / Release commit: `2ad8260a5103521c9c74ce4e4737b38332f278d8`（`main` 和 `v0.4.0`）。
+
 ## 范围 / Scope
 
 新增卡片表单显示本地创建时间，默认打开时的当前时间，可手动调整并以现有 ISO 时间戳保存。编辑、复制、旧数据及备份格式保留既有规则。/ The new-card form defaults to the current local creation time and accepts a chosen time. The saved value uses the existing ISO timestamp field; edit, copy, legacy data, and backup behavior are unchanged.
@@ -17,7 +19,14 @@
 
 ## 发布核对 / Publication checks
 
-版本 PR、合并提交、`v0.4.0` tag、发布工作流、GitHub Release 附件与下载后校验将在实际完成后记录，不预先宣称通过。/ The version PR, merge commit, tag, release workflow, assets, and downloaded checksum will be recorded after they have actually completed.
+| Check / 检查 | Result / 结果 |
+| --- | --- |
+| 版本 PR / Release PR | [PR #5](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/pull/5) 的 [分支检查](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/actions/runs/41614837348)和 [PR 检查](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/actions/runs/41614889928)均通过，之后合并到 `main`。/ Both branch and PR checks passed before merge. |
+| 发布工作流 / Release workflow | [v0.4.0 工作流](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/actions/runs/41615166672) 的 `verify` 与 `publish` 作业均通过；发布作业核对同一安装包的 SHA-256 后上传。/ Both jobs passed and the publish job verified the artifact checksum. |
+| GitHub Release | [v0.4.0 Release](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.4.0) 已发布，含中英文说明、ZIP 与 `SHA256SUMS.txt`。/ Published with bilingual notes and both expected assets. |
+| 下载附件复核 / Downloaded asset check | 下载两项附件后执行 `shasum -a 256 -c SHA256SUMS.txt` 通过；发布 ZIP SHA-256 为 `ca9856b77bb06b78fc9743242dfae3a89f0fea91a0f44e7d76a1b198b8b751ac`，包内 manifest 版本 `0.4.0`。/ The downloaded archive passed its checksum and contains manifest version `0.4.0`. |
+
+将本地和已发布 ZIP 的 9 个条目逐一比较，文件名及解压后的字节均相同；归档时间不同，因此 ZIP SHA-256 不同。/ All nine local and published ZIP entries match by name and extracted bytes. Archive timestamps differ, so the ZIP hashes differ.
 
 ## 边界 / Limits
 
