@@ -144,7 +144,7 @@ const en = {
     'Familiar boards and portable data. Independently built and unaffiliated with the NewTabTodo author.',
   '无账号、无统计上传、无跨设备自动同步。卸载前请导出完整备份。':
     'No account, telemetry, or automatic cross-device sync. Export a full backup before uninstalling.',
-  '源码、更新与问题反馈 ↗': 'Source, updates, and feedback ↗',
+  '源码、更新与问题反馈': 'Source, updates, and feedback',
   关闭常用链接: 'Close quick links',
   '把经常访问的地方，放在触手可及的位置。': 'Keep your favorite places close at hand.',
   '无效地址，已保留原数据': 'Invalid URL; original data was kept',

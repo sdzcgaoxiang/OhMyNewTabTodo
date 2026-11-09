@@ -22,6 +22,7 @@ async function collect(directory, prefix = '') {
     if (
       entry.isDirectory() &&
       (name === 'assets' ||
+        name === 'icons' ||
         name === '_locales' ||
         name === '_locales/en' ||
         name === '_locales/zh_CN')
@@ -31,6 +32,7 @@ async function collect(directory, prefix = '') {
       entry.isFile() &&
       (/^(index\.html|background\.js|manifest\.json|LICENSE\.txt)$/.test(name) ||
         /^assets\/[\w.-]+\.(js|css|png|svg|webp|woff2)$/.test(name) ||
+        /^icons\/(16|32|48|128)\.png$/.test(name) ||
         /^_locales\/(en|zh_CN)\/messages\.json$/.test(name))
     )
       files.push(name);
@@ -44,6 +46,10 @@ for (const required of [
   'background.js',
   'manifest.json',
   'LICENSE.txt',
+  'icons/16.png',
+  'icons/32.png',
+  'icons/48.png',
+  'icons/128.png',
   '_locales/en/messages.json',
   '_locales/zh_CN/messages.json',
 ])

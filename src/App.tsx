@@ -1,3 +1,5 @@
+import brandMark from './assets/brand-mark.svg';
+import { Icon } from './components/Icon.tsx';
 import React, { useEffect, useState } from 'react';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import type { DropResult } from '@hello-pangea/dnd';
@@ -190,7 +192,7 @@ function TaskCard({
                 perform({ type: 'card.move', id: card.id, boardId: board.id, index: index - 1 })
               }
             >
-              ↑
+              <Icon name="up" />
             </button>
             <button
               aria-label={t('卡片下移')}
@@ -199,7 +201,7 @@ function TaskCard({
                 perform({ type: 'card.move', id: card.id, boardId: board.id, index: index + 1 })
               }
             >
-              ↓
+              <Icon name="down" />
             </button>
             <button
               aria-label={t('删除卡片')}
@@ -382,7 +384,7 @@ export default function App() {
     <div className="app" data-theme={state.theme}>
       <header className="topbar">
         <a className="brand" href="#" onClick={(e) => e.preventDefault()}>
-          <span className="brand-mark">✓</span>
+          <img className="brand-mark" src={brandMark} alt="" />
           <span>
             OhMy<span className="brand-light">NewTabTodo</span>
           </span>
@@ -406,7 +408,9 @@ export default function App() {
               placeholder={t('搜索网页，继续探索…')}
               autoComplete="off"
             />
-            <button aria-label={t('开始搜索')}>↗</button>
+            <button aria-label={t('开始搜索')}>
+              <Icon name="external" />
+            </button>
           </form>
         )}
         <nav className="top-actions" aria-label={t('主要操作')}>
@@ -440,7 +444,7 @@ export default function App() {
               perform({ type: 'theme', theme: state.theme === 'dark' ? 'light' : 'dark' })
             }
           >
-            {state.theme === 'dark' ? '☼' : '☾'}
+            <Icon name={state.theme === 'dark' ? 'sun' : 'moon'} />
           </button>
           <button onClick={() => setPanel('bookmarks')}>{t('常用链接')}</button>
           <button onClick={() => setPanel('settings')}>{t('设置')}</button>
@@ -492,7 +496,7 @@ export default function App() {
         <div className="toast error" role="alert">
           {errorMessage(notice, state.language)}
           <button aria-label={t('关闭提示')} onClick={() => setNotice(null)}>
-            ×
+            <Icon name="close" />
           </button>
         </div>
       )}
@@ -555,7 +559,7 @@ export default function App() {
                               setModal({ type: 'card', initial: { boardId: id, index: 0 } })
                             }
                           >
-                            ＋
+                            <Icon name="add" />
                           </button>
                         </header>
                         <div className="board-controls">
@@ -587,7 +591,7 @@ export default function App() {
                               perform({ type: 'board.move', id, index: boardIndex - 1 })
                             }
                           >
-                            ←
+                            <Icon name="left" />
                           </button>
                           <button
                             aria-label={t('看板右移')}
@@ -596,7 +600,7 @@ export default function App() {
                               perform({ type: 'board.move', id, index: boardIndex + 1 })
                             }
                           >
-                            →
+                            <Icon name="right" />
                           </button>
                           <button
                             aria-label={t('删除看板')}
@@ -645,7 +649,9 @@ export default function App() {
                                   showCompleted,
                               ) && (
                                 <div className="empty-board">
-                                  <span>✓</span>
+                                  <span>
+                                    <Icon name="check" size={30} />
+                                  </span>
                                   <p>
                                     {cards.length
                                       ? t('都完成了，做得不错')
@@ -662,7 +668,7 @@ export default function App() {
                           aria-label={t('添加卡片到底部')}
                           onClick={() => setModal({ type: 'card', initial: { boardId: id } })}
                         >
-                          ＋ {t('添加卡片')}
+                          <Icon name="add" /> {t('添加卡片')}
                         </button>
                       </section>
                     )}
@@ -697,7 +703,9 @@ export default function App() {
                   aria-label={t('再建一个看板')}
                   onClick={() => setModal({ type: 'board' })}
                 >
-                  <span>＋</span>
+                  <span>
+                    <Icon name="add" />
+                  </span>
                   {t('新建看板')}
                 </button>
               )}

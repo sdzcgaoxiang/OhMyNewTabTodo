@@ -1,3 +1,5 @@
+import brandMark from '../assets/brand-mark.svg';
+import { Icon } from './Icon.tsx';
 import React, { useState } from 'react';
 import { Dialog } from './Dialog.tsx';
 import { Transfer } from './Transfer.tsx';
@@ -86,7 +88,7 @@ export function Settings({
       {section === '导入 / 导出' && <Transfer state={state} act={act} />}
       {section === '关于' && (
         <section className="about">
-          <div className="brand-mark">✓</div>
+          <img className="brand-mark" src={brandMark} alt="" />
           <h3>OhMyNewTabTodo</h3>
           <p>{t('0.4.0 · 本地优先的开源新标签页待办')}</p>
           <p>{t('熟悉的看板交互，可带走的数据。独立实现，与 NewTabTodo 原作者无关联。')}</p>
@@ -98,7 +100,7 @@ export function Settings({
             target="_blank"
             rel="noopener noreferrer"
           >
-            {t('源码、更新与问题反馈 ↗')}
+            {t('源码、更新与问题反馈')} <Icon name="external" />
           </a>
         </section>
       )}
@@ -145,7 +147,7 @@ export function Bookmarks({
                   }
                 }}
               >
-                ×
+                <Icon name="close" />
               </button>
             </div>
           ))

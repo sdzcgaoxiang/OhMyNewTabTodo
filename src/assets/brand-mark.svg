@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="surface" x2=".76" y2="1">
+      <stop stop-color="#426459"/>
+      <stop offset=".55" stop-color="#254338"/>
+      <stop offset="1" stop-color="#10271f"/>
+    </linearGradient>
+    <linearGradient id="rim" x2=".3" y2="1">
+      <stop stop-color="#d9fff0" stop-opacity=".43"/>
+      <stop offset="1" stop-color="#d9fff0" stop-opacity=".08"/>
+    </linearGradient>
+    <linearGradient id="back" x2=".2" y2="1">
+      <stop stop-color="#a4cdbb"/>
+      <stop offset="1" stop-color="#5f9380"/>
+    </linearGradient>
+    <linearGradient id="front" x2=".18" y2="1">
+      <stop stop-color="#f0fff7"/>
+      <stop offset=".47" stop-color="#d0f4e1"/>
+      <stop offset="1" stop-color="#a3ddc3"/>
+    </linearGradient>
+    <filter id="contact" x="-30%" y="-30%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#071e16" flood-opacity=".4"/>
+    </filter>
+  </defs>
+  <style>
+    @media (max-width: 20px) {
+      .highlight { display: none }
+      .front { filter: none }
+    }
+  </style>
+  <path d="M43 4h42c27 0 39 12 39 39v42c0 27-12 39-39 39H43C16 124 4 112 4 85V43C4 16 16 4 43 4Z" fill="url(#surface)" stroke="url(#rim)" stroke-width="1.4"/>
+  <rect x="35" y="25" width="65" height="63" rx="17" fill="url(#back)"/>
+  <path class="highlight" d="M53 26h29a17 17 0 0 1 17 17" fill="none" stroke="#e8fff3" stroke-opacity=".43" stroke-width="1.3"/>
+  <rect class="front" x="24" y="38" width="65" height="63" rx="17" fill="url(#front)" filter="url(#contact)"/>
+  <path class="highlight" d="M42 39h29a17 17 0 0 1 17 17" fill="none" stroke="#fff" stroke-opacity=".72" stroke-width="1.3"/>
+  <path d="m40 69 11 11 22-24" fill="none" stroke="#235447" stroke-linecap="round" stroke-linejoin="round" stroke-width="8.5"/>
+</svg>
