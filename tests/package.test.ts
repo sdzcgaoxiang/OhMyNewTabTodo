@@ -10,6 +10,7 @@ test('release archive includes only extension assets with a matching checksum; r
   const root = await mkdtemp(join(tmpdir(), 'ohmynewtab-package-'));
   try {
     await mkdir(join(root, 'dist/assets'), { recursive: true });
+    await mkdir(join(root, 'dist/icons'), { recursive: true });
     await mkdir(join(root, 'dist/_locales/en'), { recursive: true });
     await mkdir(join(root, 'dist/_locales/zh_CN'), { recursive: true });
     for (const [name, text] of Object.entries({
@@ -18,11 +19,16 @@ test('release archive includes only extension assets with a matching checksum; r
         version: '0.1.0',
         manifest_version: 3,
         default_locale: 'en',
+        icons: { 16: 'icons/16.png', 32: 'icons/32.png', 48: 'icons/48.png', 128: 'icons/128.png' },
       }),
       'dist/index.html': '<html></html>',
       'dist/background.js': '// background',
       'dist/LICENSE.txt': 'MIT License and dependency notices',
       'dist/assets/app.js': '// app',
+      'dist/icons/16.png': 'icon',
+      'dist/icons/32.png': 'icon',
+      'dist/icons/48.png': 'icon',
+      'dist/icons/128.png': 'icon',
       'dist/_locales/en/messages.json': JSON.stringify({
         extensionDescription: { message: 'Tasks' },
       }),
@@ -46,6 +52,10 @@ test('release archive includes only extension assets with a matching checksum; r
         '_locales/zh_CN/messages.json',
         'assets/app.js',
         'background.js',
+        'icons/128.png',
+        'icons/16.png',
+        'icons/32.png',
+        'icons/48.png',
         'index.html',
         'manifest.json',
       ],
@@ -57,6 +67,11 @@ test('release archive includes only extension assets with a matching checksum; r
       await readFile(join(root, 'release/SHA256SUMS.txt'), 'utf8'),
       `${hash}  ${filename}\n`,
     );
+    await rm(join(root, 'dist/icons/128.png'));
+    const missingIcon = run();
+    assert.notEqual(missingIcon.status, 0);
+    assert.match(missingIcon.stderr, /Missing build file: icons\/128.png/);
+    await writeFile(join(root, 'dist/icons/128.png'), 'icon');
     await writeFile(join(root, 'dist/private.json'), 'do not ship');
     const rejected = run();
     assert.notEqual(rejected.status, 0);
@@ -78,6 +93,12 @@ test('release archive includes only extension assets with a matching checksum; r
 
 test('manifest metadata has complete English and Chinese catalogs', async () => {
   const manifest = JSON.parse(await readFile(resolve('public/manifest.json'), 'utf8'));
+  assert.deepEqual(manifest.icons, {
+    16: 'icons/16.png',
+    32: 'icons/32.png',
+    48: 'icons/48.png',
+    128: 'icons/128.png',
+  });
   assert.equal(manifest.default_locale, 'en');
   assert.equal(manifest.description, '__MSG_extensionDescription__');
   assert.equal(manifest.action.default_title, '__MSG_actionTitle__');

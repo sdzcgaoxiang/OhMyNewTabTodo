@@ -759,3 +759,11 @@ for (const invalidOlder of [false, true])
     await expect(page.locator('.filename')).toHaveText('newer.json');
     await expect(page.locator('.transfer [role="alert"]')).toHaveCount(0);
   });
+
+test('icon buttons render vector artwork and retain accessible names', async ({ page }) => {
+  await addBoard(page);
+  for (const name of ['切换主题', '添加卡片到顶部', '添加卡片到底部', '看板左移']) {
+    const button = page.getByRole('button', { name, exact: true });
+    await expect(button.locator('svg[aria-hidden="true"]')).toBeVisible();
+  }
+});

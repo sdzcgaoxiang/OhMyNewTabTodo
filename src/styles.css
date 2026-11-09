@@ -131,16 +131,10 @@ button.danger {
   font-weight: 400;
 }
 .brand-mark {
-  display: inline-grid;
-  place-items: center;
-  background: var(--accent, #a1d9bb);
-  color: #183d28;
+  display: block;
+  flex-shrink: 0;
   width: 32px;
   height: 32px;
-  border-radius: 10px;
-  font-weight: 800;
-  font-size: 23px;
-  transform: rotate(-5deg);
 }
 .search-box {
   display: flex;
@@ -438,12 +432,14 @@ button.selected {
   border-color: var(--accent);
 }
 .card-heading > input:checked:after {
-  content: '✓';
+  content: '';
   display: block;
-  font-size: 12px;
-  line-height: 14px;
-  text-align: center;
-  color: #153725;
+  width: 8px;
+  height: 5px;
+  margin: 3px auto 0;
+  border: solid #153725;
+  border-width: 0 0 2px 2px;
+  transform: rotate(-45deg);
 }
 .card-title {
   border: 0;
@@ -1104,4 +1100,9 @@ hr {
   .save-state {
     display: none;
   }
+}
+
+.ui-icon {
+  flex-shrink: 0;
+  vertical-align: middle;
 }

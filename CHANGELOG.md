@@ -2,6 +2,11 @@
 
 ## Unreleased / 未发布
 
+### Changed / 变更
+
+- 新增薄荷绿叠卡扩展标识，并统一新标签页的操作图标。
+- Added a mint stacked-card extension mark and unified the new tab page action icons.
+
 ### Documentation / 文档
 
 - 补录 v0.3.0 发布工作流、下载附件及 SHA-256 的实际验收结果。

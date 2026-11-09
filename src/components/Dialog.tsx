@@ -1,3 +1,4 @@
+import { Icon } from './Icon.tsx';
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { errorMessage } from './ui.ts';
 import { useLanguage, useT } from '../i18n.tsx';
@@ -34,7 +35,7 @@ export function Dialog({ title, onClose, children, drawer = false, closeLabel }:
       <header className="dialog-header">
         <h2 id={id}>{title}</h2>
         <button className="icon-button" aria-label={closeLabel || t('关闭窗口')} onClick={onClose}>
-          ×
+          <Icon name="close" />
         </button>
       </header>
       <div className="dialog-body">{children}</div>
