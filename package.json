@@ -2,6 +2,9 @@
   "name": "oh-my-new-tab-todo",
   "version": "0.4.0",
   "private": true,
+  "bin": {
+    "omntt": "cli/omntt.mjs"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",

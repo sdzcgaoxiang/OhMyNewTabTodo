@@ -1,5 +1,7 @@
 # OhMyNewTabTodo
 
+> In development: the read-only JSON snapshot, CLI, and companion skill are being verified and are not part of the 0.4.0 release. See [external interface](docs/external-file-interface.md).
+
 [简体中文](README.md) · [Upgrade comparison](docs/features.en.md) · [Downloads](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases)
 
 Organize your tasks whenever you open a new tab: familiar horizontal boards, local storage, and backups you can inspect, restore, and take with you.
