@@ -17,7 +17,7 @@ test('CLI reads and filters snapshots without modifying the file', async () => {
     const snapshot = {
       format: 'ohmynewtabtodo.readonly',
       formatVersion: 1,
-      source: { instanceId: 'local', revision: 4 },
+      source: { instanceId: 'local', appVersion: '0.4.0', revision: 4 },
       exportedAt: '2026-11-09T00:00:00Z',
       data: {
         boardOrder: ['b'],
@@ -65,7 +65,8 @@ test('explicit file overrides a broken configuration and unsupported snapshots f
       JSON.stringify({
         format: 'ohmynewtabtodo.readonly',
         formatVersion: 1,
-        source: { revision: 5 },
+        source: { instanceId: 'local', appVersion: '0.4.0', revision: 5 },
+        exportedAt: '2026-11-09T00:00:00Z',
         data: { boards: {}, cards: {}, boardOrder: [] },
       }),
     );
@@ -104,6 +105,76 @@ test('rejects snapshots with arrays instead of task maps', async () => {
     const result = spawnSync(
       process.execPath,
       ['cli/omntt.mjs', 'tasks', '--file', file, '--json'],
+      { encoding: 'utf8' },
+    );
+    assert.notEqual(result.status, 0);
+    assert.equal(result.stdout, '');
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('rejects invalid completion states and missing snapshot provenance', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'omntt-invalid-fields-'));
+  try {
+    const file = join(dir, 'bad.json');
+    const snapshot = {
+      format: 'ohmynewtabtodo.readonly',
+      formatVersion: 1,
+      source: { instanceId: 'fixture', appVersion: '0.4.0', revision: 1 },
+      exportedAt: '2026-11-10T00:00:00.000Z',
+      data: {
+        boardOrder: [],
+        boards: {},
+        cards: { a: { id: 'a', title: 'Task', completed: 'true' } },
+      },
+    };
+    await writeFile(file, JSON.stringify(snapshot));
+    const invalidCompletion = spawnSync(
+      process.execPath,
+      ['cli/omntt.mjs', 'tasks', '--status', 'pending', '--file', file, '--json'],
+      { encoding: 'utf8' },
+    );
+    assert.notEqual(invalidCompletion.status, 0);
+    assert.equal(invalidCompletion.stdout, '');
+    await writeFile(
+      file,
+      JSON.stringify({
+        ...snapshot,
+        source: {},
+        data: { boardOrder: [], boards: {}, cards: {} },
+        exportedAt: undefined,
+      }),
+    );
+    const missingProvenance = spawnSync(
+      process.execPath,
+      ['cli/omntt.mjs', 'status', '--file', file, '--json'],
+      { encoding: 'utf8' },
+    );
+    assert.notEqual(missingProvenance.status, 0);
+    assert.equal(missingProvenance.stdout, '');
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('rejects board ordering that references a missing board', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'omntt-invalid-order-'));
+  try {
+    const file = join(dir, 'bad.json');
+    await writeFile(
+      file,
+      JSON.stringify({
+        format: 'ohmynewtabtodo.readonly',
+        formatVersion: 1,
+        source: { instanceId: 'fixture', appVersion: '0.4.0', revision: 1 },
+        exportedAt: '2026-11-10T00:00:00Z',
+        data: { boardOrder: ['missing'], boards: {}, cards: {} },
+      }),
+    );
+    const result = spawnSync(
+      process.execPath,
+      ['cli/omntt.mjs', 'boards', '--file', file, '--json'],
       { encoding: 'utf8' },
     );
     assert.notEqual(result.status, 0);

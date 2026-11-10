@@ -909,3 +909,47 @@ test('file permission errors explain the read and write authorization steps', as
   await page.getByRole('button', { name: '选择数据文件' }).click();
   await expect(page.getByRole('alert')).toContainText('读取和写入');
 });
+
+test('concurrent tabs export both persisted edits without stale overwrite', async ({
+  page,
+  context,
+}) => {
+  await page.evaluate(() => {
+    Object.defineProperty(window, 'showOpenFilePicker', {
+      configurable: true,
+      value: async () => [
+        await (
+          await navigator.storage.getDirectory()
+        ).getFileHandle('concurrent.json', { create: true }),
+      ],
+    });
+  });
+  await openTransfer(page);
+  await page.getByRole('button', { name: '选择数据文件' }).click();
+  await expect(page.getByText(/已开启/)).toBeVisible();
+  await page.getByRole('button', { name: '关闭设置' }).click();
+  const other = await context.newPage();
+  await other.goto(page.url());
+  await Promise.all(
+    [page, other].map(async (tab, i) => {
+      await tab.getByRole('button', { name: '新建看板', exact: true }).first().click();
+      await tab.getByLabel('看板名称').fill(i === 0 ? 'Tab one' : 'Tab two');
+    }),
+  );
+  await Promise.all(
+    [page, other].map((tab) => tab.getByRole('button', { name: '保存看板' }).click()),
+  );
+  await expect
+    .poll(() =>
+      page.evaluate(async () => {
+        const handle = await (
+          await navigator.storage.getDirectory()
+        ).getFileHandle('concurrent.json');
+        const snapshot = JSON.parse(await (await handle.getFile()).text());
+        return Object.values(snapshot.data.boards)
+          .map((board) => (board as { title: string }).title)
+          .sort();
+      }),
+    )
+    .toEqual(['Tab one', 'Tab two']);
+});

@@ -14,8 +14,8 @@
 
 ### Documentation / 文档
 
-- 新增供外部工具读取固定 JSON 文件的待确认设计，说明无桥接程序方案、文件契约、自动刷新及权限边界；功能尚未实现。
-- Added a pending design for external tools to read a fixed JSON file, covering a bridge-free approach, the file contract, automatic refresh, and permission limits; the feature is not implemented.
+- 新增外部工具读取固定 JSON 文件的设计记录，说明无桥接程序方案、文件契约、自动刷新及权限边界。
+- Added the external JSON interface design, covering a bridge-free approach, the file contract, automatic refresh, and permission limits.
 - 补录 v0.3.0 发布工作流、下载附件及 SHA-256 的实际验收结果。
 - Recorded the actual v0.3.0 release workflow, downloaded asset, and SHA-256 verification results.
 

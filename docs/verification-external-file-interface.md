@@ -1,6 +1,8 @@
 # 外部文件接口验收记录 / External file interface verification
 
-日期：2026-11-09。状态：实现已加入工作区，真实系统文件选择器与浏览器重启后的授权恢复尚待人工验收；未发布版本。
+## 2026-11-09 初次验收（历史记录）
+
+当时状态：实现已加入工作区，真实系统文件选择器与浏览器重启后的授权恢复尚待人工验收；未发布版本。
 
 - `npm run check`：51 项 Node 测试和 38 项 Playwright 浏览器测试通过；之后仅改进不支持文件的提示文案。
 - 文案修改后运行 `npm run typecheck`、`npm run build` 和 4 项外部文件相关 Playwright 测试，均通过。
@@ -32,3 +34,12 @@ English summary: On macOS with isolated Chromium 156, a real native picker and f
 - 复审发现 CLI 接受数组形式的 boards/cards 并错误返回空列表。新增失败测试后，CLI 增加对象及看板、任务基本字段校验，合成损坏快照现在返回非零状态并保持标准输出为空。
 - 根据 macOS 实测，在权限错误提示及中英文使用说明中说明浏览器可能分别请求读取和写入，需要再次点击恢复授权。新增浏览器回归测试。
 - CLI 和 Skill 通过仓库源码提供；扩展 ZIP 不包含它们，安装入口和文件路径见使用说明。
+
+## 整合最新主分支后的交付前复验
+
+- 基于 `origin/main` 的图标更新重新整合，保留图标验收和外部接口测试；中英文设置截图使用合成数据重新生成。
+- 新增 CLI 对损坏完成状态、缺失来源与时间、看板排序引用不存在对象的失败校验；新增跨标签页并发编辑快照测试。
+- `npm run check`：54 项 Node 测试、42 项 Playwright 浏览器测试通过。此前 macOS 原生选择器与退出 / 重启验收范围仍以 2026-11-10 的记录为准。
+- 独立代码复审确认已识别的主要问题已处理。无 MCP；CLI 和配套 Skill 从源码获取，不包含在扩展 ZIP 中。本次为非版本发布。
+
+English summary: After integrating the icon changes from main, all 54 Node tests and 42 browser tests passed. Synthetic bilingual screenshots were refreshed; the prior native macOS verification remains scoped to its recorded environment.

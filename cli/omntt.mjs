@@ -51,8 +51,17 @@ try {
       !object(snapshot.data?.boards) ||
       !object(snapshot.data?.cards) ||
       !Array.isArray(snapshot.data?.boardOrder) ||
-      !snapshot.data.boardOrder.every((id) => typeof id === 'string') ||
+      !snapshot.data.boardOrder.every(
+        (id) => typeof id === 'string' && Object.hasOwn(snapshot.data.boards, id),
+      ) ||
       !object(snapshot.source) ||
+      typeof snapshot.source.instanceId !== 'string' ||
+      !snapshot.source.instanceId ||
+      typeof snapshot.source.appVersion !== 'string' ||
+      !Number.isSafeInteger(snapshot.source.revision) ||
+      snapshot.source.revision < 0 ||
+      typeof snapshot.exportedAt !== 'string' ||
+      !Number.isFinite(Date.parse(snapshot.exportedAt)) ||
       Object.entries(snapshot.data.boards).some(
         ([id, board]) =>
           !object(board) ||
@@ -62,7 +71,11 @@ try {
           !board.cardIds.every((cardId) => typeof cardId === 'string'),
       ) ||
       Object.entries(snapshot.data.cards).some(
-        ([id, card]) => !object(card) || card.id !== id || typeof card.title !== 'string',
+        ([id, card]) =>
+          !object(card) ||
+          card.id !== id ||
+          typeof card.title !== 'string' ||
+          typeof card.completed !== 'boolean',
       )
     )
       throw new Error('Unsupported or invalid snapshot');
