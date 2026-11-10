@@ -1,5 +1,7 @@
 # Why switch from NewTabTodo?
 
+> In development: the local read-only JSON snapshot, CLI, and companion skill are not included in the published release.
+
 [简体中文](features.md) · [Installation and migration](../README.en.md) · [Download v0.4.0](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.4.0)
 
 Current version: **OhMyNewTabTodo 0.4.0**. Comparison baseline: audited **NewTabTodo 0.2.0**. Comparison reviewed on 2026-10-28; bilingual feature reviewed on 2026-10-31; creation-time feature reviewed on 2026-11-03.

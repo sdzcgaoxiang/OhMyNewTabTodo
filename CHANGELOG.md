@@ -7,6 +7,11 @@
 - 新增薄荷绿叠卡扩展标识，并统一新标签页的操作图标。
 - Added a mint stacked-card extension mark and unified the new tab page action icons.
 
+### Added / 新增
+
+- 开发中：可选的本地只读 JSON 快照、CLI 和配套 Skill。
+- In development: optional local read-only JSON snapshots, CLI, and a companion skill.
+
 ### Documentation / 文档
 
 - 新增供外部工具读取固定 JSON 文件的待确认设计，说明无桥接程序方案、文件契约、自动刷新及权限边界；功能尚未实现。

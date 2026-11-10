@@ -767,3 +767,145 @@ test('icon buttons render vector artwork and retain accessible names', async ({ 
     await expect(button.locator('svg[aria-hidden="true"]')).toBeVisible();
   }
 });
+
+test('external file access is disabled by default in English', async ({ rawPage }) => {
+  await rawPage.getByRole('button', { name: 'Settings' }).click();
+  await rawPage.getByRole('button', { name: 'Import / Export' }).click();
+  await expect(rawPage.getByRole('heading', { name: 'External tool access' })).toBeVisible();
+  await expect(rawPage.getByText('Disabled', { exact: true })).toBeVisible();
+  await expect(rawPage.getByRole('button', { name: 'Choose data file' })).toBeVisible();
+});
+
+test('external snapshot updates after persisted task edits and stops on request', async ({
+  page,
+}) => {
+  await page.evaluate(() => {
+    Object.defineProperty(window, 'showOpenFilePicker', {
+      configurable: true,
+      value: async () => {
+        const root = await navigator.storage.getDirectory();
+        return [await root.getFileHandle('synthetic.json', { create: true })];
+      },
+    });
+  });
+  await openTransfer(page);
+  await page.getByRole('button', { name: '选择数据文件' }).click();
+  await expect(page.getByText(/已开启/)).toBeVisible();
+  await page.getByRole('button', { name: '关闭设置' }).click();
+  await addBoard(page, '外部读取测试');
+  await expect
+    .poll(() =>
+      page.evaluate(async () => {
+        const root = await navigator.storage.getDirectory();
+        const h = await root.getFileHandle('synthetic.json');
+        const snapshot = JSON.parse(await (await h.getFile()).text());
+        return Object.values(snapshot.data.boards).some(
+          (b) => (b as { title: string }).title === '外部读取测试',
+        );
+      }),
+    )
+    .toBe(true);
+  await openTransfer(page);
+  await page.getByRole('button', { name: '停止自动导出' }).click();
+  await expect(page.getByText(/已关闭/)).toBeVisible();
+});
+
+test('declining takeover preserves another instance snapshot', async ({ page }) => {
+  const original = JSON.stringify({
+    format: 'ohmynewtabtodo.readonly',
+    formatVersion: 1,
+    source: { instanceId: 'another-instance' },
+    data: { secret: 'keep' },
+  });
+  await page.evaluate(async (content) => {
+    const root = await navigator.storage.getDirectory();
+    const handle = await root.getFileHandle('foreign.json', { create: true });
+    const writer = await handle.createWritable();
+    await writer.write(content);
+    await writer.close();
+    Object.defineProperty(window, 'showOpenFilePicker', {
+      configurable: true,
+      value: async () => [handle],
+    });
+  }, original);
+  page.once('dialog', (dialog) => void dialog.dismiss());
+  await openTransfer(page);
+  await page.getByRole('button', { name: '选择数据文件' }).click();
+  await expect(page.getByRole('alert')).toBeVisible();
+  expect(
+    await page.evaluate(async () => {
+      const root = await navigator.storage.getDirectory();
+      return (await (await root.getFileHandle('foreign.json')).getFile()).text();
+    }),
+  ).toBe(original);
+});
+
+test('choosing an unrelated file never overwrites it', async ({ page }) => {
+  const original = JSON.stringify({ data: 'my important backup' });
+  await page.evaluate(async (content) => {
+    const root = await navigator.storage.getDirectory();
+    const handle = await root.getFileHandle('backup.json', { create: true });
+    const writer = await handle.createWritable();
+    await writer.write(content);
+    await writer.close();
+    Object.defineProperty(window, 'showOpenFilePicker', {
+      configurable: true,
+      value: async () => [handle],
+    });
+  }, original);
+  await openTransfer(page);
+  await page.getByRole('button', { name: '选择数据文件' }).click();
+  await expect(page.getByRole('alert')).toBeVisible();
+  expect(
+    await page.evaluate(async () => {
+      const root = await navigator.storage.getDirectory();
+      return (await (await root.getFileHandle('backup.json')).getFile()).text();
+    }),
+  ).toBe(original);
+});
+
+test('choosing a future-version snapshot preserves its contents', async ({ page }) => {
+  const original = JSON.stringify({
+    format: 'ohmynewtabtodo.readonly',
+    formatVersion: 2,
+    source: { instanceId: 'future' },
+  });
+  await page.evaluate(async (content) => {
+    const root = await navigator.storage.getDirectory();
+    const handle = await root.getFileHandle('future.json', { create: true });
+    const writer = await handle.createWritable();
+    await writer.write(content);
+    await writer.close();
+    Object.defineProperty(window, 'showOpenFilePicker', {
+      configurable: true,
+      value: async () => [handle],
+    });
+  }, original);
+  page.once('dialog', (dialog) => void dialog.accept());
+  await openTransfer(page);
+  await page.getByRole('button', { name: '选择数据文件' }).click();
+  await expect(page.getByRole('alert')).toBeVisible();
+  expect(
+    await page.evaluate(async () => {
+      const root = await navigator.storage.getDirectory();
+      return (await (await root.getFileHandle('future.json')).getFile()).text();
+    }),
+  ).toBe(original);
+});
+
+test('file permission errors explain the read and write authorization steps', async ({ page }) => {
+  await page.evaluate(() => {
+    Object.defineProperty(window, 'showOpenFilePicker', {
+      configurable: true,
+      value: async () => {
+        const root = await navigator.storage.getDirectory();
+        const handle = await root.getFileHandle('permission.json', { create: true });
+        Object.defineProperty(handle, 'requestPermission', { value: async () => 'prompt' });
+        return [handle];
+      },
+    });
+  });
+  await openTransfer(page);
+  await page.getByRole('button', { name: '选择数据文件' }).click();
+  await expect(page.getByRole('alert')).toContainText('读取和写入');
+});

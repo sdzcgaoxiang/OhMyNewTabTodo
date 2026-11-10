@@ -1,5 +1,7 @@
 # 为什么从 NewTabTodo 迁移？
 
+> 开发中：本地只读 JSON 快照、CLI 和配套 Skill 尚未包含在已发布版本。
+
 [English](features.en.md) · [安装与迁移](../README.md) · [下载 v0.4.0](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.4.0)
 
 当前版本：**OhMyNewTabTodo 0.4.0**。对比基线：已审计的 **NewTabTodo 0.2.0**。对比核对日期：2026-10-28；双语功能核对日期：2026-10-31；创建时间功能核对日期：2026-11-03。
