@@ -1,4 +1,39 @@
-import type { Card, Language } from './types.ts';
+import type { Card, Language, Options } from './types.ts';
+import { allDayReminderTime, validReminderTime } from './reminder-settings.ts';
+
+export function localDateString(now = new Date()): string {
+  return [
+    now.getFullYear().toString().padStart(4, '0'),
+    (now.getMonth() + 1).toString().padStart(2, '0'),
+    now.getDate().toString().padStart(2, '0'),
+  ].join('-');
+}
+
+function localCalendar(value: string | null | undefined): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || '');
+  if (!match) return null;
+  const [, year, month, day] = match.map(Number);
+  const date = new Date(0);
+  date.setFullYear(year, month - 1, day);
+  date.setHours(0, 0, 0, 0);
+  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day
+    ? date
+    : null;
+}
+
+export function reminderTimestamp(card: Card, options: Options): number | null {
+  if (card.completed) return null;
+  const date = localCalendar(card.dueDate);
+  if (!date) return null;
+  const explicitTime = !!card.dueTime;
+  if (!explicitTime && options.allDayReminders === false) return null;
+  const time = explicitTime ? card.dueTime : allDayReminderTime(options);
+  if (!validReminderTime(time)) return null;
+  const [hours, minutes] = time.split(':').map(Number);
+  // Native Date advances a DST gap and chooses the first repeated local time.
+  date.setHours(hours, minutes, 0, 0);
+  return date.getTime();
+}
 // Dates represent the user's local calendar, never an implicit UTC timestamp.
 export function duePresentation(
   card: Card,
@@ -6,14 +41,8 @@ export function duePresentation(
   language: Language = 'en',
 ): { text: string; overdue: boolean } {
   const raw = [card.dueDate, card.dueTime].filter(Boolean).join(' ');
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(card.dueDate || '');
-  if (!match) return { text: raw, overdue: false };
-  const [, year, month, day] = match.map(Number);
-  const date = new Date(0);
-  date.setFullYear(year, month - 1, day);
-  date.setHours(0, 0, 0, 0);
-  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day)
-    return { text: raw, overdue: false };
+  const date = localCalendar(card.dueDate);
+  if (!date) return { text: raw, overdue: false };
   const calendarNumber = (value: Date) => {
     const utc = new Date(0);
     utc.setUTCFullYear(value.getFullYear(), value.getMonth(), value.getDate());

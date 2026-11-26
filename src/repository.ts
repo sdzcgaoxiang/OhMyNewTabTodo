@@ -3,6 +3,7 @@ import { parseImport, prepareImport, snapshot } from './transfer.ts';
 import { issue } from './issues.ts';
 import type { RepositoryOperation } from './operations.ts';
 import type { AppState } from './types.ts';
+import { validReminderTime } from './reminder-settings.ts';
 
 export interface StorageArea {
   get(key: string): Promise<Record<string, unknown>>;
@@ -30,6 +31,8 @@ export function isAppState(value: unknown): value is AppState {
   if (value.language !== 'en' && value.language !== 'zh-CN') return false;
   if (!Array.isArray(value.backups) || !Array.isArray(value.imports)) return false;
   if (Object.entries(DEFAULT_OPTIONS).some(([key]) => typeof options[key] !== 'boolean'))
+    return false;
+  if (options.allDayReminderTime !== undefined && !validReminderTime(options.allDayReminderTime))
     return false;
   if (
     Object.entries(boards).some(
@@ -130,6 +133,9 @@ export function createRepository(area: StorageArea): {
       const backup = previous.backups.find((b) => b.id === op.id);
       if (!backup) throw issue('repository.recoveryMissing', '恢复点已不存在');
       next = recovery({ ...previous, ...clone(backup.state) }, previous, '恢复前');
+      // Historical recovery points predate newly added boolean preferences.
+      // Normalize before persisting/returning, just as read() does for old storage.
+      next.options = { ...DEFAULT_OPTIONS, ...next.options };
     } else if (op.type === 'clear') {
       next = recovery({ ...previous, data: emptyState().data, bookmarks: [] }, previous, '清空前');
     } else next = applyOperation(previous, op);

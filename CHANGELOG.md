@@ -2,6 +2,25 @@
 
 ## Unreleased / 未发布
 
+## 0.5.0 — 2026-11-04
+
+### Added / 新增
+
+- 截止日期默认不设置；点击“设置截止日期”时填入当天。只设日期的任务默认当天 09:00 提醒，可在“设置 → 提醒”修改时间或关闭全天提醒；设置具体时间的任务到点提醒。
+- Due dates remain unset until “Set due date” fills today. Date-only tasks notify at 09:00 by default, adjustable or switchable in Settings → Reminders; timed tasks notify at their due time.
+- 新增本机后台定时和系统通知；完成、删除或清除日期会取消待发提醒，同一次截止安排正常运行及重启后不重复通知。首次加载不补发历史过期任务；已登记但错过的提醒恢复后补发。
+- Added local background alarms and system notifications, cancellation on completion/deletion/date removal, and persistent deduplication. Initial loading skips historical overdue tasks; previously registered missed reminders are caught up.
+
+### Fixed / 修复
+
+- 恢复旧版恢复点时补齐新增设置默认值，避免数据已保存却被页面误报为失败。
+- Defaults for new preferences are applied when restoring older recovery points, preventing false failure reports after successful persistence.
+
+### Permissions and limits / 权限与限制
+
+- 新增 `alarms` 和 `notifications` 权限；任务标题及截止信息会显示在系统通知中。需保持 Chrome 运行并允许通知；休眠、免打扰或浏览器关闭可能延迟提醒。操作系统通知显示仍需人工确认。
+- Added `alarms` and `notifications` permissions. Notifications expose task titles and due information to the system notification center. Chrome must be running with notifications allowed; sleep, Do Not Disturb, or closing the browser can delay delivery. OS notification presentation still needs manual verification.
+
 ### Documentation / 文档
 
 - 补录 v0.3.0 发布工作流、下载附件及 SHA-256 的实际验收结果。

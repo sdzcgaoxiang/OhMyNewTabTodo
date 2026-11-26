@@ -46,6 +46,8 @@ export interface AppData {
 }
 
 export interface Options {
+  allDayReminders?: boolean;
+  allDayReminderTime?: string;
   playSoundEffects: boolean;
   allowHidingBoard: boolean;
   hideCardDescription: boolean;

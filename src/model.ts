@@ -1,9 +1,11 @@
 import type { AppData, AppState, Options } from './types.ts';
 import type { ModelOperation } from './operations.ts';
 import { issue } from './issues.ts';
+import { validReminderTime } from './reminder-settings.ts';
 
-export const APP_VERSION = '0.4.0';
+export const APP_VERSION = '0.5.0';
 export const DEFAULT_OPTIONS = Object.freeze({
+  allDayReminders: true,
   playSoundEffects: true,
   allowHidingBoard: true,
   hideCardDescription: false,
@@ -192,6 +194,11 @@ export function applyOperation(input: AppState, op: ModelOperation): AppState {
       bottom(data);
       break;
     case 'options.patch': {
+      if (Object.hasOwn(op.patch, 'allDayReminderTime')) {
+        if (!validReminderTime(op.patch.allDayReminderTime))
+          throw issue('model.reminderTimeInvalid', '请输入有效的提醒时间');
+        state.options.allDayReminderTime = op.patch.allDayReminderTime;
+      }
       for (const [key, value] of Object.entries(op.patch))
         if (Object.hasOwn(DEFAULT_OPTIONS, key)) state.options[key as keyof Options] = !!value;
       if (op.patch.hideCompletedCards === true) bottom(data);

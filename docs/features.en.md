@@ -1,10 +1,26 @@
 # Why switch from NewTabTodo?
 
-[简体中文](features.md) · [Installation and migration](../README.en.md) · [Download v0.4.0](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.4.0)
+[简体中文](features.md) · [Installation and migration](../README.en.md) · [Download v0.5.0](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.5.0)
 
-Current version: **OhMyNewTabTodo 0.4.0**. Comparison baseline: audited **NewTabTodo 0.2.0**. Comparison reviewed on 2026-10-28; bilingual feature reviewed on 2026-10-31; creation-time feature reviewed on 2026-11-03.
+Current version: **OhMyNewTabTodo 0.5.0**. Comparison baseline: audited **NewTabTodo 0.2.0**. Comparison reviewed on 2026-10-28; bilingual feature reviewed on 2026-10-31; creation-time feature reviewed on 2026-11-03; due reminders reviewed on 2026-11-04.
 
 OhMyNewTabTodo keeps the familiar horizontal board workflow while improving migration, backups, recovery, and protection against conflicting edits across tabs. It is an independent MIT-licensed alternative, unaffiliated with the original author—not an official update or a fork of the original source.
+
+## v0.5.0: due reminders
+
+Added on 2026-11-04:
+
+- No due date by default. “Set due date” fills the local date at the time of the click; edit or remove it as needed.
+- Following [Apple Reminders](https://support.apple.com/en-us/102484), date-only tasks notify at 09:00 by default. Adjust or disable all-day reminders in Settings → Reminders; explicit-time reminders remain independent.
+- Local Chrome background alarms and system notifications work with task pages closed. Completion, deletion, date removal, or deleting the owning board cancels pending reminders; hidden boards still remind.
+- Deduplication survives normal operation and worker restarts. Changing a deadline can rearm it. Initial loading/import skips historical past dates; tasks already due today may notify immediately, and previously registered reminders missed during downtime are caught up.
+- Full backups include reminder preferences. Merge keeps local preferences; full-backup replacement and recovery points restore them. Delivery metadata stays local and is not transferred in backups. Restoring tasks after deletion or clearing can notify again.
+- Adds `alarms` / `notifications` permissions and no network requests. Notifications expose task titles and due information to the system notification center.
+- Chrome must run with notifications allowed. Sleep, closing the browser, and Do Not Disturb can delay reminders. System reminders are unavailable in the Vite preview. Repeating, early, location, urgent alarms, and iPhone synchronization are outside this change.
+
+![English due date and time controls using only synthetic data](images/due-reminders-en.png)
+
+[Release verification](verification-v0.5.0.md) · [Implementation verification and platform limits](verification-due-reminders.md).
 
 **New in v0.4.0:** Set the creation time when adding a card. It defaults to the local date and time when the form opens, to the second, and can be adjusted for older tasks. The saved time appears in card details.
 
@@ -36,7 +52,7 @@ v0.2.0 restores the original drag placeholder, displacement, destination-list hi
 
 ## Improvements available now
 
-| Situation | Audited NewTabTodo 0.2.0 behavior | OhMyNewTabTodo 0.4.0 improvement |
+| Situation | Audited NewTabTodo 0.2.0 behavior | OhMyNewTabTodo 0.5.0 improvement |
 | --- | --- | --- |
 | An exported file cannot be imported again | Export may omit `bookmarks`, while import requires an array and reports corruption | Accepts missing bookmarks; previews counts, warnings, and recovery choices before confirmation |
 | Boards exist in a file but are absent from the interface | Export includes leftover objects outside the display order, which the original importer mishandles | Preserves these boards and unassigned cards, with explicit recovery choices instead of guessing they should be deleted |
@@ -82,6 +98,6 @@ Tasks and backup files are processed locally. Searches and links you actively op
 
 ## Evidence and maintenance
 
-Original behavior is documented in the [compatibility research](research/newtabtodo-compatibility.md) and [feature audit](research/newtabtodo-audit.md). New behavior is supported by the [0.4.0 verification record](verification-v0.4.0.md), [historical 0.3.0 verification](verification-v0.3.0.md), [historical bilingual UI development verification](verification-bilingual-ui.md), [historical 0.2.0 verification](verification-v0.2.0.md), [transfer tests](../tests/transfer.test.ts), [persistence tests](../tests/repository.test.ts), and [browser acceptance tests](../tests/browser/extension.spec.ts). Research and verification narratives are currently Chinese or bilingual; this evidence is not an absolute guarantee for every environment.
+Original behavior is documented in the [compatibility research](research/newtabtodo-compatibility.md) and [feature audit](research/newtabtodo-audit.md). New behavior is supported by the [0.5.0 verification record](verification-v0.5.0.md), [historical 0.4.0 verification](verification-v0.4.0.md), [historical 0.3.0 verification](verification-v0.3.0.md), [historical bilingual UI development verification](verification-bilingual-ui.md), [historical 0.2.0 verification](verification-v0.2.0.md), [transfer tests](../tests/transfer.test.ts), [persistence tests](../tests/repository.test.ts), and [browser acceptance tests](../tests/browser/extension.spec.ts). Research and verification narratives are currently Chinese or bilingual; this evidence is not an absolute guarantee for every environment.
 
 Review both language versions with the [release documentation checklist](releasing.md#english-release-checklist) for every release. Planned features must not appear under improvements available now.

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dialog } from './Dialog.tsx';
 import { Transfer } from './Transfer.tsx';
 import { DEFAULT_OPTIONS, safeUrl } from '../model.ts';
@@ -8,6 +8,7 @@ import { errorMessage } from './ui.ts';
 import { issue } from '../issues.ts';
 import { useT } from '../i18n.tsx';
 import type { TranslationKey } from '../i18n.ts';
+import { allDayReminderTime, validReminderTime } from '../reminder-settings.ts';
 type OptionKey = keyof typeof DEFAULT_OPTIONS;
 const sections: Record<
   string,
@@ -24,6 +25,7 @@ const sections: Record<
     ['hideCompletedCards', '隐藏已完成卡片', '完成项移至底部，可临时显示'],
     ['showCompactCards', '紧凑模式', '显示标题，点击查看详情'],
   ],
+  提醒: [],
   搜索: [
     ['hideGoogleSearch', '隐藏 Google', ''],
     ['hideBingSearch', '隐藏 Bing', ''],
@@ -83,12 +85,13 @@ export function Settings({
           />
         </label>
       ))}
+      {section === '提醒' && <ReminderSettings state={state} act={act} />}
       {section === '导入 / 导出' && <Transfer state={state} act={act} />}
       {section === '关于' && (
         <section className="about">
           <div className="brand-mark">✓</div>
           <h3>OhMyNewTabTodo</h3>
-          <p>{t('0.4.0 · 本地优先的开源新标签页待办')}</p>
+          <p>{t('0.5.0 · 本地优先的开源新标签页待办')}</p>
           <p>{t('熟悉的看板交互，可带走的数据。独立实现，与 NewTabTodo 原作者无关联。')}</p>
           <p className="muted">
             {t('无账号、无统计上传、无跨设备自动同步。卸载前请导出完整备份。')}
@@ -103,6 +106,95 @@ export function Settings({
         </section>
       )}
     </Dialog>
+  );
+}
+
+function ReminderSettings({ state, act }: { state: AppState; act: Act }) {
+  const t = useT();
+  const isExtension = !!globalThis.chrome?.runtime?.id;
+  const [permission, setPermission] = useState<'granted' | 'denied' | 'unknown'>('unknown');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<unknown>(null);
+  useEffect(() => {
+    if (!isExtension) return;
+    let active = true;
+    const refresh = () =>
+      void chrome.notifications.getPermissionLevel().then(
+        (value) => {
+          if (active) setPermission(value);
+        },
+        () => {
+          if (active) setPermission('unknown');
+        },
+      );
+    refresh();
+    window.addEventListener('focus', refresh);
+    chrome.notifications.onPermissionLevelChanged.addListener(refresh);
+    return () => {
+      active = false;
+      window.removeEventListener('focus', refresh);
+      chrome.notifications.onPermissionLevelChanged.removeListener(refresh);
+    };
+  }, [isExtension]);
+  async function save(patch: Partial<AppState['options']>) {
+    setBusy(true);
+    try {
+      await act({ type: 'options.patch', patch });
+      setError(null);
+    } catch (error) {
+      setError(error);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <section className="reminder-settings">
+      <label className="option-row">
+        <span>
+          <strong>{t('全天提醒')}</strong>
+          <small>{t('只设置日期的任务也发送通知')}</small>
+        </span>
+        <input
+          type="checkbox"
+          aria-label={t('全天提醒')}
+          checked={state.options.allDayReminders !== false}
+          disabled={busy}
+          onChange={(e) => void save({ allDayReminders: e.target.checked })}
+        />
+      </label>
+      <label className="reminder-time">
+        {t('全天提醒时间')}
+        <input
+          type="time"
+          value={allDayReminderTime(state.options)}
+          disabled={busy || state.options.allDayReminders === false}
+          onChange={(e) => {
+            if (validReminderTime(e.target.value))
+              void save({ allDayReminderTime: e.target.value });
+          }}
+        />
+      </label>
+      <p className="muted">{t('设置了具体时间的任务，始终在截止时间提醒。')}</p>
+      <p role="status">
+        {!isExtension
+          ? t('系统提醒仅在 Chrome 扩展中生效。')
+          : permission === 'granted'
+            ? t('Chrome 已允许通知')
+            : permission === 'denied'
+              ? t('Chrome 通知已关闭，请在浏览器扩展设置中允许通知。')
+              : t('无法确认通知权限，请检查浏览器设置。')}
+      </p>
+      <p className="muted">
+        {t(
+          '请保持 Chrome 运行，并在系统设置中允许 Chrome 通知。休眠、免打扰或浏览器关闭可能延迟提醒。',
+        )}
+      </p>
+      {error != null && (
+        <p role="alert" className="error">
+          {errorMessage(error, state.language)}
+        </p>
+      )}
+    </section>
   );
 }
 export function Bookmarks({

@@ -1,10 +1,26 @@
 # 为什么从 NewTabTodo 迁移？
 
-[English](features.en.md) · [安装与迁移](../README.md) · [下载 v0.4.0](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.4.0)
+[English](features.en.md) · [安装与迁移](../README.md) · [下载 v0.5.0](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.5.0)
 
-当前版本：**OhMyNewTabTodo 0.4.0**。对比基线：已审计的 **NewTabTodo 0.2.0**。对比核对日期：2026-10-28；双语功能核对日期：2026-10-31；创建时间功能核对日期：2026-11-03。
+当前版本：**OhMyNewTabTodo 0.5.0**。对比基线：已审计的 **NewTabTodo 0.2.0**。对比核对日期：2026-10-28；双语功能核对日期：2026-10-31；创建时间功能核对日期：2026-11-03；截止提醒功能核对日期：2026-11-04。
 
 OhMyNewTabTodo 保留熟悉的横向看板，让旧数据更容易迁移、备份和恢复，并减少多标签页编辑时的意外覆盖。它是 MIT 开源的独立替代项目，与 NewTabTodo 原作者无关联，并非官方升级或原版源码分支。
+
+## v0.5.0：截止提醒
+
+2026-11-04 新增：
+
+- 默认无截止日期；点击“设置截止日期”后按点击时的本地日期填入今天，允许修改或移除。
+- 参考 [Apple 提醒事项规则](https://support.apple.com/en-us/102484)，只设日期默认当天 09:00 通知；“设置 → 提醒”可调整全天提醒时间或关闭全天提醒。具体时间的提醒独立生效。
+- Chrome 后台使用本机闹钟与系统通知，不需要任务页面保持打开。已完成、删除、清除日期或删除所属看板的任务取消待发提醒；隐藏看板仍提醒。
+- 同一截止安排正常运行和后台重启后去重；修改截止安排可重新提醒。首次升级/导入不补发过去日期的历史任务，当天已经到点的任务可立即提醒，已登记后因停机错过的任务恢复后补发。
+- 提醒设置随完整备份保存，合并导入保留本机设置，替换完整备份和恢复点会恢复设置；投递记录只保存在本机，不随备份转移。删除或清空后再恢复任务，可能重新提醒。
+- 新增 `alarms` / `notifications` 权限，不增加网络请求。通知可向系统通知中心显示任务标题及截止信息。
+- Chrome 必须运行且通知被允许；休眠、关闭浏览器和免打扰可能延迟提醒，系统提醒不适用于 Vite 网页预览。不包括重复、提前、位置或紧急闹钟提醒，也不与 iPhone 同步。
+
+![中文截止日期和时间设置；仅使用合成数据](images/due-reminders-zh.png)
+
+[发布验收](verification-v0.5.0.md) · [实现验收与平台边界](verification-due-reminders.md)。
 
 **v0.4.0 新增：**新增卡片时可设置创建时间，默认填入打开表单时的本地日期和时间，精确到秒；补录旧事项时也可调整。保存后可在卡片详情中查看。
 
@@ -36,7 +52,7 @@ v0.2.0 已补齐原版拖拽时的占位、相邻项让位、目标列高亮与�
 
 ## 已实现的升级
 
-| 使用场景 | NewTabTodo 0.2.0 的已审计行为 | OhMyNewTabTodo 0.4.0 的改进 |
+| 使用场景 | NewTabTodo 0.2.0 的已审计行为 | OhMyNewTabTodo 0.5.0 的改进 |
 | --- | --- | --- |
 | 导出的文件又导不回去 | 导出可能省略 `bookmarks`，导入却要求它是数组，因而报文件损坏 | 兼容缺失书签字段；先显示数量、警告与恢复选项，再确认导入 |
 | 有些看板在文件里，界面却看不到 | 导出包含未列入显示顺序的残留对象，原导入路径处理异常 | 保留这些看板和孤立卡片，允许显式恢复；不猜测它们应被删除 |
@@ -82,6 +98,6 @@ v0.2.0 已补齐原版拖拽时的占位、相邻项让位、目标列高亮与�
 
 ## 对比依据与维护
 
-原版事实见[兼容调研](research/newtabtodo-compatibility.md)和[能力审计](research/newtabtodo-audit.md)；新版验证见[0.4.0 验收记录](verification-v0.4.0.md)、[0.3.0 历史验收记录](verification-v0.3.0.md)、[双语界面开发验收记录](verification-bilingual-ui.md)、[0.2.0 历史验收记录](verification-v0.2.0.md)、[导入测试](../tests/transfer.test.ts)、[持久化测试](../tests/repository.test.ts)与[浏览器验收](../tests/browser/extension.spec.ts)。证据不等于所有环境下的绝对保证。
+原版事实见[兼容调研](research/newtabtodo-compatibility.md)和[能力审计](research/newtabtodo-audit.md)；新版验证见[0.5.0 验收记录](verification-v0.5.0.md)、[0.4.0 历史验收记录](verification-v0.4.0.md)、[0.3.0 历史验收记录](verification-v0.3.0.md)、[双语界面开发验收记录](verification-bilingual-ui.md)、[0.2.0 历史验收记录](verification-v0.2.0.md)、[导入测试](../tests/transfer.test.ts)、[持久化测试](../tests/repository.test.ts)与[浏览器验收](../tests/browser/extension.spec.ts)。证据不等于所有环境下的绝对保证。
 
 每次版本更新，按[发布文档清单](releasing.md)同步检查中英文说明。计划中的功能不混入“已实现的升级”。

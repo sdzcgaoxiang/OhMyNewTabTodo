@@ -1,5 +1,6 @@
 import { APP_VERSION, clone, DEFAULT_OPTIONS, newId, same, safeUrl } from './model.ts';
 import { issue } from './issues.ts';
+import { validReminderTime } from './reminder-settings.ts';
 import type { IssuePayload } from './issues.ts';
 import type {
   AppData,
@@ -232,6 +233,12 @@ export function parseImport(text: string): ParsedImport {
       '备份语言无效',
     );
     options = rawOptions as Partial<Options>;
+    ensure(
+      rawOptions.allDayReminderTime === undefined ||
+        validReminderTime(rawOptions.allDayReminderTime),
+      'model.reminderTimeInvalid',
+      '请输入有效的提醒时间',
+    );
     theme = storedState.theme;
     language = storedState.language as Language | undefined;
   }
