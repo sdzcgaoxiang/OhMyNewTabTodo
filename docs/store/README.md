@@ -6,10 +6,11 @@
 
 - 扩展包：v0.5.0 已于 2026-11-26 发布。从 [v0.5.0 Release](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.5.0) 下载 `OhMyNewTabTodo-0.5.0.zip` 和 `SHA256SUMS.txt`，运行 `shasum -a 256 -c SHA256SUMS.txt`（发布 ZIP SHA-256 应为 `661bf25c01fd89854efc659e0ff1102ea2ba95d560f8867f6748ef01cec10881`），再把**下载的同一个 ZIP**上传到 Chrome Web Store。ZIP 根目录直接包含 `manifest.json`。
 - 扩展图标：`public/icons/128.png`，也已包含在扩展包中。
-- 中文截图：`docs/store/images/screenshot-zh.png`；英文截图：`docs/store/images/screenshot-en.png`。均为 1280×800，使用合成任务数据。
-- 可选小宣传图：`docs/store/images/promo-440x280.png`。
+- 中文截图：`docs/store/images/screenshot-zh.png`；英文截图：`docs/store/images/screenshot-en.png`。均为 1280×800，2026-11-26 用 v0.5.0 构建重拍（含新图标、截止日期、优先级与已完成卡片），只使用合成任务数据。另附可选浅色主题变体 `screenshot-zh-light.png` / `screenshot-en-light.png`；商店最多 5 张 1280×800，可按需上传。
+- 可选小宣传图：`docs/store/images/promo-440x280.png`（2026-11-05 制作，深色主题）。
+- 重拍截图：先 `npm run build`，再 `node scripts/capture-store-shots.mjs`，脚本会加载 `dist/` 中的扩展、注入合成数据并输出上述四张截图。
 
-注意：**提交前必须重拍截图。** 现有两张截图摄于 2026-11-05，当时图标重绘尚未完成（主题切换仍显示 `☼` 文字符号，看板移动箭头也是文字），且不含 v0.5.0 新增的截止日期与提醒设置。请用 v0.5.0 构建和合成数据重拍中英文截图后再上传。不要使用本地 `release/` 目录中的历史测试包（它们与 GitHub Release 附件不是同一份文件），只上传 Release 附件。商店后续更新需递增版本。现有解压安装与商店安装通常具有不同的扩展身份和独立存储；迁移前应从旧安装导出完整备份，在商店版导入并核对后再考虑移除旧安装。
+注意：不要使用本地 `release/` 目录中的历史测试包（它们与 GitHub Release 附件不是同一份文件），只上传 Release 附件。商店后续更新需递增版本号并重拍截图。现有解压安装与商店安装通常具有不同的扩展身份和独立存储；迁移前应从旧安装导出完整备份，在商店版导入并核对后再考虑移除旧安装。
 
 ## 商店介绍：简体中文
 
@@ -70,5 +71,5 @@ Google 参考文档：[图片要求](https://developer.chrome.com/docs/webstore/
 
 - `npm run check`：格式、类型检查和构建通过；71 项单元测试、46 项 Chromium 浏览器测试通过。详见 [v0.5.0 验收记录](../verification-v0.5.0.md)。
 - `npm run package:dist`：从已验证的构建生成 14 个文件的 ZIP（含 4 个扩展图标与提醒图标）；`shasum -a 256 -c SHA256SUMS.txt` 通过。仅供本地验证的 0.5.0 ZIP SHA-256：`cab4f9f7ff3c7475aab41a20ce8540ba3a12786322e4e7116939d986dfa3eb15`；上传时必须改用 GitHub Release 附件。
-- 已核对宣传图（440×280）、截图（1280×800）及扩展图标（16/32/48/128）尺寸。商店截图摄于 2026-11-05，早于最终图标与提醒设置，提交前需重拍；尚未进行 Chrome Web Store 审核。
+- 已核对宣传图（440×280）、截图（1280×800）及扩展图标（16/32/48/128）尺寸。截图于 2026-11-26 用 v0.5.0 构建重拍并目视检查（新图标、截止日期、优先级、已完成卡片均正确）；尚未进行 Chrome Web Store 审核。
 - 历史记录：2026-11-05 基于 0.4.0 的本地测试 ZIP（13 个文件，SHA-256 `44222e61…14f86`）已被 v0.5.0 取代，不要再使用。
