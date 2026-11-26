@@ -62,6 +62,178 @@ async function addCard(page: Page, title = '第一件事') {
   await page.getByRole('button', { name: '保存卡片' }).click();
   await expect(page.getByRole('button', { name: title, exact: true })).toBeVisible();
 }
+test('due dates stay unset until enabled at the local date of the click and can be removed', async ({
+  page,
+}) => {
+  await page.clock.install({ time: new Date(2026, 10, 4, 23, 59) });
+  await addBoard(page);
+  await page.getByRole('button', { name: '添加卡片到底部' }).first().click();
+  await expect(page.getByLabel('截止日期', { exact: true })).toHaveCount(0);
+  await page.clock.fastForward(120_000);
+  await page.getByRole('button', { name: '设置截止日期', exact: true }).click();
+  await expect(page.getByLabel('截止日期', { exact: true })).toHaveValue('2026-11-05');
+  await page.getByLabel('截止时间', { exact: true }).fill('14:30');
+  await page.getByRole('button', { name: '移除截止日期', exact: true }).click();
+  await page.getByLabel('卡片标题').fill('无截止日期');
+  await page.getByRole('button', { name: '保存卡片' }).click();
+  await expect
+    .poll(() =>
+      page.evaluate(async () => {
+        const state = (await chrome.storage.local.get('app_state')).app_state as AppState;
+        const card = Object.values(state.data.cards)[0];
+        return [card?.dueDate, card?.dueTime];
+      }),
+    )
+    .toEqual(['', '']);
+  await page.getByRole('button', { name: '无截止日期', exact: true }).click();
+  await page.getByRole('button', { name: '编辑卡片', exact: true }).last().click();
+  await expect(page.getByLabel('截止日期', { exact: true })).toHaveCount(0);
+});
+
+test('all-day reminder preferences default to 09:00, persist and update other tabs', async ({
+  page,
+  context,
+}) => {
+  await page.getByRole('button', { name: '设置', exact: true }).click();
+  await page.getByRole('button', { name: '提醒', exact: true }).click();
+  await expect(page.getByLabel('全天提醒时间', { exact: true })).toHaveValue('09:00');
+  await expect(page.getByLabel('全天提醒', { exact: true })).toBeChecked();
+  await page.getByLabel('全天提醒时间', { exact: true }).fill('07:45');
+  await expect
+    .poll(() =>
+      page.evaluate(
+        async () =>
+          ((await chrome.storage.local.get('app_state')).app_state as AppState).options
+            .allDayReminderTime,
+      ),
+    )
+    .toBe('07:45');
+  const other = await context.newPage();
+  await other.goto(page.url());
+  await other.getByRole('button', { name: '设置', exact: true }).click();
+  await other.getByRole('button', { name: '提醒', exact: true }).click();
+  await expect(other.getByLabel('全天提醒时间', { exact: true })).toHaveValue('07:45');
+  await other.getByLabel('全天提醒', { exact: true }).click();
+  await expect(page.getByLabel('全天提醒', { exact: true })).not.toBeChecked();
+  await expect(page.getByLabel('全天提醒时间', { exact: true })).toBeDisabled();
+});
+
+test('background schedules native alarms and clearing a due date cancels the next alarm', async ({
+  page,
+}) => {
+  await addBoard(page);
+  await page.getByRole('button', { name: '添加卡片到底部' }).first().click();
+  await page.getByLabel('卡片标题').fill('后台提醒');
+  await page.getByRole('button', { name: '设置截止日期', exact: true }).click();
+  await page.getByLabel('截止日期', { exact: true }).fill('2099-12-31');
+  await page.getByLabel('截止时间', { exact: true }).fill('15:00');
+  await page.getByRole('button', { name: '保存卡片' }).click();
+  const expected = await page.evaluate(() => new Date(2099, 11, 31, 15).getTime());
+  await expect
+    .poll(() =>
+      page.evaluate(
+        async () => (await chrome.alarms.get('ohmynewtabtodo:reminder:next'))?.scheduledTime,
+      ),
+    )
+    .toBe(expected);
+  await page.getByRole('button', { name: '后台提醒', exact: true }).click();
+  await page.getByRole('button', { name: '编辑卡片', exact: true }).last().click();
+  await page.getByRole('button', { name: '移除截止日期', exact: true }).click();
+  await page.getByRole('button', { name: '保存卡片' }).click();
+  await expect
+    .poll(() =>
+      page.evaluate(async () => !!(await chrome.alarms.get('ohmynewtabtodo:reminder:next'))),
+    )
+    .toBe(false);
+});
+
+test('native alarm delivers through the background with all extension pages closed', async ({
+  page,
+  context,
+}) => {
+  const worker = context.serviceWorkers()[0];
+  // Capture only the OS boundary; real storage, writer and Chrome alarm event still run.
+  await worker.evaluate(() => {
+    chrome.notifications.getPermissionLevel = (async () =>
+      'granted') as typeof chrome.notifications.getPermissionLevel;
+    chrome.notifications.create = (async (
+      id: string,
+      options: chrome.notifications.NotificationOptions,
+    ) => {
+      const { capturedNotifications = [] } =
+        await chrome.storage.local.get('capturedNotifications');
+      await chrome.storage.local.set({
+        capturedNotifications: [
+          ...(Array.isArray(capturedNotifications) ? capturedNotifications : []),
+          { id, options },
+        ],
+      });
+      return id;
+    }) as typeof chrome.notifications.create;
+  });
+  const due = await page.evaluate(async () => {
+    const date = new Date();
+    date.setDate(date.getDate() + 1);
+    date.setHours(12, 0, 0, 0);
+    await chrome.runtime.sendMessage({
+      type: 'dispatch',
+      operation: { type: 'board.add', id: 'alarm-board', title: 'Alarm board' },
+    });
+    await chrome.runtime.sendMessage({
+      type: 'dispatch',
+      operation: {
+        type: 'card.add',
+        id: 'alarm-card',
+        boardId: 'alarm-board',
+        card: {
+          title: '离开页面仍提醒',
+          dueDate: date.toLocaleDateString('sv-SE'),
+          dueTime: '12:00',
+        },
+      },
+    });
+    return date.getTime();
+  });
+  await expect
+    .poll(() =>
+      worker.evaluate(
+        async () => (await chrome.alarms.get('ohmynewtabtodo:reminder:next'))?.scheduledTime,
+      ),
+    )
+    .toBe(due);
+  for (const tab of context.pages()) await tab.close();
+  await worker.evaluate(async (dueTime) => {
+    const RealDate = Date;
+    const offset = dueTime + 1000 - RealDate.now();
+    globalThis.Date = class extends RealDate {
+      constructor(value?: string | number) {
+        super(value ?? RealDate.now() + offset);
+      }
+      static now() {
+        return RealDate.now() + offset;
+      }
+    } as DateConstructor;
+    await chrome.alarms.create('ohmynewtabtodo:reminder:next', { when: RealDate.now() + 100 });
+  }, due);
+  await expect
+    .poll(
+      () =>
+        worker.evaluate(
+          async () =>
+            (await chrome.storage.local.get('capturedNotifications')).capturedNotifications,
+        ),
+      { timeout: 10_000 },
+    )
+    .toEqual([
+      {
+        id: expect.stringMatching(/^ohmynewtabtodo:due:/),
+        options: expect.objectContaining({
+          title: '离开页面仍提醒',
+          message: expect.stringContaining('12:00'),
+        }),
+      },
+    ]);
+});
 test('new card creation time defaults to now and accepts a chosen time', async ({ page }) => {
   await page.clock.install({ time: new Date('2026-10-31T08:09:10.000Z') });
   await addBoard(page);
@@ -528,6 +700,7 @@ test('due status refreshes after midnight without reloading the page', async ({ 
   await addBoard(page);
   await addCard(page);
   await page.getByRole('button', { name: '编辑卡片' }).click();
+  await page.getByRole('button', { name: '设置截止日期', exact: true }).click();
   await page.getByLabel('截止日期').fill('2026-10-27');
   await page.getByRole('button', { name: '保存卡片' }).click();
   await expect(page.locator('.due-date')).toContainText('今天');

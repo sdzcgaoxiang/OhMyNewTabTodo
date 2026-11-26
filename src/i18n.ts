@@ -94,6 +94,25 @@ const en = {
   高: 'High',
   截止日期: 'Due date',
   截止时间: 'Due time',
+  设置截止日期: 'Set due date',
+  移除截止日期: 'Remove due date',
+  到截止时间发送系统通知: 'Notify at the due time',
+  全天提醒已关闭: 'All-day reminders are off',
+  'reminder.allDayHint': 'All-day reminder at {time}',
+  提醒: 'Reminders',
+  全天提醒: 'All-day reminders',
+  全天提醒时间: 'All-day reminder time',
+  只设置日期的任务也发送通知: 'Notify for tasks with a date and no specific time',
+  '设置了具体时间的任务，始终在截止时间提醒。':
+    'Tasks with a specific time always notify at their due time.',
+  '系统提醒仅在 Chrome 扩展中生效。': 'System reminders work only in the Chrome extension.',
+  'Chrome 已允许通知': 'Chrome notifications are allowed',
+  'Chrome 通知已关闭，请在浏览器扩展设置中允许通知。':
+    'Chrome notifications are off. Allow notifications in the browser extension settings.',
+  '无法确认通知权限，请检查浏览器设置。':
+    'Notification permission is unavailable. Check your browser settings.',
+  '请保持 Chrome 运行，并在系统设置中允许 Chrome 通知。休眠、免打扰或浏览器关闭可能延迟提醒。':
+    'Keep Chrome running and allow Chrome notifications in system settings. Sleep, Do Not Disturb, or closing the browser can delay reminders.',
   创建时间: 'Created at',
   主要标签: 'Primary label',
   次要标签: 'Secondary label',
@@ -139,7 +158,7 @@ const en = {
   关闭后在打开页面数秒后收起: 'When off, hide the clock a few seconds after opening',
   关闭设置: 'Close settings',
   设置分类: 'Settings categories',
-  '0.4.0 · 本地优先的开源新标签页待办': '0.4.0 · Local-first open-source new tab to-do',
+  '0.5.0 · 本地优先的开源新标签页待办': '0.5.0 · Local-first open-source new tab to-do',
   '熟悉的看板交互，可带走的数据。独立实现，与 NewTabTodo 原作者无关联。':
     'Familiar boards and portable data. Independently built and unaffiliated with the NewTabTodo author.',
   '无账号、无统计上传、无跨设备自动同步。卸载前请导出完整备份。':
@@ -204,6 +223,7 @@ const zh: Partial<Record<keyof typeof en, string>> = {
   'app.deleteLink': '删除链接 {name}',
   'app.recoveredBoardNames': '{names}。不勾选也会保留数据；原有隐藏状态不变。',
   'app.backupCardCount': '{count} 张卡片',
+  'reminder.allDayHint': '全天提醒时间 {time}',
 };
 export type TranslationKey = keyof typeof en;
 
@@ -232,6 +252,7 @@ const issueText: Record<Language, Record<string, string>> = {
     'model.cardUnassigned': 'This card is not assigned to a board. Recover it first.',
     'model.themeInvalid': 'Invalid theme.',
     'model.languageInvalid': 'Invalid language.',
+    'model.reminderTimeInvalid': 'Enter a valid reminder time.',
     'model.urlInvalid': 'Enter a valid http or https URL.',
     'model.unknownOperation': 'Unknown operation.',
     'bookmark.invalidForm': 'The link form is invalid. Fill it in again.',

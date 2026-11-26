@@ -1,16 +1,34 @@
 # Changelog
 
-## Unreleased / 未发布
+## 0.5.0 — 2026-11-26
+
+### Added / 新增
+
+- 截止日期默认不设置；点击“设置截止日期”时填入当天。只设日期的任务默认当天 09:00 提醒，可在“设置 → 提醒”修改时间或关闭全天提醒；设置具体时间的任务到点提醒。
+- Due dates remain unset until “Set due date” fills today. Date-only tasks notify at 09:00 by default, adjustable or switchable in Settings → Reminders; timed tasks notify at their due time.
+- 新增本机后台定时和系统通知；完成、删除或清除日期会取消待发提醒，同一次截止安排正常运行及重启后不重复通知。首次加载不补发历史过期任务；已登记但错过的提醒恢复后补发。
+- Added local background alarms and system notifications, cancellation on completion/deletion/date removal, and persistent deduplication. Initial loading skips historical overdue tasks; previously registered missed reminders are caught up.
+- 新增可选的本地外部读取接口：在“设置 → 导入 / 导出 → 外部工具读取”中选择空白 JSON 文件后，插件在数据保存后把只读快照写入该文件。配套 `omntt` CLI 与 Skill 从仓库源码获取，不包含在扩展 ZIP 中。
+- Added an optional local external interface: after selecting an empty JSON file under Settings → Import / Export → External tool access, the extension writes a read-only snapshot to it after persisted changes. The companion `omntt` CLI and skill come from the repository source and are not included in the extension ZIP.
 
 ### Changed / 变更
 
 - 新增薄荷绿叠卡扩展标识，并统一新标签页的操作图标。
 - Added a mint stacked-card extension mark and unified the new tab page action icons.
 
-### Added / 新增
+### Fixed / 修复
 
-- 开发中：可选的本地只读 JSON 快照、CLI 和配套 Skill。
-- In development: optional local read-only JSON snapshots, CLI, and a companion skill.
+- 恢复旧版恢复点时补齐新增设置默认值，避免数据已保存却被页面误报为失败。
+- Defaults for new preferences are applied when restoring older recovery points, preventing false failure reports after successful persistence.
+
+### Permissions and limits / 权限与限制
+
+- 新增 `alarms` 和 `notifications` 权限；任务标题及截止信息会显示在系统通知中。需保持 Chrome 运行并允许通知；休眠、免打扰或浏览器关闭可能延迟提醒。操作系统通知显示仍需人工确认。
+- Added `alarms` and `notifications` permissions. Notifications expose task titles and due information to the system notification center. Chrome must be running with notifications allowed; sleep, Do Not Disturb, or closing the browser can delay delivery. OS notification presentation still needs manual verification.
+- 外部快照包含明文任务，不是完整备份；停止导出或卸载不会删除该文件。浏览器重启后可能需要分别重新授权读取和写入。
+- External snapshots contain plaintext tasks and are not full backups; stopping export or uninstalling does not delete the file. After a browser restart, read and write permission may need to be granted again.
+- 仍需手动更新已解压安装目录；尚未上架 Chrome Web Store，也不支持跨设备自动同步。
+- Unpacked installations still require manual updates; the extension is not on the Chrome Web Store and does not sync across devices.
 
 ### Documentation / 文档
 
@@ -18,6 +36,8 @@
 - Added the external JSON interface design, covering a bridge-free approach, the file contract, automatic refresh, and permission limits.
 - 补录 v0.3.0 发布工作流、下载附件及 SHA-256 的实际验收结果。
 - Recorded the actual v0.3.0 release workflow, downloaded asset, and SHA-256 verification results.
+- 新增 Chrome Web Store 提交材料：中英文介绍、隐私填写参考、1280×800 截图与 440×280 宣传图。截图需在提交前用 v0.5.0 构建重拍；尚未提交审核。
+- Added Chrome Web Store submission materials: bilingual listing, privacy guidance, 1280×800 screenshots, and a 440×280 promo tile. Screenshots must be recaptured from the v0.5.0 build before submission; nothing has been submitted for review.
 
 ## 0.4.0 — 2026-11-03
 

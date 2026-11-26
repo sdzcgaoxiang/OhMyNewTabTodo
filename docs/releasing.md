@@ -31,7 +31,7 @@
 1. 同步 `package.json` / lockfile、`src/model.ts`、`public/manifest.json` 和界面中的版本；查找残留旧版本引用，区分历史证据与当前说明，禁止全仓库盲目替换。
 2. 运行 `npm run check` 和 `npm run package:dist`；检查 ZIP 文件清单、许可证、校验和、双语事实、相对链接和截图。真实执行结果写入本版验收记录。单独打包可用 `npm run package`，它会重新构建。
 3. 更新当前规格/计划进度；不要覆盖已完成版本的验收结果，也不要把历史审计日期改成今天。
-4. 推送版本提交和对应 tag，检查 Actions。确认 Release 的附件、版本、双语说明和校验和；再记录实际发布结果。失败则查明原因，不能只把文档改成“已通过”。
+4. 推送版本提交和对应 tag，检查 Actions。确认 Release 的附件、版本、双语说明和校验和；再记录实际发布结果。若提交 Chrome Web Store，从该 Release 下载 ZIP 和校验和、验证后上传同一个 ZIP，不另行重打包；记录商店审核与实际上架状态。失败则查明原因，不能只把文档改成“已通过”。
 
 文档检查是发布负责人的评审要求；现有 CI 检查代码、测试和打包，**不会自动判断翻译或产品宣传是否准确**。
 
@@ -64,6 +64,6 @@ Update paired README and feature pages in the same PR. Versions, feature status,
 1. Align package/lockfile, model, manifest, and displayed versions. Search old-version references, distinguishing current instructions from historical evidence; never replace versions globally without review.
 2. Run `npm run check` and `npm run package:dist`. Inspect archive contents, licenses, checksum, bilingual facts, relative links, and screenshots; record actual outcomes. `npm run package` is available for standalone packaging and rebuilds first.
 3. Update current specification/plan status. Preserve previous verification results and original audit dates.
-4. Push the version commit and matching tag; inspect Actions and the published release's assets, bilingual notes, and checksums. Record publication only after verification. Investigate failures instead of changing documentation to claim success.
+4. Push the version commit and matching tag; inspect Actions and the published release's assets, bilingual notes, and checksums. For Chrome Web Store submission, download the ZIP and checksum from that release, verify them, and upload the same ZIP without rebuilding; record review and actual publication status. Record publication only after verification. Investigate failures instead of changing documentation to claim success.
 
 This is a release-owner review requirement. Existing CI checks code, tests, and packaging; **it does not automatically verify translation accuracy or product claims**.

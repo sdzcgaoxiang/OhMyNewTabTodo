@@ -1,10 +1,12 @@
 # OhMyNewTabTodo
 
-> 开发中：外部只读 JSON 快照、CLI 和配套 Skill 正在验收，尚未包含在 0.4.0 发布包中。详见 [外部接口说明](docs/external-file-interface.md)。
+> **v0.5.0 同样新增：**可选的本地外部读取接口——把只读 JSON 快照写入你选择的文件，供 `omntt` CLI 和其他本机工具读取；CLI 与配套 Skill 从仓库源码获取，不包含在扩展 ZIP 中。详见 [外部接口说明](docs/external-file-interface.md)。
 
 [English](README.en.md) · [升级特性对比](docs/features.md) · [下载](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases)
 
 打开新标签页，整理你的待办。熟悉的横向看板、本地保存的数据，以及可以检查、恢复和带走的备份。
+
+**v0.5.0 新增：**截止日期默认不设置，点击“设置截止日期”才填入今天。参考 iPhone 提醒事项：只设日期的任务默认当天 09:00 提醒，设置具体时间则到点提醒；在“设置 → 提醒”中可修改全天提醒时间或关闭全天提醒。后台通知不依赖任务页面保持打开，完成、删除或移除日期会取消待发提醒。需要 Chrome 运行且浏览器和系统允许通知；休眠或免打扰可能延迟显示。新增 `alarms` / `notifications` 权限，不增加网络请求。[发布验收](docs/verification-v0.5.0.md) · [实现验收与限制](docs/verification-due-reminders.md)。
 
 **v0.4.0 新增：**创建卡片时可填写创建时间，默认是打开表单时的本地当前日期和时间；补录旧事项时也可自行调整。
 
@@ -24,7 +26,7 @@
 
 ## 为什么从 NewTabTodo 迁移
 
-当前版本 **0.4.0** 增加卡片创建时间输入；0.3.0 增加首页中英文切换。此前版本恢复了原版拖动中的占位和预览反馈，并改进旧文件迁移、备份恢复和多标签页编辑。下表对比基于已审计的 NewTabTodo **0.2.0**。
+当前版本 **0.5.0** 增加本机截止提醒和外部只读接口；0.4.0 增加卡片创建时间输入；0.3.0 增加首页中英文切换。此前版本恢复了原版拖动中的占位和预览反馈，并改进旧文件迁移、备份恢复和多标签页编辑。下表对比基于已审计的 NewTabTodo **0.2.0**。
 
 | 你遇到的问题 | 新版已经提供的改进 |
 | --- | --- |
@@ -57,7 +59,7 @@
 
 ## 安装与更新
 
-1. 从 [v0.4.0 Release](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.4.0) 下载 `OhMyNewTabTodo-0.4.0.zip` 并解压到固定目录。
+1. 从 [v0.5.0 Release](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.5.0) 下载 `OhMyNewTabTodo-0.5.0.zip` 并解压到固定目录。
 2. Chrome 打开 `chrome://extensions`，开启「开发者模式」，选择「加载已解压的扩展程序」，选中包含 `manifest.json` 的目录。
 3. 打开新标签页。若 Chrome 仍使用其他新标签页扩展，可在扩展管理中暂时停用它；迁移完成前保留旧扩展及导出文件。
 
@@ -103,13 +105,13 @@ npm run package
 - `npm run format` / `npm run format:check`：统一源码格式 / 检查格式，便于维护和审查。
 - `npm run build`：先做类型检查，再生成可加载的 `dist/`。
 - `npm run test:e2e`：在独立临时 Chromium 配置加载已构建扩展，验证多页面、文件传输与 UI；不访问你的日常 Chrome 配置。
-- `npm run package`：重建并生成 `release/OhMyNewTabTodo-0.4.0.zip` 和 `SHA256SUMS.txt`，只打包白名单扩展资源。`npm run package:dist` 则将已有构建直接打包。
+- `npm run package`：重建并生成 `release/OhMyNewTabTodo-0.5.0.zip` 和 `SHA256SUMS.txt`，只打包白名单扩展资源。`npm run package:dist` 则将已有构建直接打包。
 
 CI 在提交和 PR 上运行完整检查。维护者创建 `v<package.json version>` tag 时，发布工作流构建、验收并打包一次，再将同一份安装包交给发布作业；不能把 `reference/` 或任何真实个人备份作为测试样本提交。
 
 ## 设计与维护
 
-[0.4.0 验收](docs/verification-v0.4.0.md) · [创建时间设计](docs/superpowers/specs/2026-10-31-card-created-at-design.md) · [设计规格](docs/superpowers/specs/2026-10-27-v1-design.md) · [执行计划](docs/superpowers/plans/2026-10-27-v1.md) · [双语界面开发验收](docs/verification-bilingual-ui.md) · [0.3.0 历史验收](docs/verification-v0.3.0.md) · [0.2.0 历史验收](docs/verification-v0.2.0.md) · [0.1.0 历史验收](docs/verification-v0.1.0.md) · [TypeScript 迁移验收](docs/verification-typescript-migration.md) · [原版兼容调研](docs/research/newtabtodo-compatibility.md) · [功能审计](docs/research/newtabtodo-audit.md) · [贡献指南](CONTRIBUTING.md) · [隐私说明](PRIVACY.md)
+[0.5.0 验收](docs/verification-v0.5.0.md) · [截止提醒设计](docs/superpowers/specs/2026-11-04-due-reminders-design.md) · [0.4.0 历史验收](docs/verification-v0.4.0.md) · [创建时间设计](docs/superpowers/specs/2026-10-31-card-created-at-design.md) · [设计规格](docs/superpowers/specs/2026-10-27-v1-design.md) · [执行计划](docs/superpowers/plans/2026-10-27-v1.md) · [双语界面开发验收](docs/verification-bilingual-ui.md) · [0.3.0 历史验收](docs/verification-v0.3.0.md) · [0.2.0 历史验收](docs/verification-v0.2.0.md) · [0.1.0 历史验收](docs/verification-v0.1.0.md) · [TypeScript 迁移验收](docs/verification-typescript-migration.md) · [原版兼容调研](docs/research/newtabtodo-compatibility.md) · [功能审计](docs/research/newtabtodo-audit.md) · [贡献指南](CONTRIBUTING.md) · [隐私说明](PRIVACY.md)
 
 业务源码、测试及开发配置采用 TypeScript；发布脚本 `scripts/package.mjs` 保持可由 Node 直接执行。维护遵循 spec + 测试驱动：先约定可观察行为，再用合成数据写失败测试，完成实现后更新文档。数据格式变更必须有版本与迁移策略；没有自动同步的隐含承诺。第一版重点是可靠迁移和本机使用，欢迎通过 [Issues](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/issues) 提供可脱敏复现的问题。
 
