@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased — 未发布
+
+### Changed / 变更
+
+- 记录 Chrome 应用商店状态：v0.4.0 自 2026-11-07 起公开上架；v0.5.0 更新于 2026-11-26 提交审核、状态「待审核」。据此更正特性说明中「未上架 Chrome Web Store」的表述；0.5.0 发布说明中的同类表述保留原样，以验收记录为准。
+- Recorded the Chrome Web Store status: v0.4.0 has been publicly listed since 2026-11-07, and the v0.5.0 update was submitted for review on 2026-11-26 (pending). The feature pages were corrected accordingly; the v0.5.0 release notes keep their original wording as a historical record.
+
 ## 0.5.0 — 2026-11-26
 
 ### Added / 新增

@@ -95,7 +95,7 @@ Tasks and backup files are processed locally. Searches and links you actively op
 ## Current tradeoffs
 
 - **No automatic cross-device sync.** Transfer full backups manually between computers. Updates between tabs in one browser are not cross-device synchronization.
-- **Manual installation and updates.** There is no Chrome Web Store listing. Keep the installation directory, back up first, and reload instead of uninstalling before an update.
+- **Manual installation and updates.** The extension has been listed on the Chrome Web Store since 0.4.0 (the v0.5.0 update is in review). Store installs update automatically; for unpacked installs, keep the installation directory, back up first, and reload instead of uninstalling before an update.
 - **5 MiB input-file limit and a default 10 MB local quota.** Recovery points share that space, so a file below the input limit can still exceed storage capacity.
 - Recovery points cover imports, restores, and clearing that change data. **They are not an undo history for ordinary edits or deletions**, nor a substitute for external backups. Full backups do not recursively include recovery points.
 - Fields already lost by the old exporter cannot be reconstructed; not every historical format is verified. Legacy-format export cannot fix bugs in the original importer.
