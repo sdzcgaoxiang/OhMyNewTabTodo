@@ -4,7 +4,7 @@
 
 ## 上传文件
 
-- 扩展包：v0.5.0 的 GitHub Release 发布后，从 [v0.5.0 Release](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.5.0) 下载 `OhMyNewTabTodo-0.5.0.zip` 和 `SHA256SUMS.txt`，运行 `shasum -a 256 -c SHA256SUMS.txt`，再把**下载的同一个 ZIP**上传到 Chrome Web Store。ZIP 根目录直接包含 `manifest.json`。发布工作流对验收后的构建只打包一次并将该产物上传到 GitHub。
+- 扩展包：v0.5.0 已于 2026-11-26 发布。从 [v0.5.0 Release](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.5.0) 下载 `OhMyNewTabTodo-0.5.0.zip` 和 `SHA256SUMS.txt`，运行 `shasum -a 256 -c SHA256SUMS.txt`（发布 ZIP SHA-256 应为 `661bf25c01fd89854efc659e0ff1102ea2ba95d560f8867f6748ef01cec10881`），再把**下载的同一个 ZIP**上传到 Chrome Web Store。ZIP 根目录直接包含 `manifest.json`。
 - 扩展图标：`public/icons/128.png`，也已包含在扩展包中。
 - 中文截图：`docs/store/images/screenshot-zh.png`；英文截图：`docs/store/images/screenshot-en.png`。均为 1280×800，使用合成任务数据。
 - 可选小宣传图：`docs/store/images/promo-440x280.png`。

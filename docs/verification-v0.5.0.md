@@ -2,7 +2,7 @@
 
 日期 / Date: 2026-11-26。
 
-发布提交 / Release commit: 待合并、打 tag 后记录 / Pending merge and tag verification.
+发布提交 / Release commit: `3e7d37cd7e7780fc8a4bd3a44192c5abe3d4158f`（`main` 和 `v0.5.0`）。/ `3e7d37cd7e7780fc8a4bd3a44192c5abe3d4158f` on `main` and `v0.5.0`.
 
 ## 范围 / Scope
 
@@ -25,10 +25,13 @@
 
 | Check / 检查 | Result / 结果 |
 | --- | --- |
-| 版本 PR 与 CI / Release PR and CI | 待推送后记录 / Pending push. |
-| Tag / 发布工作流 | 待本地及 PR 检查通过后发布 / Pending successful local/PR checks. |
-| GitHub Release / 下载附件 | 待下载 ZIP 与 SHA256SUMS 复核 / Pending publication and downloaded asset verification. |
-| Chrome Web Store | 待 Release 发布后下载同一 ZIP、重拍截图并提交；记录审核与上架状态 / Pending: download the released ZIP, recapture screenshots, submit, and record review and listing status. |
+| 版本 PR / Release PR | [PR #9](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/pull/9) 的[分支检查](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/actions/runs/45753473340)和 [PR 检查](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/actions/runs/45753518633)均通过，之后合并到 `main`。/ Both branch and PR checks passed before merge. |
+| Tag / 发布工作流 / Release workflow | [v0.5.0 工作流](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/actions/runs/45753811988) 的 `verify`（tag 版本核对、`npm run check`、打包）与 `publish` 作业均通过；发布作业核对同一安装包的 SHA-256 后上传。/ Both `verify` and `publish` jobs passed; the publish job verified the artifact checksum before uploading. |
+| GitHub Release | [v0.5.0 Release](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases/tag/v0.5.0) 已于 2026-11-26 04:20 UTC 发布，含中英文说明（与 `docs/releases/v0.5.0.md` 逐行一致）、ZIP 与 `SHA256SUMS.txt`。/ Published with bilingual notes identical to `docs/releases/v0.5.0.md` and both expected assets. |
+| 下载附件复核 / Downloaded asset check | 下载两项附件后执行 `shasum -a 256 -c SHA256SUMS.txt` 通过；发布 ZIP SHA-256 为 `661bf25c01fd89854efc659e0ff1102ea2ba95d560f8867f6748ef01cec10881`，包内 manifest 版本 `0.5.0`、权限 `storage` / `alarms` / `notifications`。/ The downloaded archive passed its checksum and contains manifest version `0.5.0` with the expected permissions. |
+| Chrome Web Store | 待办：从 Release 下载同一 ZIP 并复核、用 v0.5.0 构建重拍中英文截图、在 Dashboard 填写隐私字段并提交；审核与上架状态另行记录。/ Pending: download the released ZIP, recapture both screenshots from the v0.5.0 build, complete the dashboard privacy fields, and submit; review and listing status are recorded separately. |
+
+将本地和已发布 ZIP 的 14 个条目逐一比较，文件名及解压后的字节均相同；归档时间不同，因此 ZIP SHA-256 不同（本地 `cab4f9f7…`，发布 `661bf25c…`）。/ All fourteen local and published ZIP entries match by name and extracted bytes. Archive timestamps differ, so the ZIP hashes differ.
 
 ## 已知边界 / Limits
 
