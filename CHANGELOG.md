@@ -7,8 +7,15 @@
 - 新增薄荷绿叠卡扩展标识，并统一新标签页的操作图标。
 - Added a mint stacked-card extension mark and unified the new tab page action icons.
 
+### Added / 新增
+
+- 开发中：可选的本地只读 JSON 快照、CLI 和配套 Skill。
+- In development: optional local read-only JSON snapshots, CLI, and a companion skill.
+
 ### Documentation / 文档
 
+- 新增外部工具读取固定 JSON 文件的设计记录，说明无桥接程序方案、文件契约、自动刷新及权限边界。
+- Added the external JSON interface design, covering a bridge-free approach, the file contract, automatic refresh, and permission limits.
 - 补录 v0.3.0 发布工作流、下载附件及 SHA-256 的实际验收结果。
 - Recorded the actual v0.3.0 release workflow, downloaded asset, and SHA-256 verification results.
 

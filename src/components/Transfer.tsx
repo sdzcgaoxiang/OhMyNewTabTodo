@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { ExternalFile } from './ExternalFile.tsx';
 import { parseImport, exportFull, exportLegacy, MAX_IMPORT_BYTES } from '../transfer.ts';
 import { readState } from '../client.ts';
 import { Confirm } from './Dialog.tsx';
@@ -110,6 +111,7 @@ export function Transfer({ state, act }: { state: AppState; act: Act }) {
   }
   return (
     <section className="transfer">
+      <ExternalFile />
       <h3>{t('让数据随时可以带走')}</h3>
       <p className="muted">{t('文件只在本机处理。兼容 NewTabTodo 导出文件，导入前先检查内容。')}</p>
       <div className="export-buttons">

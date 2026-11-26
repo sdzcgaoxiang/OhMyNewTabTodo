@@ -5,6 +5,7 @@ import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import type { DropResult } from '@hello-pangea/dnd';
 import { flushSync } from 'react-dom';
 import { readState, dispatch, subscribe } from './client.ts';
+import { refreshExternal, supported } from './external-file.ts';
 import { boardDropIndex, cardDropIndex } from './drag-position.ts';
 import { applyOperation } from './model.ts';
 import { BoardEditor, CardEditor, CardDetails, TextWithLinks } from './components/Editors.tsx';
@@ -242,6 +243,34 @@ function TaskCard({
   );
 }
 export default function App() {
+  useEffect(() => {
+    if (!supported()) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let maximum: ReturnType<typeof setTimeout> | undefined;
+    const flush = () => {
+      if (timer) clearTimeout(timer);
+      if (maximum) clearTimeout(maximum);
+      timer = maximum = undefined;
+      void refreshExternal().catch(() => {});
+    };
+    const update = () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(flush, 500);
+      maximum ??= setTimeout(flush, 2000);
+    };
+    const off = subscribe(update);
+    const visible = () => {
+      if (document.visibilityState === 'visible') update();
+    };
+    document.addEventListener('visibilitychange', visible);
+    void refreshExternal().catch(() => {});
+    return () => {
+      off();
+      if (timer) clearTimeout(timer);
+      if (maximum) clearTimeout(maximum);
+      document.removeEventListener('visibilitychange', visible);
+    };
+  }, []);
   const [now, setNow] = useState(new Date());
   useEffect(() => {
     const update = () => setNow(new Date()),

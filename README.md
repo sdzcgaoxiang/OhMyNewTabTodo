@@ -1,5 +1,7 @@
 # OhMyNewTabTodo
 
+> 开发中：外部只读 JSON 快照、CLI 和配套 Skill 正在验收，尚未包含在 0.4.0 发布包中。详见 [外部接口说明](docs/external-file-interface.md)。
+
 [English](README.en.md) · [升级特性对比](docs/features.md) · [下载](https://github.com/sdzcgaoxiang/OhMyNewTabTodo/releases)
 
 打开新标签页，整理你的待办。熟悉的横向看板、本地保存的数据，以及可以检查、恢复和带走的备份。
