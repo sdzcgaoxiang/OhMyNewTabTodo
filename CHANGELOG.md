@@ -36,6 +36,8 @@
 - Added the external JSON interface design, covering a bridge-free approach, the file contract, automatic refresh, and permission limits.
 - 补录 v0.3.0 发布工作流、下载附件及 SHA-256 的实际验收结果。
 - Recorded the actual v0.3.0 release workflow, downloaded asset, and SHA-256 verification results.
+- 新增 Chrome Web Store 提交材料：中英文介绍、隐私填写参考、1280×800 截图与 440×280 宣传图。截图需在提交前用 v0.5.0 构建重拍；尚未提交审核。
+- Added Chrome Web Store submission materials: bilingual listing, privacy guidance, 1280×800 screenshots, and a 440×280 promo tile. Screenshots must be recaptured from the v0.5.0 build before submission; nothing has been submitted for review.
 
 ## 0.4.0 — 2026-11-03
 
