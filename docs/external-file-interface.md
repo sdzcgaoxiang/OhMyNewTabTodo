@@ -1,6 +1,6 @@
 # Local external interface / 本地外部接口
 
-This feature is under development and is not part of the 0.4.0 release. 本功能仍在开发验收，不属于已发布的 0.4.0。
+This feature is included in the 0.5.0 release. 本功能已包含在 0.5.0 发布包中。
 
 In Settings → Import / Export, create an empty JSON file, then select it under External tool access. When the page is open, the extension updates the file after persisted changes. If Chrome has revoked file permission, use Reconnect. The browser may request read and write permissions separately; if the permission warning remains, select Reconnect again. Closing the page or browser can leave an older snapshot; reopening the page refreshes it when permission remains valid. The file contains plaintext task details. Stopping export or uninstalling the extension does not remove the file. It is a read-only projection, not a backup. Do not edit it expecting task changes.
 

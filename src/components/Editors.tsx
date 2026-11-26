@@ -5,6 +5,8 @@ import type { AppState, Board, Card, Label } from '../types.ts';
 import type { Act, CardInitial } from './ui.ts';
 import { errorMessage } from './ui.ts';
 import { useLanguage, useT } from '../i18n.tsx';
+import { localDateString } from '../dates.ts';
+import { allDayReminderTime } from '../reminder-settings.ts';
 
 export function BoardEditor({
   board,
@@ -202,26 +204,56 @@ export function CardEditor({
               )}
             </select>
           </label>
-          <label>
-            {t('截止日期')}
-            <input
-              type="date"
-              value={due}
-              onChange={(e) => {
-                setDue(e.target.value);
-                if (!e.target.value) setTime('');
-              }}
-            />
-          </label>
-          <label>
-            {t('截止时间')}
-            <input
-              type="time"
-              disabled={!due}
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-            />
-          </label>
+        </div>
+        <div className="due-controls">
+          {!due ? (
+            <button type="button" onClick={() => setDue(localDateString())}>
+              {t('设置截止日期')}
+            </button>
+          ) : (
+            <>
+              <div className="form-grid">
+                <label>
+                  {t('截止日期')}
+                  <input
+                    type="date"
+                    value={due}
+                    onChange={(e) => {
+                      setDue(e.target.value);
+                      if (!e.target.value) setTime('');
+                    }}
+                  />
+                </label>
+                <label>
+                  {t('截止时间')}
+                  <input
+                    type="time"
+                    disabled={!due}
+                    value={time}
+                    onChange={(e) => setTime(e.target.value)}
+                  />
+                </label>
+              </div>
+              <div className="due-actions">
+                <small className="muted">
+                  {time
+                    ? t('到截止时间发送系统通知')
+                    : state.options.allDayReminders === false
+                      ? t('全天提醒已关闭')
+                      : t('reminder.allDayHint', { time: allDayReminderTime(state.options) })}
+                </small>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDue('');
+                    setTime('');
+                  }}
+                >
+                  {t('移除截止日期')}
+                </button>
+              </div>
+            </>
+          )}
         </div>
         <div className="form-grid">
           <label>
